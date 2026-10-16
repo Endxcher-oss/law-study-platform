@@ -1,5 +1,7 @@
 # 静态部署（GitHub Pages）
 
+线上站点：<https://endxcher-oss.github.io/laws/>（仓库 `Endxcher-oss/laws`，推送 `main` 自动发布）。
+
 GitHub Pages 只发静态文件，而本项目的正文页、目录页都是服务端渲染的。**静态导出**把每个服务端页面渲染成一份 HTML 落盘，链接改写成静态路径，检索则在浏览器里用同一套打分代码跑一遍——这样整站不依赖 Node 运行时也能用。
 
 ## 命令
@@ -45,7 +47,7 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 ## 静态检索
 
 - 打分、摘要高亮、分面全部复用 `server/search.js`：导出时把该模块与 `server/html.js`、`server/constants.js`、`scripts/lib/cn-num.js` 原样复制进 `dist/assets/`，浏览器按原生 ES 模块加载，**没有打包器，也没有第二套实现**。为此 `server/html.js` 只依赖 `server/constants.js`，`server/search.js` 只依赖 `scripts/lib/cn-num.js`。
-- 条文语料导出成 `assets/index.json`（约 3 万条、17 MB，gzip 后约 4.6 MB），只在检索页按需下载，之后走浏览器缓存；`assets/catalog.json`、`assets/taxonomy.json` 供“法律名 + 条号”直达与分面标签使用。
+- 条文语料导出成 `assets/index.json`（约 3 万条、31 MB，gzip 后约 4.7 MB），只在检索页按需下载，之后走浏览器缓存；`assets/catalog.json`、`assets/taxonomy.json` 供“法律名 + 条号”直达与分面标签使用。
 - 检索页首屏仍是服务端渲染的“按当前范围浏览”第一页，禁用 JS 也能看到表单与内容；一旦 URL 带参数（`q` / `page` / `scope` / `type` / `sort` / `doc` / `annotated`），`public/static.js` 才会在浏览器里重算并替换结果区。搜索表单是普通 GET 表单，回车即跳转，不需要 JS 拦截。
 
 ## 导出物结构
@@ -83,5 +85,5 @@ dist/
 ## 已知边界
 
 - 没有服务端路由：任意未导出的路径由 `404.html` 兜底，不再有服务端的模糊匹配与重定向（`/search?q=` 这类查询串页面除外，它们由浏览器脚本渲染）。
-- 静态检索首次进入检索页要下载约 4.6 MB（gzip）的索引；服务端版的线性扫描（约 60–90 ms）换成了浏览器内的同款扫描，大查询下会占用主线程数百毫秒。
+- 静态检索首次进入检索页要下载约 4.7 MB（gzip）的索引；服务端版的线性扫描（约 60–90 ms）换成了浏览器内的同款扫描，大查询下会占用主线程数百毫秒。
 - 检索结果页无法被搜索引擎静态收录，只有浏览路径（目录、条文、注解、案例）是预渲染的静态页面。

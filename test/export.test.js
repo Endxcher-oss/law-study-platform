@@ -103,6 +103,10 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   assert.ok(search.includes('src="/laws/assets/public/static.js"'), '检索页未加载静态检索脚本');
   assert.ok(search.includes('class="results"'), '检索页缺少首屏兜底结果');
 
+  const notFound = fs.readFileSync(path.join(out, '404.html'), 'utf8');
+  assert.ok(notFound.startsWith('<!DOCTYPE html>'), `404.html 不是完整页面：${notFound.slice(0, 40)}`);
+  assert.ok(notFound.includes('href="/laws/assets/style.css"'), '404.html 未加部署前缀');
+
   const cases = fs.readFileSync(path.join(out, 'cases/index.html'), 'utf8');
   assert.ok(cases.includes('action="/laws/search"'), '案例页检索表单未改接到全局检索');
   assert.ok(cases.includes('name="type" value="指导性案例"'), '案例页检索未限定类型');

@@ -140,9 +140,13 @@ function sampledDocs(db) {
 function collectRoutes(db) {
   const mapQuery = buildQueryMap(db);
   const routes = [];
+  const missing = [];
   let caseForms = 0;
   const add = (route, raw) => {
-    let html = raw;
+    const out = typeof raw === 'string' ? { status: 200, html: raw } : raw;
+    if (!out || typeof out.html !== 'string') throw new Error(`${route} 没有渲染出 HTML`);
+    if (out.status && out.status >= 400) missing.push(route);
+    let html = out.html;
     if (html.includes(CASE_FORM)) {
       caseForms += html.split(CASE_FORM).length - 1;
       html = html.split(CASE_FORM).join(CASE_FORM_FIXED);
@@ -175,7 +179,7 @@ function collectRoutes(db) {
   }
 
   add('/search', pages.searchPage(db, {}));
-  return { routes, caseForms, casePages };
+  return { routes, caseForms, casePages, missing };
 }
 
 function checkLinks(routes, written) {
@@ -213,10 +217,11 @@ function main() {
     bytes += Buffer.byteLength(content);
   };
 
-  const { routes, caseForms, casePages } = collectRoutes(db);
+  const { routes, caseForms, casePages, missing } = collectRoutes(db);
   for (const { route, html } of routes) write(urlToFile(route), html);
   write('.nojekyll', '');
-  write('404.html', rebaseHtml(pages.notFoundPage(db, '找不到这个页面（本站为静态站点，没有服务端路由）'), BASE));
+  const notFound = pages.notFoundPage(db, '找不到这个页面（本站为静态站点，没有服务端路由）');
+  write('404.html', rebaseHtml(typeof notFound === 'string' ? notFound : notFound.html, BASE));
   write('assets/index.json', JSON.stringify(projectCorpus(db.corpus, sampledDocs(db).ids)));
 
   const assets = [];
@@ -249,6 +254,10 @@ function main() {
       for (const line of bad.slice(0, 20)) console.error(`  ${line}`);
       process.exitCode = 1;
     }
+  }
+  if (missing.length) {
+    console.error(`有 ${missing.length} 个页面渲染成 404：${missing.slice(0, 5).join('、')}`);
+    process.exitCode = 1;
   }
   if (caseForms !== casePages) {
     console.error(`案例页检索表单改写数量不符：期望 ${casePages}，实际 ${caseForms}`);
