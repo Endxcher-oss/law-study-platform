@@ -13,6 +13,6 @@
 - 注解的 `basis[].quote` 必须在被引条文正文里**逐字出现**（人工注解 20 条 × 全部引文 = 0 告警）。
 - `basis[].articleNumber` 与条文的 `displayNumber` 必须一致（防止“第 64 条”指到第 63 条）。
 - 人工注解可以只有 `references`（外部依据，如法答网/会议纪要）而没有 `basis`，但必须有其一。
-- 关联不变式：`t === null ⟺ c === 'document'`；有 `t` 必有 `td`；每条关联必须有 `mentions ≥ 1`，且**不允许两条完全重复的关联**（同源 + 同目标 + 同写法 + 同可靠度必须已在构建时合并）；`meta.counts.linkMentions` 必须等于全部 `mentions` 之和。
+- 关联不变式：`t === null ⟺ c === 'document'`；案例的 `related` 不允许出现完全重复的条目（同法、同条、同写法同来源只留一条，构建时合并）；有 `t` 必有 `td`；每条关联必须有 `mentions ≥ 1`，且**不允许两条完全重复的关联**（同源 + 同目标 + 同写法 + 同可靠度必须已在构建时合并）；`meta.counts.linkMentions` 必须等于全部 `mentions` 之和。
 - 条旨：`db/rubrics.json` 每条都要能对应到真实条文（`docId` + `slug`），且**条文正文里一个【】都不许有**（防止把人工条旨混进官方原文）。
 - 已知告警 5 条（源语料自身的条号错位/超范围），在 `db/reports/build-report.json` 里逐条记录，不静默。

@@ -411,3 +411,21 @@ test('检索命中指导性案例时，结果链接走 /case/:id（而不是 /d/
   }
   assert.match(page.body, /class="result-case-title">/, '案例结果应显示案例标题');
 });
+
+test('相关指导性案例列表不重复条号；案例页的关联法条用条文正式条号', async () => {
+  const article = await html('/d/patent-law/11');
+  assert.equal(article.status, 200);
+  const strip = article.body.match(/<h2>相关指导性案例<\/h2>[\s\S]*?<\/section>/);
+  assert.ok(strip, '条文页应有相关指导性案例区');
+  assert.ok(strip[0].includes('指导案例 20 号'), '应列出相关指导性案例');
+  assert.ok(
+    !/第\s*[0-9〇零一二三四五六七八九十百千]+\s*条/.test(strip[0]),
+    '当前条文已在页面标题里，案例列表不必再逐条重复条号（也避免“第十一条 / 第11条”混排）',
+  );
+
+  const detail = await html('/case/guiding-159');
+  assert.equal(detail.status, 200);
+  const aside = detail.body.slice(detail.body.indexOf('case-side'), detail.body.indexOf('</aside>'));
+  assert.ok(aside.includes('>第十一条</a>'), '关联法条的链接文字应使用条文正式条号');
+  assert.ok(!/第11条/.test(aside), '不应照抄案例原文里的阿拉伯条号');
+});

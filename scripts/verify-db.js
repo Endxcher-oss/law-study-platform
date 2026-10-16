@@ -350,6 +350,7 @@ let caseRefs = 0;
 const caseById = new Map();
 for (const c of guiding.cases || []) {
   const at = `案例 ${c.id}`;
+  const seenCaseRefs = new Set();
   if (caseById.has(c.id)) err(`${at} 与 ${caseById.get(c.id).id} 的 id 重复`);
   caseById.set(c.id, c);
   if (!c.title) err(`${at} 缺少标题`);
@@ -367,6 +368,9 @@ for (const c of guiding.cases || []) {
     if (r.articleNumber && r.lawId && (articlesByDoc.get(r.lawId) || []).length && r.articleNumber > articlesByDoc.get(r.lawId).length) {
       warn(`${at} 引 ${r.lawId} 第 ${r.articleNumber} 条超出该法条文数`);
     }
+    const refKey = JSON.stringify(r);
+    if (seenCaseRefs.has(refKey)) err(`${at} 有完全重复的关联条目（同法、同条、同写法）：${r.articleId || r.raw}`);
+    seenCaseRefs.add(refKey);
   }
 }
 for (const m of caseManifest) {

@@ -276,11 +276,12 @@ function main() {
     for (const f of caseFiles) {
       const c = readJson(path.join(RAW_CASES, f));
       const related = [];
+      const seenRelated = new Set();
       for (const line of c.relatedLaws || []) {
         const quotedName = ([...String(line).matchAll(/[〈《]([^》〉]+)[》〉]/g)][0] || [])[1] || null;
         for (const r of extractQuotedRefs(line, { docId: c.id, nameIndex })) {
           const targetArticleId = r.targetDocId ? articleBySlug.get(`${r.targetDocId}#${slugOf(r.articleNumber)}${suffixSeq(r.suffix) ? `-${suffixSeq(r.suffix)}` : ''}`) || null : null;
-          related.push({
+          const entry = {
             lawId: r.targetDocId || null,
             lawName: r.mentionName || quotedName || null,
             articleId: targetArticleId,
@@ -289,7 +290,11 @@ function main() {
             raw: r.raw,
             note: r.note || null,
             source: line,
-          });
+          };
+          const key = JSON.stringify(entry);
+          if (seenRelated.has(key)) continue;
+          seenRelated.add(key);
+          related.push(entry);
         }
       }
       cases.push({

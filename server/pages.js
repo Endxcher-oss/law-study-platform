@@ -735,7 +735,7 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
 
     ${derived ? derivedBlock(db, derived) : ''}
     ${interps.length ? interpBlock(db, article, interps) : ''}
-    ${cases.length ? caseStrip(db, cases) : ''}
+    ${cases.length ? caseStrip(cases) : ''}
     ${outgoing.length ? outgoingBlock(db, outgoing) : ''}
     ${!curated && !derived && !interps.length && !outgoing.length && !cases.length ? emptyState('本条暂无关联的司法解释与注解。', '可在检索框中搜索本条的关键词，查看在其他法律或案例中的对应规则。') : ''}
   </article>
@@ -837,14 +837,11 @@ function interpBlock(db, article, interps) {
 </section>`;
 }
 
-function caseStrip(db, cases) {
+function caseStrip(cases) {
   return `<section class="block">
   <h2>相关指导性案例</h2>
   <ul class="link-list">${cases
-    .map(
-      (c) => `<li><a href="${caseUrl(c.caseId)}">指导案例 ${c.caseNumber} 号 · ${esc(c.caseTitle)}</a>
-    <span class="muted">${esc(c.raw || '')}</span></li>`,
-    )
+    .map((c) => `<li><a href="${caseUrl(c.caseId)}">指导案例 ${c.caseNumber} 号 · ${esc(c.caseTitle)}</a></li>`)
     .join('')}</ul>
 </section>`;
 }
@@ -1080,9 +1077,15 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '指导性案例', href: '/ca
         ${doc ? `<a href="${docUrl(lawId)}">${esc(doc.title)}</a>` : `<span class="muted" title="本平台未收录该文件，故不建立链接">${esc(rs[0].lawName || '未识别')}</span>`}
         <ul>${rs
           .map(
-            (r) =>
-              `<li>${r.articleId && doc ? `<a href="${articleUrl(lawId, r.articleSlug ?? r.articleNumber)}">${esc(r.raw)}</a>` : `<span class="muted">${esc(r.raw)}</span>`}
-          ${r.articleId && (db.linksByTarget.get(r.articleId) || []).length ? '<span class="badge conf-mid">有司法解释</span>' : ''}</li>`,
+            (r) => {
+              const target = r.articleId && doc ? db.getArticle(lawId, r.articleSlug ?? r.articleNumber) : null;
+              return `<li>${
+                target
+                  ? `<a href="${articleUrl(lawId, r.articleSlug ?? r.articleNumber)}">${esc(target.displayNumber)}</a>`
+                  : `<span class="muted">${esc(r.raw)}</span>`
+              }
+          ${target && (db.linksByTarget.get(r.articleId) || []).length ? '<span class="badge conf-mid">有司法解释</span>' : ''}</li>`;
+            },
           )
           .join('')}</ul>
       </li>`;
