@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 1,
+  "builtAt": "2026-10-16T12:58:28.193Z",
+  "generator": "scripts/build-db.js",
+  "source": {
+    "name": "chinese-law-corpus（中国法律法规与案例结构化语料库）",
+    "upstream": "https://github.com/lttxzmj/chinese-law-corpus",
+    "legalSource": "国家法律法规数据库 https://flk.npc.gov.cn/（正文经 Word 原文抽取，未经模型改写）",
+    "license": "CC0-1.0",
+    "syncedAt": "2026-10-15"
+  },
+  "counts": {
+    "documents": 520,
+    "codes": 313,
+    "interpretations": 175,
+    "regulations": 32,
+    "articles": 30069,
+    "links": 2717,
+    "linkMentions": 3043,
+    "cases": 278,
+    "annotations": 1018,
+    "rubrics": 21
+  },
+  "divisions": {
+    "constitutional": {
+      "name": "宪法编",
+      "status": "ready",
+      "documents": 71,
+      "articles": 3390,
+      "domains": [
+        {
+          "id": "c-constitution",
+          "name": "宪法",
+          "documents": 1,
+          "articles": 143
+        },
+        {
+          "id": "c-org",
+          "name": "国家机构与组织",
+          "documents": 19,
+          "articles": 1195
+        },
+        {
+          "id": "c-electoral",
+          "name": "选举与代表制度",
+          "documents": 4,
+          "articles": 166
+        },
+        {
+          "id": "c-legislation",
+          "name": "立法与监督",
+          "documents": 3,
+          "articles": 206
+        },
+        {
+          "id": "c-rights",
+          "name": "公民基本权利与身份",
+          "documents": 10,
+          "articles": 312
+        },
+        {
+          "id": "c-security",
+          "name": "国家安全、国防与对外事务",
+          "documents": 29,
+          "articles": 1298
+        },
+        {
+          "id": "c-symbol",
+          "name": "国家象征与国家统一",
+          "documents": 5,
+          "articles": 70
+        }
+      ]
+    },
+    "criminal": {
+      "name": "刑法编",
+      "status": "ready",
+      "documents": 41,
+      "articles": 2500,
+      "domains": [
+        {
+          "id": "k-general",
+          "name": "刑法（总则与分则）",
+          "documents": 1,
+          "articles": 505
+        },
+        {
+          "id": "k-cases",
+          "name": "刑事司法解释（罪名与量刑）",
+          "documents": 28,
+          "articles": 391
+        },
+        {
+          "id": "k-procedure",
+          "name": "刑事诉讼",
+          "documents": 2,
+          "articles": 963
+        },
+        {
+          "id": "k-execution",
+          "name": "刑事执行与矫正",
+          "documents": 2,
+          "articles": 141
+        },
+        {
+          "id": "k-special",
+          "name": "特别刑法与其他",
+          "documents": 8,
+          "articles": 500
+        }
+      ]
+    },
+    "civil": {
+      "name": "民法编",
+      "status": "ready",
+      "documents": 152,
+      "articles": 6993,
+      "domains": [
+        {
+          "id": "m-civilcode",
+          "name": "民法典总则与综合",
+          "documents": 3,
+          "articles": 1327
+        },
+        {
+          "id": "m-property",
+          "name": "物权、担保与不动产",
+          "documents": 13,
+          "articles": 630
+        },
+        {
+          "id": "m-contract",
+          "name": "合同、借贷与交易规则",
+          "documents": 15,
+          "articles": 477
+        },
+        {
+          "id": "m-personality",
+          "name": "人格权与个人信息",
+          "documents": 8,
+          "articles": 357
+        },
+        {
+          "id": "m-family",
+          "name": "婚姻家庭与继承",
+          "documents": 4,
+          "articles": 181
+        },
+        {
+          "id": "m-tort",
+          "name": "侵权责任与损害赔偿",
+          "documents": 14,
+          "articles": 377
+        },
+        {
+          "id": "m-ip",
+          "name": "知识产权",
+          "documents": 31,
+          "articles": 991
+        },
+        {
+          "id": "m-procedure",
+          "name": "民事诉讼与证据",
+          "documents": 19,
+          "articles": 1560
+        },
+        {
+          "id": "m-enforcement",
+          "name": "民事执行、仲裁与调解",
+          "documents": 40,
+          "articles": 817
+        },
+        {
+          "id": "m-other",
+          "name": "其他民事法律",
+          "documents": 5,
+          "articles": 276
+        }
+      ]
+    },
+    "commercial": {
+      "name": "商法编",
+      "status": "ready",
+      "documents": 47,
+      "articles": 3234,
+      "domains": [
+        {
+          "id": "s-entity",
+          "name": "公司与企业主体",
+          "documents": 15,
+          "articles": 762
+        },
+        {
+          "id": "s-securities",
+          "name": "证券与期货",
+          "documents": 4,
+          "articles": 621
+        },
+        {
+          "id": "s-insurance",
+          "name": "保险",
+          "documents": 9,
+          "articles": 364
+        },
+        {
+          "id": "s-negotiable",
+          "name": "票据与结算",
+          "documents": 1,
+          "articles": 110
+        },
+        {
+          "id": "s-maritime",
+          "name": "海商海事",
+          "documents": 4,
+          "articles": 560
+        },
+        {
+          "id": "s-insolvency",
+          "name": "破产与重整",
+          "documents": 8,
+          "articles": 389
+        },
+        {
+          "id": "s-finance",
+          "name": "金融与反洗钱",
+          "documents": 4,
+          "articles": 265
+        },
+        {
+          "id": "s-trust",
+          "name": "信托与资管",
+          "documents": 1,
+          "articles": 74
+        },
+        {
+          "id": "s-other",
+          "name": "其他商事法律",
+          "documents": 1,
+          "articles": 89
+        }
+      ]
+    },
+    "social": {
+      "name": "社会法编",
+      "status": "ready",
+      "documents": 60,
+      "articles": 4221,
+      "domains": [
+        {
+          "id": "soc-labor",
+          "name": "劳动与用工",
+          "documents": 14,
+          "articles": 740
+        },
+        {
+          "id": "soc-security",
+          "name": "社会保障",
+          "documents": 8,
+          "articles": 556
+        },
+        {
+          "id": "soc-protection",
+          "name": "特殊群体与慈善",
+          "documents": 9,
+          "articles": 703
+        },
+        {
+          "id": "soc-education",
+          "name": "教育、科技与文化",
+          "documents": 16,
+          "articles": 1096
+        },
+        {
+          "id": "soc-health",
+          "name": "卫生与健康",
+          "documents": 13,
+          "articles": 1126
+        },
+        {
+          "id": "soc-other",
+          "name": "其他社会法",
+          "documents": 0,
+          "articles": 0
+        }
+      ]
+    },
+    "administrative": {
+      "name": "行政法编",
+      "status": "ready",
+      "documents": 53,
+      "articles": 3698,
+      "domains": [
+        {
+          "id": "adm-general",
+          "name": "行政法总则性规范",
+          "documents": 6,
+          "articles": 382
+        },
+        {
+          "id": "adm-penalty",
+          "name": "行政处罚与治安",
+          "documents": 2,
+          "articles": 230
+        },
+        {
+          "id": "adm-procedure",
+          "name": "行政复议与行政诉讼",
+          "documents": 15,
+          "articles": 965
+        },
+        {
+          "id": "adm-service",
+          "name": "行业管理与公共服务",
+          "documents": 22,
+          "articles": 1430
+        },
+        {
+          "id": "adm-safety",
+          "name": "公共安全与应急管理",
+          "documents": 8,
+          "articles": 691
+        },
+        {
+          "id": "adm-other",
+          "name": "其他行政法律",
+          "documents": 0,
+          "articles": 0
+        }
+      ]
+    },
+    "economic": {
+      "name": "经济法编",
+      "status": "ready",
+      "documents": 96,
+      "articles": 6033,
+      "domains": [
+        {
+          "id": "eco-market",
+          "name": "市场竞争与交易秩序",
+          "documents": 18,
+          "articles": 1135
+        },
+        {
+          "id": "eco-finance-tax",
+          "name": "财税与金融",
+          "documents": 19,
+          "articles": 725
+        },
+        {
+          "id": "eco-quality",
+          "name": "质量、标准与计量",
+          "documents": 11,
+          "articles": 825
+        },
+        {
+          "id": "eco-resource",
+          "name": "资源、环境与能源",
+          "documents": 37,
+          "articles": 2742
+        },
+        {
+          "id": "eco-trade",
+          "name": "涉外经贸与投资",
+          "documents": 5,
+          "articles": 245
+        },
+        {
+          "id": "eco-other",
+          "name": "其他经济法",
+          "documents": 6,
+          "articles": 361
+        }
+      ]
+    },
+    "other": {
+      "name": "其他编（待归类）",
+      "status": "pending",
+      "documents": 0,
+      "articles": 0,
+      "domains": [
+        {
+          "id": "other-all",
+          "name": "待归类",
+          "documents": 0,
+          "articles": 0
+        }
+      ]
+    }
+  },
+  "coverage": {
+    "lawArticles": 25000,
+    "interpretationArticles": 5069,
+    "lawArticlesWithLinks": 1262,
+    "lawArticlesWithAnnotations": 991,
+    "interpretationLinks": 1808
+  }
+}

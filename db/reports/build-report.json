@@ -1,0 +1,1313 @@
+{
+  "generatedAt": "2026-10-16T12:58:28.193Z",
+  "durationMs": 2370,
+  "counts": {
+    "documents": 520,
+    "codes": 313,
+    "interpretations": 175,
+    "regulations": 32,
+    "articles": 30069,
+    "links": 2717,
+    "linkMentions": 3043,
+    "cases": 278,
+    "annotations": 1018,
+    "rubrics": 21
+  },
+  "coverage": {
+    "lawArticles": 25000,
+    "interpretationArticles": 5069,
+    "lawArticlesWithLinks": 1262,
+    "lawArticlesWithAnnotations": 991,
+    "interpretationLinks": 1808
+  },
+  "linkAttribution": {
+    "explicit": 81,
+    "list": 409,
+    "contextual": 2253,
+    "unresolved": 296,
+    "self": 1726,
+    "document": 300
+  },
+  "annotationWarnings": [],
+  "extractedHeadings": [
+    {
+      "docId": "sfjs-078c53d6b9",
+      "headings": [
+        {
+          "after": 9,
+          "title": "二、司法文书的送达"
+        },
+        {
+          "after": 15,
+          "title": "三、调取证据"
+        },
+        {
+          "after": 24,
+          "title": "四、 附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-0c90d86229",
+      "headings": [
+        {
+          "after": 16,
+          "title": "二、技术开发合同"
+        },
+        {
+          "after": 21,
+          "title": "三、技术转让合同和技术许可合同"
+        },
+        {
+          "after": 29,
+          "title": "四、技术咨询合同和技术服务合同"
+        },
+        {
+          "after": 41,
+          "title": "五、与审理技术合同纠纷有关的程序问题"
+        },
+        {
+          "after": 45,
+          "title": "六、其他"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-27c1d8ee06",
+      "headings": [
+        {
+          "after": 14,
+          "title": "二、管理人的指定"
+        },
+        {
+          "after": 30,
+          "title": "三、管理人的更换"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-37fdaa6e8f",
+      "headings": [
+        {
+          "after": 2,
+          "title": "二、合同的履行和租赁物的公示"
+        },
+        {
+          "after": 4,
+          "title": "三、合同的解除"
+        },
+        {
+          "after": 7,
+          "title": "四、违约责任"
+        },
+        {
+          "after": 12,
+          "title": "五、其他规定"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-40b8c51584",
+      "headings": [
+        {
+          "after": 4,
+          "title": "二、 普通代表人诉讼"
+        },
+        {
+          "after": 31,
+          "title": "三、 特别代表人诉讼"
+        },
+        {
+          "after": 41,
+          "title": "四、 附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-47398de6bd",
+      "headings": [
+        {
+          "after": 0,
+          "title": "一、执行机构及其职责"
+        },
+        {
+          "after": 0,
+          "title": "二、执行管辖"
+        },
+        {
+          "after": 0,
+          "title": "三、执行的申请和移送"
+        },
+        {
+          "after": 0,
+          "title": "四、执行前的准备"
+        },
+        {
+          "after": 0,
+          "title": "五、金钱给付的执行"
+        },
+        {
+          "after": 0,
+          "title": "六、交付财产和完成行为的执行"
+        },
+        {
+          "after": 0,
+          "title": "七、被执行人到期债权的执行"
+        },
+        {
+          "after": 0,
+          "title": "八、执行担保"
+        },
+        {
+          "after": 0,
+          "title": "九、多个债权人对一个债务人申请执行和参与分配"
+        },
+        {
+          "after": 0,
+          "title": "十、对妨害执行行为的强制措施的适用"
+        },
+        {
+          "after": 0,
+          "title": "十一、执行的中止、终结、结案和执行回转"
+        },
+        {
+          "after": 0,
+          "title": "十二、执行争议的协调"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-48ccf9c396",
+      "headings": [
+        {
+          "after": 2,
+          "title": "二、管辖"
+        },
+        {
+          "after": 11,
+          "title": "三、诉讼参加人"
+        },
+        {
+          "after": 33,
+          "title": "四、证据"
+        },
+        {
+          "after": 47,
+          "title": "五、期间、送达"
+        },
+        {
+          "after": 52,
+          "title": "六、起诉与受理"
+        },
+        {
+          "after": 70,
+          "title": "七、审理与判决"
+        },
+        {
+          "after": 127,
+          "title": "八、行政机关负责人出庭应诉"
+        },
+        {
+          "after": 132,
+          "title": "九、复议机关作共同被告"
+        },
+        {
+          "after": 136,
+          "title": "十、相关民事争议的一并审理"
+        },
+        {
+          "after": 144,
+          "title": "十一、规范性文件的一并审查"
+        },
+        {
+          "after": 151,
+          "title": "十二、执行"
+        },
+        {
+          "after": 161,
+          "title": "十三、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-4ba5b4bd8a",
+      "headings": [
+        {
+          "after": 10,
+          "title": "二、关于赔偿范围的认定"
+        },
+        {
+          "after": 12,
+          "title": "三、关于责任承担的认定"
+        },
+        {
+          "after": 21,
+          "title": "四、关于诉讼程序的规定"
+        },
+        {
+          "after": 24,
+          "title": "五、关于适用范围的规定"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-5f6fa5b5cc",
+      "headings": [
+        {
+          "after": 5,
+          "title": "（一）认定"
+        },
+        {
+          "after": 5,
+          "title": "（二）处理"
+        },
+        {
+          "after": 6,
+          "title": "（三）当事人的确定"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-6758b9a6eb",
+      "headings": [
+        {
+          "after": 5,
+          "title": "二、诉讼当事人"
+        },
+        {
+          "after": 10,
+          "title": "三、证据"
+        },
+        {
+          "after": 12,
+          "title": "四、起诉与受理"
+        },
+        {
+          "after": 20,
+          "title": "五、审理和判决"
+        },
+        {
+          "after": 32,
+          "title": "六、其他"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-68b7c97368",
+      "headings": [
+        {
+          "after": 5,
+          "title": "（一）商品的通用名称、图形、型号;"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-86a0d8d47e",
+      "headings": [
+        {
+          "after": 6,
+          "title": "二、土地使用权转让合同纠纷"
+        },
+        {
+          "after": 11,
+          "title": "三、合作开发房地产合同纠纷"
+        },
+        {
+          "after": 24,
+          "title": "四、其他"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-8dc7b79ba1",
+      "headings": [
+        {
+          "after": 6,
+          "title": "二、票据保全"
+        },
+        {
+          "after": 7,
+          "title": "三、举证责任"
+        },
+        {
+          "after": 11,
+          "title": "四、票据权利及抗辩"
+        },
+        {
+          "after": 22,
+          "title": "五、失票救济"
+        },
+        {
+          "after": 38,
+          "title": "六、票据效力"
+        },
+        {
+          "after": 45,
+          "title": "七、票据背书"
+        },
+        {
+          "after": 58,
+          "title": "八、票据保证"
+        },
+        {
+          "after": 61,
+          "title": "九、法律适用"
+        },
+        {
+          "after": 64,
+          "title": "十、法律责任"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-c318f0d3f1",
+      "headings": [
+        {
+          "after": 3,
+          "title": "二、虚假陈述的认定"
+        },
+        {
+          "after": 9,
+          "title": "三、重大性及交易因果关系"
+        },
+        {
+          "after": 12,
+          "title": "四、过错认定"
+        },
+        {
+          "after": 19,
+          "title": "五、责任主体"
+        },
+        {
+          "after": 23,
+          "title": "六、损失认定"
+        },
+        {
+          "after": 31,
+          "title": "七、诉讼时效"
+        },
+        {
+          "after": 33,
+          "title": "八、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-c3dca7c59d",
+      "headings": [
+        {
+          "after": 9,
+          "title": "二、提供证据的要求"
+        },
+        {
+          "after": 21,
+          "title": "三、调取和保全证据"
+        },
+        {
+          "after": 34,
+          "title": "四、证据的对质辨认和核实"
+        },
+        {
+          "after": 52,
+          "title": "五、证据的审核认定"
+        },
+        {
+          "after": 73,
+          "title": "六、附 则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-d585b82af0",
+      "headings": [
+        {
+          "after": 3,
+          "title": "二、企业公司制改造"
+        },
+        {
+          "after": 7,
+          "title": "三、企业股份合作制改造"
+        },
+        {
+          "after": 11,
+          "title": "四、企业分立"
+        },
+        {
+          "after": 13,
+          "title": "五、企业债权转股权"
+        },
+        {
+          "after": 16,
+          "title": "六、国有小型企业出售"
+        },
+        {
+          "after": 29,
+          "title": "七、企业兼并"
+        },
+        {
+          "after": 34,
+          "title": "八、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-d64ff07e46",
+      "headings": [
+        {
+          "after": 5,
+          "title": "二、立案、结案时间及审理期限的计算"
+        },
+        {
+          "after": 10,
+          "title": "三、案件延长审理期限的报批"
+        },
+        {
+          "after": 14,
+          "title": "四、上诉、抗诉二审案件的移送期限"
+        },
+        {
+          "after": 19,
+          "title": "五、对案件审理期限的监督、检查"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-d9565182f3",
+      "headings": [
+        {
+          "after": 3,
+          "title": "二、关于破产申请与受理"
+        },
+        {
+          "after": 20,
+          "title": "三、关于债权申报"
+        },
+        {
+          "after": 24,
+          "title": "四、关于破产和解与破产企业整顿"
+        },
+        {
+          "after": 30,
+          "title": "五、关于破产宣告"
+        },
+        {
+          "after": 38,
+          "title": "六、关于债权人会议"
+        },
+        {
+          "after": 46,
+          "title": "七、关于清算组"
+        },
+        {
+          "after": 54,
+          "title": "八、关于破产债权"
+        },
+        {
+          "after": 63,
+          "title": "九、关于破产财产"
+        },
+        {
+          "after": 72,
+          "title": "十、关于破产财产的收回、处理和变现"
+        },
+        {
+          "after": 87,
+          "title": "十一、关于破产费用"
+        },
+        {
+          "after": 91,
+          "title": "十二、关于破产财产的分配"
+        },
+        {
+          "after": 95,
+          "title": "十三、关于破产终结"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-danbao",
+      "headings": [
+        {
+          "after": 24,
+          "title": "二、关于保证合同"
+        },
+        {
+          "after": 36,
+          "title": "三、关于担保物权"
+        },
+        {
+          "after": 36,
+          "title": "（一）担保合同与担保物权的效力"
+        },
+        {
+          "after": 45,
+          "title": "（二）不动产抵押"
+        },
+        {
+          "after": 52,
+          "title": "（三）动产与权利担保"
+        },
+        {
+          "after": 62,
+          "title": "四、关于非典型担保"
+        },
+        {
+          "after": 70,
+          "title": "五、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-e9114bebef",
+      "headings": [
+        {
+          "after": 0,
+          "title": "一、中国国际商会设立的仲裁委员会"
+        },
+        {
+          "after": 0,
+          "title": "二、各省、自治区、直辖市成立的仲裁委员会"
+        },
+        {
+          "after": 0,
+          "title": "三、迄今曾受理过涉港澳仲裁案件的仲裁委员会"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-maimai",
+      "headings": [
+        {
+          "after": 1,
+          "title": "二、标的物交付和所有权转移"
+        },
+        {
+          "after": 7,
+          "title": "三、标的物风险负担"
+        },
+        {
+          "after": 11,
+          "title": "四、标的物检验"
+        },
+        {
+          "after": 14,
+          "title": "五、违约责任"
+        },
+        {
+          "after": 24,
+          "title": "六、所有权保留"
+        },
+        {
+          "after": 26,
+          "title": "七、特种买卖"
+        },
+        {
+          "after": 30,
+          "title": "八、其他问题"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-mfd-hetong",
+      "headings": [
+        {
+          "after": 2,
+          "title": "二、合同的订立"
+        },
+        {
+          "after": 10,
+          "title": "三、合同的效力"
+        },
+        {
+          "after": 25,
+          "title": "四、合同的履行"
+        },
+        {
+          "after": 32,
+          "title": "五、合同的保全"
+        },
+        {
+          "after": 46,
+          "title": "六、合同的变更和转让"
+        },
+        {
+          "after": 51,
+          "title": "七、合同的权利义务终止"
+        },
+        {
+          "after": 58,
+          "title": "八、违约责任"
+        },
+        {
+          "after": 68,
+          "title": "九、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-mfd-hunyin-1",
+      "headings": [
+        {
+          "after": 5,
+          "title": "二、结婚"
+        },
+        {
+          "after": 22,
+          "title": "三、夫妻关系"
+        },
+        {
+          "after": 38,
+          "title": "四、父母子女关系"
+        },
+        {
+          "after": 61,
+          "title": "五、离婚"
+        },
+        {
+          "after": 90,
+          "title": "六、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-mfd-jicheng",
+      "headings": [
+        {
+          "after": 9,
+          "title": "二、法定继承"
+        },
+        {
+          "after": 23,
+          "title": "三、遗嘱继承和遗赠"
+        },
+        {
+          "after": 29,
+          "title": "四、遗产的处理"
+        },
+        {
+          "after": 44,
+          "title": "五、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-mfd-shijian",
+      "headings": [
+        {
+          "after": 5,
+          "title": "二、溯及适用的具体规定"
+        },
+        {
+          "after": 19,
+          "title": "三、衔接适用的具体规定"
+        },
+        {
+          "after": 27,
+          "title": "四、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-mfd-zongze",
+      "headings": [
+        {
+          "after": 3,
+          "title": "二、民事权利能力和民事行为能力"
+        },
+        {
+          "after": 5,
+          "title": "三、监护"
+        },
+        {
+          "after": 13,
+          "title": "四、宣告失踪和宣告死亡"
+        },
+        {
+          "after": 17,
+          "title": "五、民事法律行为"
+        },
+        {
+          "after": 24,
+          "title": "六、代理"
+        },
+        {
+          "after": 29,
+          "title": "七、民事责任"
+        },
+        {
+          "after": 34,
+          "title": "八、诉讼时效"
+        },
+        {
+          "after": 38,
+          "title": "九、附则"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-minsusong",
+      "headings": [
+        {
+          "after": 42,
+          "title": "二、回避"
+        },
+        {
+          "after": 49,
+          "title": "三、诉讼参加人"
+        },
+        {
+          "after": 89,
+          "title": "四、证据"
+        },
+        {
+          "after": 124,
+          "title": "五、期间和送达"
+        },
+        {
+          "after": 141,
+          "title": "六、调解"
+        },
+        {
+          "after": 151,
+          "title": "七、保全和先予执行"
+        },
+        {
+          "after": 173,
+          "title": "八、对妨害民事诉讼的强制措施"
+        },
+        {
+          "after": 193,
+          "title": "九、诉讼费用"
+        },
+        {
+          "after": 207,
+          "title": "十、第一审普通程序"
+        },
+        {
+          "after": 255,
+          "title": "十一、简易程序"
+        },
+        {
+          "after": 270,
+          "title": "十二、简易程序中的小额诉讼"
+        },
+        {
+          "after": 281,
+          "title": "十三、公益诉讼"
+        }
+      ]
+    },
+    {
+      "docId": "sfjs-zhengju",
+      "headings": [
+        {
+          "after": 19,
+          "title": "二、证据的调查收集和保全"
+        },
+        {
+          "after": 48,
+          "title": "三、举证时限与证据交换"
+        },
+        {
+          "after": 59,
+          "title": "四、质证"
+        },
+        {
+          "after": 84,
+          "title": "五、证据的审核认定"
+        },
+        {
+          "after": 97,
+          "title": "六、其他"
+        }
+      ]
+    }
+  ],
+  "unresolvedTop": [
+    {
+      "docId": "law-2f83499859",
+      "name": "(未识别法名)",
+      "raw": "第十九条",
+      "count": 4
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第一百二十条",
+      "count": 4
+    },
+    {
+      "docId": "xzfg-663d1e21d7",
+      "name": "(未识别法名)",
+      "raw": "第十条",
+      "count": 4
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百零三条",
+      "count": 3
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百零五条",
+      "count": 3
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百四十八条",
+      "count": 3
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百四十条",
+      "count": 3
+    },
+    {
+      "docId": "law-0316cb73fd",
+      "name": "(未识别法名)",
+      "raw": "第三十五条",
+      "count": 3
+    },
+    {
+      "docId": "law-0ecd87eb8c",
+      "name": "(未识别法名)",
+      "raw": "第二十二条",
+      "count": 3
+    },
+    {
+      "docId": "law-386c95cacd",
+      "name": "(未识别法名)",
+      "raw": "第二十九条",
+      "count": 3
+    },
+    {
+      "docId": "law-7679d0ee6d",
+      "name": "(未识别法名)",
+      "raw": "第五十八条",
+      "count": 3
+    },
+    {
+      "docId": "law-9737ffce50",
+      "name": "(未识别法名)",
+      "raw": "第十八条",
+      "count": 3
+    },
+    {
+      "docId": "sfjs-9e6213cbff",
+      "name": "(未识别法名)",
+      "raw": "第一条",
+      "count": 3
+    },
+    {
+      "docId": "sfjs-9e6213cbff",
+      "name": "(未识别法名)",
+      "raw": "第二条",
+      "count": 3
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第二十七条",
+      "count": 3
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第一百零三条",
+      "count": 3
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第一百零四条",
+      "count": 3
+    },
+    {
+      "docId": "xzfg-663d1e21d7",
+      "name": "(未识别法名)",
+      "raw": "第九条",
+      "count": 3
+    },
+    {
+      "docId": "xzfg-7190df39f2",
+      "name": "(未识别法名)",
+      "raw": "2条",
+      "count": 3
+    },
+    {
+      "docId": "anti-monopoly-law",
+      "name": "(未识别法名)",
+      "raw": "第十九条",
+      "count": 2
+    },
+    {
+      "docId": "civil-code",
+      "name": "(未识别法名)",
+      "raw": "第一千零九十四条",
+      "count": 2
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百零四条",
+      "count": 2
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百四十一条",
+      "count": 2
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零一条",
+      "count": 2
+    },
+    {
+      "docId": "law-0e812f069c",
+      "name": "(未识别法名)",
+      "raw": "第四十一条",
+      "count": 2
+    },
+    {
+      "docId": "law-0e812f069c",
+      "name": "(未识别法名)",
+      "raw": "第三十九条",
+      "count": 2
+    },
+    {
+      "docId": "law-386c95cacd",
+      "name": "(未识别法名)",
+      "raw": "第二十四条",
+      "count": 2
+    },
+    {
+      "docId": "law-386c95cacd",
+      "name": "(未识别法名)",
+      "raw": "第三十四条",
+      "count": 2
+    },
+    {
+      "docId": "law-9737ffce50",
+      "name": "(未识别法名)",
+      "raw": "第二十条",
+      "count": 2
+    },
+    {
+      "docId": "law-9737ffce50",
+      "name": "(未识别法名)",
+      "raw": "第十二条",
+      "count": 2
+    },
+    {
+      "docId": "law-97480b2073",
+      "name": "(未识别法名)",
+      "raw": "第十条",
+      "count": 2
+    },
+    {
+      "docId": "law-c0646902dd",
+      "name": "(未识别法名)",
+      "raw": "第三十五条",
+      "count": 2
+    },
+    {
+      "docId": "law-c0646902dd",
+      "name": "(未识别法名)",
+      "raw": "第三十六条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-260aa5eda5",
+      "name": "(未识别法名)",
+      "raw": "第一条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-3af76f45a5",
+      "name": "(未识别法名)",
+      "raw": "第二十六条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-83355ec6cf",
+      "name": "(未识别法名)",
+      "raw": "第五条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-94041b8c62",
+      "name": "(未识别法名)",
+      "raw": "第二条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-9e6213cbff",
+      "name": "(未识别法名)",
+      "raw": "第四条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-9e6213cbff",
+      "name": "(未识别法名)",
+      "raw": "第三条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-a280bf0da7",
+      "name": "(未识别法名)",
+      "raw": "第十一条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-d64ff07e46",
+      "name": "(未识别法名)",
+      "raw": "第五十九条",
+      "count": 2
+    },
+    {
+      "docId": "sfjs-gongsifa-3",
+      "name": "(未识别法名)",
+      "raw": "第十四条",
+      "count": 2
+    },
+    {
+      "docId": "trademark-law",
+      "name": "(未识别法名)",
+      "raw": "第十五条",
+      "count": 2
+    },
+    {
+      "docId": "trademark-law",
+      "name": "(未识别法名)",
+      "raw": "第十六条",
+      "count": 2
+    },
+    {
+      "docId": "trademark-law",
+      "name": "(未识别法名)",
+      "raw": "第三十条",
+      "count": 2
+    },
+    {
+      "docId": "trademark-law",
+      "name": "(未识别法名)",
+      "raw": "第三十一条",
+      "count": 2
+    },
+    {
+      "docId": "trademark-law",
+      "name": "(未识别法名)",
+      "raw": "第三十二条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第三十一条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第四十八条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第二条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第一百一十条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-25f76ae9c6",
+      "name": "(未识别法名)",
+      "raw": "第六条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-663d1e21d7",
+      "name": "(未识别法名)",
+      "raw": "第二十九条",
+      "count": 2
+    },
+    {
+      "docId": "xzfg-7190df39f2",
+      "name": "(未识别法名)",
+      "raw": "1条",
+      "count": 2
+    },
+    {
+      "docId": "administrative-reconsideration-law",
+      "name": "(未识别法名)",
+      "raw": "第五十七条",
+      "count": 1
+    },
+    {
+      "docId": "civil-code",
+      "name": "(未识别法名)",
+      "raw": "第一千一百零二条",
+      "count": 1
+    },
+    {
+      "docId": "civil-code",
+      "name": "(未识别法名)",
+      "raw": "第一千零九十八条",
+      "count": 1
+    },
+    {
+      "docId": "civil-code",
+      "name": "(未识别法名)",
+      "raw": "第一千一百条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第五十一条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第五十二条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第五十三条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第七十条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第七十一条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第一百三十三条",
+      "count": 1
+    },
+    {
+      "docId": "company-law",
+      "name": "(未识别法名)",
+      "raw": "第一百一十六条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百零二条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百零七条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百零九条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百九十四条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第一百九十五条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零三条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零四条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零七条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零八条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零九条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百零五条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百一十三条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百一十九条之一",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百二十一条",
+      "count": 1
+    },
+    {
+      "docId": "criminal-law",
+      "name": "(未识别法名)",
+      "raw": "第二百三十条",
+      "count": 1
+    }
+  ],
+  "unclassifiedDocs": [],
+  "classificationSource": {
+    "rule-or-fallback": 270,
+    "curated-id": 250
+  }
+}

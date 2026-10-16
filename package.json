@@ -1,0 +1,20 @@
+{
+  "name": "law-study-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "法条数字化学习平台 —— 法条/司法解释结构化数据库、全局检索、司法解释关联注解与网页 GUI",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build-db.js",
+    "verify": "node scripts/verify-db.js",
+    "stats": "node scripts/stats.js",
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {},
+  "license": "MIT"
+}

@@ -1,0 +1,2082 @@
+{
+  "academic-degrees-law": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "accessibility-law": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "administrative-compulsion-law": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "administrative-license-law": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "administrative-penalty-law": {
+    "division": "administrative",
+    "domain": "adm-penalty"
+  },
+  "administrative-procedure-law": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "administrative-reconsideration-law": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "advertising-law": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "anti-money-laundering-law": {
+    "division": "commercial",
+    "domain": "s-finance"
+  },
+  "anti-monopoly-law": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "anti-telecom-fraud-law": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "anti-unfair-competition-law": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "arbitration-law": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "banking-supervision-law": {
+    "division": "commercial",
+    "domain": "s-finance"
+  },
+  "civil-code": {
+    "division": "civil",
+    "domain": "m-civilcode"
+  },
+  "civil-procedure-law": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "civil-servant-law": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "company-law": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "compulsory-education-law": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "constitution": {
+    "division": "constitutional",
+    "domain": "c-constitution"
+  },
+  "consumer-rights-protection-law": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "copyright-law": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "criminal-law": {
+    "division": "criminal",
+    "domain": "k-general"
+  },
+  "criminal-procedure-law": {
+    "division": "criminal",
+    "domain": "k-procedure"
+  },
+  "cybersecurity-law": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "data-security-law": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "e-commerce-law": {
+    "division": "commercial",
+    "domain": "s-other"
+  },
+  "electoral-law": {
+    "division": "constitutional",
+    "domain": "c-electoral"
+  },
+  "enterprise-bankruptcy-law": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "environmental-protection-law": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "family-education-promotion-law": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "food-safety-law": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "foreign-investment-law": {
+    "division": "economic",
+    "domain": "eco-trade"
+  },
+  "individual-income-tax-law": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "infectious-disease-prevention-law": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "insurance-law": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "labor-contract-law": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "labor-dispute-mediation-arbitration-law": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "labor-law": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "land-administration-law": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "law-00ed05f188": {
+    "division": "constitutional",
+    "domain": "c-legislation"
+  },
+  "law-018c2e44fb": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-01a651529a": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-0316cb73fd": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-0359d47817": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-05d312aece": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-06967a2de9": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-0865f96a11": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "law-0974d25ee2": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-097aa6e378": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-0a856adfd4": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-0a9da86409": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-0b8f375f10": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-0bbec83d8d": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "law-0c9bfb6c5b": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-0cf006585b": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-0e5808b898": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-0e5c9fc702": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-0e812f069c": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-0ea9781c87": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-0ecd87eb8c": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-100415b86b": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-10af2de3d4": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-10d8f262fd": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-1136583e78": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-1142dcbdf8": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-130dfa1c88": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "law-136f833219": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-15523ff71a": {
+    "division": "administrative",
+    "domain": "adm-general"
+  },
+  "law-15c3116ff5": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-1642188a69": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-17715149bb": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-19e7ce90b8": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-1a2ce25817": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-1a2ce7f6b3": {
+    "division": "constitutional",
+    "domain": "c-electoral"
+  },
+  "law-1af1abe0c0": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-1b46c86e99": {
+    "division": "commercial",
+    "domain": "s-maritime"
+  },
+  "law-1be710e8ec": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "law-1ccece62eb": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-1e2db1f22a": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-1fd1f2abbc": {
+    "division": "economic",
+    "domain": "eco-trade"
+  },
+  "law-21ad6d71b5": {
+    "division": "administrative",
+    "domain": "adm-general"
+  },
+  "law-229b398f65": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-230e7f72fe": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-24ace43176": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "law-25ea89368d": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-2726773876": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-27b84a6eb0": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "law-29362025b8": {
+    "division": "economic",
+    "domain": "eco-other"
+  },
+  "law-29614e4167": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-29a0fef23a": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "law-2a1ac04584": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "law-2a77c84bf5": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-2b120d8455": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-2b78b78598": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "law-2d9d1a0eb9": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-2f83499859": {
+    "division": "constitutional",
+    "domain": "c-electoral"
+  },
+  "law-312dc4cfaa": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-34014cf253": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-34727b030f": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-34dde7ddf6": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-370b894ed9": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-373a1450f2": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "law-380deebce1": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-386c95cacd": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-38dcae8b85": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-39e968d259": {
+    "division": "civil",
+    "domain": "m-other"
+  },
+  "law-3a94164d1b": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-3b0d2f905f": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "law-3cfabcd7ed": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "law-3eaedf7e55": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "law-3f031d2e97": {
+    "division": "commercial",
+    "domain": "s-maritime"
+  },
+  "law-3f8de6abe5": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "law-3f8def2873": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-40edb05366": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-41153190da": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-41e2571082": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-43678e6618": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-44659fa333": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-4625e957f3": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-463876ad57": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-48be66e12d": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-4a9aed9831": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-4d48e773d3": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-4d9ca57549": {
+    "division": "commercial",
+    "domain": "s-securities"
+  },
+  "law-5018b9eb76": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-50bb23401f": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-513089f397": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-52481143a9": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-5323b557ef": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-571c241ce0": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-574695b1a9": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-589af18f36": {
+    "division": "criminal",
+    "domain": "k-execution"
+  },
+  "law-59e0f182a4": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-5a7576b5db": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-5b0dfbea59": {
+    "division": "administrative",
+    "domain": "adm-general"
+  },
+  "law-5c441dcf6c": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-5cc255e0b2": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-5ccbf2abf6": {
+    "division": "commercial",
+    "domain": "s-finance"
+  },
+  "law-5fd04c8db7": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "law-6012917805": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-6226ba40d8": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-62dadf2361": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-62f3c8b37e": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-6332aa3491": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-63d98aeca8": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-66d712f396": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-684da6d3f7": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-68dce69e40": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-698dd68055": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-69ca17408c": {
+    "division": "civil",
+    "domain": "m-other"
+  },
+  "law-6e19f06baa": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-703831d503": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "law-74c36b1730": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-7679d0ee6d": {
+    "division": "commercial",
+    "domain": "s-maritime"
+  },
+  "law-76dbec6a8a": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-782a466a52": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-7962fdb163": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-7b8d952b7d": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-7f379e5453": {
+    "division": "constitutional",
+    "domain": "c-symbol"
+  },
+  "law-7fda437f4f": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-809f00c0f4": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-8198937445": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-83054aa703": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-8473bf900b": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-86948d8df1": {
+    "division": "economic",
+    "domain": "eco-trade"
+  },
+  "law-86a496b2cc": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-89005798e3": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "law-899829ba27": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-89b9e7bc5b": {
+    "division": "commercial",
+    "domain": "s-negotiable"
+  },
+  "law-8b3c4bf6e5": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-8c1b72ca54": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-8cb93801bb": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-8d0e921fb4": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-8d1cae694f": {
+    "division": "constitutional",
+    "domain": "c-symbol"
+  },
+  "law-8d296329b7": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "law-8da82f8f8a": {
+    "division": "commercial",
+    "domain": "s-finance"
+  },
+  "law-8daf4a841f": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-8eb7e663aa": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-9097e6079d": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-922c974ba5": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-94108ca2ea": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-945dc6f5af": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-94d4a693d0": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-95ac930197": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "law-9737ffce50": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-97480b2073": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-98149596bd": {
+    "division": "constitutional",
+    "domain": "c-legislation"
+  },
+  "law-992a831900": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "law-9db26a8a65": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-9e0713ca90": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-9f4683e022": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-9f66b8a118": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-a00bdffd51": {
+    "division": "economic",
+    "domain": "eco-other"
+  },
+  "law-a011ca05bb": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "law-a030e7117b": {
+    "division": "commercial",
+    "domain": "s-maritime"
+  },
+  "law-a1a798e9ae": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "law-a31c3c6a0f": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-a42df92478": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-a6471adb19": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-a6ba3b4982": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-a6eed84e72": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-a7458586db": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "law-a87353ba59": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-a9a24478d7": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-ab232ef031": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-ac3423e04f": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-ac622a2d4f": {
+    "division": "economic",
+    "domain": "eco-other"
+  },
+  "law-ad403c637c": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "law-ad55cb0044": {
+    "division": "constitutional",
+    "domain": "c-symbol"
+  },
+  "law-ad781f06b3": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-af3670784e": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-afd4174601": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-b468cf47e2": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-b6fc9c91eb": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-b8c372474e": {
+    "division": "economic",
+    "domain": "eco-other"
+  },
+  "law-b94c79783f": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-b98897c6df": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-be07be63a3": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-be2d352d0c": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "law-becf00d568": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-c025646800": {
+    "division": "commercial",
+    "domain": "s-securities"
+  },
+  "law-c0646902dd": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-c0aab3faa9": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-c19762ca25": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-c2aea0b856": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-c48cd7435d": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-c674c950be": {
+    "division": "criminal",
+    "domain": "k-execution"
+  },
+  "law-c7381e5758": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-c86388bc91": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-c8d75000a7": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-c944951e9e": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-ccc60f022b": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-cd0fc831d4": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-cd2d84491d": {
+    "division": "economic",
+    "domain": "eco-other"
+  },
+  "law-cd2f1f5b38": {
+    "division": "commercial",
+    "domain": "s-trust"
+  },
+  "law-cd3b385dd1": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-cd4d392750": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "law-cebfc66f11": {
+    "division": "administrative",
+    "domain": "adm-general"
+  },
+  "law-cf97bb4be6": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-d23d7d5023": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-d371151d30": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-d3a66d628b": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-d3c54e7893": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-d42834f991": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-d6cb3d521f": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "law-d717d3f81c": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-d73888b844": {
+    "division": "criminal",
+    "domain": "k-special"
+  },
+  "law-d9518d9f38": {
+    "division": "constitutional",
+    "domain": "c-electoral"
+  },
+  "law-d95503e396": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-db3d69f41c": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-dbe8fbcf0c": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "law-dded1f7d3a": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-dfa0cf7aeb": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-dfa630463b": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-e006aacc71": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-e51f180ab2": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-e5c60e88ad": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-e65d684fa8": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "law-e7a53a5b6b": {
+    "division": "economic",
+    "domain": "eco-trade"
+  },
+  "law-e7ac2bb046": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "law-e836804815": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-e837c631ef": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-e9e0721e2f": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-eb1260c4a1": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "law-eb714926aa": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-ebb23336cd": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-ec3694af23": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "law-ec4c080866": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-ed05388bd7": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "law-ede812eae9": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "law-ee83238794": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "law-f13e45e11d": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-f1bfd4b633": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "law-f37f36a6f3": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "law-f44188c3ba": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "law-f45e145bbb": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-f68c53aca8": {
+    "division": "economic",
+    "domain": "eco-resource"
+  },
+  "law-f762d1c6cb": {
+    "division": "constitutional",
+    "domain": "c-org"
+  },
+  "law-f80aa26bfe": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "law-f92347d895": {
+    "division": "civil",
+    "domain": "m-other"
+  },
+  "law-f9b2c09563": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "law-fcb28dddb5": {
+    "division": "economic",
+    "domain": "eco-trade"
+  },
+  "law-fd8bffc337": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "law-fe6358efe8": {
+    "division": "economic",
+    "domain": "eco-other"
+  },
+  "law-fef59ac458": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "lawyers-law": {
+    "division": "administrative",
+    "domain": "adm-general"
+  },
+  "legal-aid-law": {
+    "division": "administrative",
+    "domain": "adm-general"
+  },
+  "legislation-law": {
+    "division": "constitutional",
+    "domain": "c-legislation"
+  },
+  "military-service-law": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "minors-protection-law": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "national-emblem-law": {
+    "division": "constitutional",
+    "domain": "c-symbol"
+  },
+  "national-flag-law": {
+    "division": "constitutional",
+    "domain": "c-symbol"
+  },
+  "national-security-law": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "partnership-enterprise-law": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "patent-law": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "patriotic-education-law": {
+    "division": "constitutional",
+    "domain": "c-rights"
+  },
+  "peoples-police-law": {
+    "division": "constitutional",
+    "domain": "c-security"
+  },
+  "personal-information-protection-law": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "physicians-law": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "product-quality-law": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "public-security-administration-punishments-law": {
+    "division": "administrative",
+    "domain": "adm-penalty"
+  },
+  "road-traffic-safety-law": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "securities-law": {
+    "division": "commercial",
+    "domain": "s-securities"
+  },
+  "sfjs-02a31d7163": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-055e0006a6": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-05609c5692": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-066ef8b990": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-078c53d6b9": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-095b1c053f": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-09d0062049": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-0bb4df4166": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-0c90d86229": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-0e50d0dc4a": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-1061722245": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-10645b78a0": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-129f5a94e9": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-1a098d31c0": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-1dd3a7dc89": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-1e03941979": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "sfjs-1f6e12442f": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-22da2d8661": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-23b7742cb0": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-2470d452f1": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-260aa5eda5": {
+    "division": "civil",
+    "domain": "m-family"
+  },
+  "sfjs-27244ba301": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-27c1d8ee06": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-295c8025f9": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-2a9333bfbd": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "sfjs-2af3b157e7": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "sfjs-2e5e35cc7c": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-30cb6b12a1": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-30edeba599": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-3492980330": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-34c6236565": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-34e1fd3612": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-3652baa6a1": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-37049576cc": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-377083513d": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-37fdaa6e8f": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-3af76f45a5": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-3ea83176db": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-3f2bef822e": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-3f99606942": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-40b8c51584": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-45dada33fb": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-47398de6bd": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-48ccf9c396": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-4ba5b4bd8a": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-508fb6bac6": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-511a706624": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "sfjs-51431a6c91": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-520821ba98": {
+    "division": "criminal",
+    "domain": "k-procedure"
+  },
+  "sfjs-53ed4d5678": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-55e2a6b670": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "sfjs-56a02a0bbd": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-571b7d6fd0": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-573aa5be62": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-57921b3c0a": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-5ccdaff9e2": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-5e193c2165": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-5f6fa5b5cc": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-5fd17f3758": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-5fff062b76": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-639a663942": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-66d81ee604": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-67298c63dd": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-6758b9a6eb": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "sfjs-68b7c97368": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-68ca3f8c29": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-6a1c87279a": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-6a95d03a50": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-6ce825c5bd": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-78adc59a71": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-7949978a75": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "sfjs-79639c9f83": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-7c86c3392f": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-7dbc19a972": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-7e9d715a52": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-83355ec6cf": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-83c3e104ca": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-84ae754aa6": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-855a0254ff": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "sfjs-86a0d8d47e": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-86ff030d78": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-886bccaa66": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-8a50b3a5a9": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-8bd18c3da3": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-8ca331543a": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-8d948f9896": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "sfjs-8dc7b79ba1": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-9077488239": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-94041b8c62": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-95f80c9e60": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-96445ae0c9": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-96892cd009": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-973b0dfb96": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-9743594718": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-9b0e2db5ad": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-9d6043ebde": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-9e6213cbff": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-9e99e955b2": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-a280bf0da7": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-a2df6ac48b": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-a6af4a0ad4": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-ab7526a719": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "sfjs-b0f609354c": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-b296d68518": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "sfjs-b2bee72fe4": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-b5fc775ee0": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-b6d4d20fd1": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-b7dcaf3f02": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "sfjs-b94862e2b6": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-ba563b4ca7": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-c02840d79a": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-c22364fd06": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-c2428faa93": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "sfjs-c297ae05ee": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "sfjs-c318f0d3f1": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-c3dca7c59d": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-c50322c31e": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-c60b2e76da": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-c65ec9ede1": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-c7902e049e": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-c7fe05429b": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-c89e08e348": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-cbcdaf7efe": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-cbd39aa13a": {
+    "division": "civil",
+    "domain": "m-personality"
+  },
+  "sfjs-d1375131db": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-d15b79e582": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-d436ec6558": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-d585b82af0": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-d64ff07e46": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-d7cb6e4a4c": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-d8dcd1c323": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "sfjs-d9099fe771": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-d9565182f3": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-d979866f84": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-da7fad7503": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-da9a83df57": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-danbao": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "sfjs-dbb782658e": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-dc298594d6": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-dc74773e03": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-df877fa00b": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-e00d0f5af3": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-e23320b273": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-e26622d386": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-e4109b30f8": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-e46dfc0900": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-e630602fbf": {
+    "division": "criminal",
+    "domain": "k-cases"
+  },
+  "sfjs-e7e323671e": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-e9114bebef": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-ef9972cb26": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-f0d48f76d6": {
+    "division": "civil",
+    "domain": "m-other"
+  },
+  "sfjs-f8155f5a8d": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-f874af669f": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-fb66131bcb": {
+    "division": "civil",
+    "domain": "m-enforcement"
+  },
+  "sfjs-fe24968be3": {
+    "division": "commercial",
+    "domain": "s-insolvency"
+  },
+  "sfjs-ff2a450263": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "sfjs-gongsifa-3": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-gongsifa-5": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sfjs-jianshe": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-jiedai": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-laodong-1": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "sfjs-laodong-2": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "sfjs-maimai": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-mfd-hetong": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-mfd-hunyin-1": {
+    "division": "civil",
+    "domain": "m-family"
+  },
+  "sfjs-mfd-hunyin-2": {
+    "division": "civil",
+    "domain": "m-family"
+  },
+  "sfjs-mfd-jicheng": {
+    "division": "civil",
+    "domain": "m-family"
+  },
+  "sfjs-mfd-qinquan": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-mfd-shijian": {
+    "division": "civil",
+    "domain": "m-civilcode"
+  },
+  "sfjs-mfd-wuquan": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "sfjs-mfd-zongze": {
+    "division": "civil",
+    "domain": "m-civilcode"
+  },
+  "sfjs-minsusong": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "sfjs-renshen": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "sfjs-shangpinfang": {
+    "division": "civil",
+    "domain": "m-contract"
+  },
+  "sfjs-zhengju": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "social-insurance-law": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "sole-proprietorship-enterprise-law": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "sports-law": {
+    "division": "social",
+    "domain": "soc-education"
+  },
+  "tax-collection-administration-law": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "trade-union-law": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "trademark-law": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "urban-real-estate-administration-law": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "women-rights-protection-law": {
+    "division": "social",
+    "domain": "soc-protection"
+  },
+  "work-safety-law": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "xzfg-0de35ca915": {
+    "division": "commercial",
+    "domain": "s-securities"
+  },
+  "xzfg-0fc3403a64": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "xzfg-217b330e27": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "xzfg-246c579a3c": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "xzfg-25f76ae9c6": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "xzfg-38dc6b8669": {
+    "division": "social",
+    "domain": "soc-health"
+  },
+  "xzfg-3a08abf240": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "xzfg-4eb3304079": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "xzfg-58f07076ea": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "xzfg-5c68a817b0": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "xzfg-662078a4f6": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "xzfg-663d1e21d7": {
+    "division": "civil",
+    "domain": "m-procedure"
+  },
+  "xzfg-6720d534b3": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "xzfg-6a4e3d70d4": {
+    "division": "commercial",
+    "domain": "s-insurance"
+  },
+  "xzfg-7190df39f2": {
+    "division": "administrative",
+    "domain": "adm-service"
+  },
+  "xzfg-7b977506f7": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "xzfg-8c97b575ba": {
+    "division": "commercial",
+    "domain": "s-entity"
+  },
+  "xzfg-8ca169e595": {
+    "division": "civil",
+    "domain": "m-ip"
+  },
+  "xzfg-8e4ae5638e": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "xzfg-8e59098ff5": {
+    "division": "civil",
+    "domain": "m-other"
+  },
+  "xzfg-a493ac26b0": {
+    "division": "administrative",
+    "domain": "adm-procedure"
+  },
+  "xzfg-a6b2705ead": {
+    "division": "economic",
+    "domain": "eco-finance-tax"
+  },
+  "xzfg-aa5048269a": {
+    "division": "administrative",
+    "domain": "adm-safety"
+  },
+  "xzfg-b3de499071": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "xzfg-b92edb9455": {
+    "division": "civil",
+    "domain": "m-property"
+  },
+  "xzfg-bcade48afd": {
+    "division": "economic",
+    "domain": "eco-quality"
+  },
+  "xzfg-c962f8d004": {
+    "division": "civil",
+    "domain": "m-tort"
+  },
+  "xzfg-ccad4c984b": {
+    "division": "economic",
+    "domain": "eco-market"
+  },
+  "xzfg-df951803c0": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "xzfg-ec5eb2c922": {
+    "division": "social",
+    "domain": "soc-labor"
+  },
+  "xzfg-f3e48f7006": {
+    "division": "social",
+    "domain": "soc-security"
+  },
+  "xzfg-f764e4b761": {
+    "division": "social",
+    "domain": "soc-labor"
+  }
+}
