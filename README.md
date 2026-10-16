@@ -7,9 +7,10 @@
 ```bash
 npm run build     # 由 data/raw 构建 db/（约 2.3 秒）
 npm start         # http://127.0.0.1:3000
-npm test          # 67 项测试
+npm test          # 70 项测试
 npm run verify    # 数据完整性与引文可核性校验
 npm run stats     # 生成数据统计报表
+npm run export:static   # 导出可上传 GitHub Pages 的 dist/（见文档：静态部署）
 ```
 
 `PORT=8080 npm start` 换端口；`HOST=0.0.0.0` 对外监听；`LOG=0` 关闭请求日志。
@@ -34,6 +35,7 @@ npm run stats     # 生成数据统计报表
 | 司法解释如何“挂”到法条下、注解怎么生成 | [docs/interp-linking.md](docs/interp-linking.md) |
 | 全局检索：范围、排序、查询写法、实现要点 | [docs/search.md](docs/search.md) |
 | 网页 GUI：页面清单与条文页结构 | [docs/web-ui.md](docs/web-ui.md) |
+| 静态部署到 GitHub Pages：导出、前缀、静态检索 | [docs/deploy.md](docs/deploy.md) |
 | HTTP JSON API | [docs/api.md](docs/api.md) |
 | 质量保障：`verify` 校验什么、测试覆盖 | [docs/quality.md](docs/quality.md) |
 | 如何扩展：加法条、加编、加注解、换存储 | [docs/extending.md](docs/extending.md) |
@@ -45,11 +47,12 @@ npm run stats     # 生成数据统计报表
 ```
 laws/
 ├── data/      只读语料 data/raw/ + 人工撰写的注解 data/annotations/curated.mjs
-├── scripts/   离线数据流水线（build-db / verify-db / stats + lib/）
+├── scripts/   离线数据流水线（build-db / verify-db / stats / export-static + lib/）
 ├── db/        构建产物：结构化数据库（只读，随时可重建）
 ├── server/    原生 http 服务端：路由、索引、检索、页面渲染、JSON API
-├── public/    前端增强（style.css / app.js；禁用 JS 也能用）
-├── test/      node:test 测试（67 项）
+├── public/    前端增强（style.css / app.js / static.js；禁用 JS 也能用）
+├── test/      node:test 测试（70 项）
+├── dist/      静态导出产物（不入库，由 GitHub Actions 构建并发布）
 └── docs/      详细文档
 ```
 

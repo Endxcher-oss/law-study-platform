@@ -4,7 +4,6 @@
  */
 
 import { cnToInt, suffixSeq } from '../scripts/lib/cn-num.js';
-import { annotationText } from './db.js';
 
 const FULLWIDTH_OFFSET = 0xfee0;
 

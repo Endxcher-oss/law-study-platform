@@ -83,7 +83,7 @@
       var box = form.querySelector('input[name=q]');
       if (box && !box.value.trim()) {
         e.preventDefault();
-        location.assign('/search');
+        location.assign((document.body.dataset.base || '') + '/search');
       }
     });
   });

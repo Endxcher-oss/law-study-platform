@@ -1,0 +1,163 @@
+/**
+ * 静态站点（GitHub Pages）的检索增强：按 URL 参数重放服务端检索，并替换首屏的服务端渲染结果。
+ * 打分与摘要复用 server/search.js，条文语料来自 assets/index.json；只在导出物里加载。见 docs/deploy.md。
+ */
+
+import { esc, articleCard, pagination, emptyState, searchUrl, articleUrl } from '../server/html.js';
+import { search as runSearch, directHit } from '../server/search.js';
+import { rebaseHtml } from './static-url.js';
+
+const BASE = document.body.dataset.base || '';
+const PAGE_SIZE = 20;
+const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
+const SCOPES = ['q', 'page', 'scope', 'type', 'sort', 'doc', 'annotated'];
+
+const metaEl = document.querySelector('.result-meta');
+const resultsEl = document.querySelector('.results');
+let cache = null;
+
+function init() {
+  const sp = new URLSearchParams(location.search);
+  if (!SCOPES.some((k) => sp.has(k))) return;
+  run(readParams());
+}
+
+function readParams() {
+  const sp = new URLSearchParams(location.search);
+  return {
+    q: sp.get('q') || '',
+    scope: sp.get('scope') || 'all',
+    type: sp.get('type') || 'all',
+    sort: sp.get('sort') || 'relevance',
+    doc: sp.get('doc') || null,
+    page: Math.max(1, Number(sp.get('page')) || 1),
+    annotated: sp.get('annotated') === '1',
+  };
+}
+
+function loadDb() {
+  if (!cache) cache = buildDb().catch((err) => { cache = null; throw err; });
+  return cache;
+}
+
+async function buildDb() {
+  const [corpus, catalog, taxonomy] = await Promise.all([
+    fetchJson('index.json'),
+    fetchJson('catalog.json'),
+    fetchJson('taxonomy.json'),
+  ]);
+  for (const rec of corpus) {
+    rec.textLower = (rec.text || '').toLowerCase();
+    rec.titleTextLower = (rec.titleText || '').toLowerCase();
+    rec.annotTextLower = (rec.annotText || '').toLowerCase();
+  }
+  const byKey = new Map(corpus.map((r) => [`${r.docId}|${r.slug}`, r]));
+  const catalogById = new Map(catalog.map((d) => [d.id, d]));
+  const aliasIndex = new Map();
+  const addAlias = (name, id) => {
+    const n = String(name || '').trim();
+    if (n.length < 2) return;
+    if (!aliasIndex.has(n)) aliasIndex.set(n, []);
+    const list = aliasIndex.get(n);
+    if (!list.includes(id)) list.push(id);
+  };
+  for (const d of catalog) {
+    addAlias(d.shortTitle, d.id);
+    for (const a of d.aliases || []) addAlias(a, d.id);
+  }
+  return {
+    corpus,
+    catalog,
+    catalogById,
+    taxonomy,
+    aliasIndex,
+    docs: { has: (id) => catalogById.has(id) },
+    getDoc: (id) => catalogById.get(id) || null,
+    getArticle: (docId, slug) => byKey.get(`${docId}|${slug}`) || null,
+  };
+}
+
+function fetchJson(name) {
+  return fetch(`${BASE}/assets/${name}`, { credentials: 'same-origin' }).then((res) => {
+    if (!res.ok) throw new Error(`索引装载失败：${name}（HTTP ${res.status}）`);
+    return res.json();
+  });
+}
+
+function slot() {
+  let el = document.getElementById('search-dynamic');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'search-dynamic';
+    metaEl.before(el);
+    for (const node of [metaEl, resultsEl, document.querySelector('.pager')]) node?.remove();
+  }
+  return el;
+}
+
+async function run(p) {
+  slot().innerHTML = `<div class="result-meta">正在装载检索索引（首次约 5 MB，之后走浏览器缓存）…</div>`;
+  let db;
+  try {
+    db = await loadDb();
+  } catch (err) {
+    slot().innerHTML = `<div class="result-meta">${esc(err.message)}</div>`;
+    return;
+  }
+  const res = runSearch(db, {
+    q: p.q,
+    scope: p.scope,
+    type: p.type,
+    sort: p.sort,
+    docId: p.doc,
+    page: p.page,
+    pageSize: PAGE_SIZE,
+    onlyAnnotated: p.annotated,
+  });
+  const doc = p.doc ? db.catalogById.get(p.doc) : null;
+  const dh = p.q ? directHit(db, p.q) : null;
+  const altDocs = dh?.ambiguous
+    ? dh.ambiguous
+        .filter((id) => id !== dh.docId)
+        .slice(0, 6)
+        .map((id) => db.getDoc(id))
+        .filter((d) => d && db.getArticle(d.id, dh.slug))
+    : [];
+  const direct = dh && dh.docId && db.getArticle(dh.docId, dh.slug)
+    ? `<div class="callout direct-hit">直接定位：<a href="${articleUrl(dh.docId, dh.slug)}">${esc(db.catalogById.get(dh.docId).shortTitle)} ${esc(db.getArticle(dh.docId, dh.slug).displayNumber)}</a>${
+        altDocs.length
+          ? `<div class="muted">名称不唯一，也可能指向：${altDocs.map((d) => `<a href="${articleUrl(d.id, dh.slug)}">${esc(d.shortTitle)} ${esc(db.getArticle(d.id, dh.slug).displayNumber)}</a>`).join('、')}</div>`
+          : ''
+      }</div>`
+    : '';
+
+  const params = { q: p.q, scope: p.scope, type: p.type, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '' };
+  const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
+  const chips = p.q
+    ? `<div class="facet-row"><span class="facet-label">类型</span>${CATEGORY_ORDER.filter((c) => res.facets.category[c])
+        .map((c) => `<a class="chip${p.type === c ? ' is-active' : ''}" href="${url({ type: p.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`)
+        .join('')}</div>
+      <div class="facet-row"><span class="facet-label">编</span>${db.taxonomy.divisions
+        .filter((d) => res.facets.division[d.id])
+        .map((d) => `<a class="chip${p.scope === d.id ? ' is-active' : ''}" href="${url({ scope: p.scope === d.id ? 'all' : d.id })}">${esc(d.name)} <em>${res.facets.division[d.id]}</em></a>`)
+        .join('')}</div>`
+    : '';
+
+  const html = `
+${direct}
+<div class="result-meta">${
+    p.q
+      ? `“${esc(p.q)}” 命中 <strong>${res.total}</strong> 条结果（浏览器内检索，索引 ${res.scanned} 条）${p.annotated ? ' · 仅看有注解条文' : ''}`
+      : `按当前范围浏览：<strong>${res.total}</strong> 条`
+  }</div>
+${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${url({ doc: '' })}">取消限定</a></p>` : ''}
+${chips}
+<section class="results">
+  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}
+</section>
+${pagination({ page: res.page, pageSize: res.pageSize, total: res.total, makeUrl: (n) => searchUrl({ ...params, page: n }) })}
+`;
+  slot().innerHTML = rebaseHtml(html, BASE);
+}
+
+if (metaEl && resultsEl) init();

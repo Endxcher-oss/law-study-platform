@@ -1077,11 +1077,11 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '指导性案例', href: '/ca
         .map(([lawId, rs]) => {
           const doc = db.catalogById.get(lawId);
           return `<li class="case-law">
-        <a href="${docUrl(lawId)}">${esc(doc ? doc.title : rs[0].lawName || '未识别')}</a>
+        ${doc ? `<a href="${docUrl(lawId)}">${esc(doc.title)}</a>` : `<span class="muted" title="本库未收录该文件，故不建立链接">${esc(rs[0].lawName || '未识别')}</span>`}
         <ul>${rs
           .map(
             (r) =>
-              `<li>${r.articleId ? `<a href="${articleUrl(lawId, r.articleSlug ?? r.articleNumber)}">${esc(r.raw)}</a>` : `<span class="muted">${esc(r.raw)}</span>`}
+              `<li>${r.articleId && doc ? `<a href="${articleUrl(lawId, r.articleSlug ?? r.articleNumber)}">${esc(r.raw)}</a>` : `<span class="muted">${esc(r.raw)}</span>`}
           ${r.articleId && (db.linksByTarget.get(r.articleId) || []).length ? '<span class="badge conf-mid">有司法解释</span>' : ''}</li>`,
           )
           .join('')}</ul>

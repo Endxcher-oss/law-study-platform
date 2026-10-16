@@ -4,8 +4,9 @@
 
 ```
 laws/
-├── package.json              # 脚本入口：build / verify / stats / start / test
-├── docs/                     # 详细文档（数据模型 / 流水线 / 关联 / 检索 / API / 扩展…）
+├── package.json              # 脚本入口：build / verify / stats / start / test / export:static
+├── .github/workflows/        #   pages.yml：构建 + 测试 + 静态导出 + 发布 GitHub Pages
+├── docs/                     # 详细文档（数据模型 / 流水线 / 关联 / 检索 / API / 部署…）
 ├── data/
 │   ├── raw/                  # 只读语料（上游 CC0 语料，未经改写）
 │   │   ├── laws/             #   520 部法律/司法解释/行政法规 JSON + index.json + manifest
@@ -18,6 +19,7 @@ laws/
 │   ├── build-db.js           #   主构建：raw → db/
 │   ├── verify-db.js          #   数据校验（含注解引文逐字比对）
 │   ├── stats.js              #   统计报表 → db/reports/stats.json
+│   ├── export-static.js      #   ★ 静态导出：服务端渲染结果 → dist/（部署见 docs/deploy.md）
 │   └── lib/
 │       ├── clean.js          #   正文清洗（去页眉页脚/空格/繁体标点归一）
 │       ├── cn-num.js         #   中文数字 ⇄ 阿拉伯数字、条号解析
@@ -39,18 +41,22 @@ laws/
 ├── server/                   # 服务端（原生 http，无框架）
 │   ├── index.js              #   路由 + 静态资源 + 启动
 │   ├── db.js                 #   载入 db/ 并建索引（供 API 与页面共用）
-│   ├── search.js             #   ★ 检索：查询解析、加权打分、分面、快照高亮
+│   ├── search.js             #   ★ 检索：查询解析、加权打分、分面、快照高亮（浏览器端复用同一份）
 │   ├── pages.js              #   ★ 服务端渲染的 12 个页面
 │   ├── api.js                #   12 个 JSON API
-│   └── html.js               #   极简模板/转义工具
+│   ├── html.js               #   极简模板/转义工具（只依赖 constants.js，浏览器可加载）
+│   └── constants.js          #   展示层常量：法律位阶、关联可靠度分级
 ├── public/                   # 前端增强（零依赖，禁用 JS 也能用）
 │   ├── style.css             #   印刷风格的排版与配色
-│   └── app.js                #   搜索建议、目录跳转、复制条文、快捷键
-└── test/                     # node:test 测试（67 项）
+│   ├── app.js                #   搜索建议、目录跳转、复制条文、快捷键
+│   ├── static.js             #   静态站点检索增强（只在 dist/ 里加载）
+│   └── static-url.js         #   静态站点链接前缀改写（导出脚本与浏览器共用）
+└── test/                     # node:test 测试（70 项）
     ├── refs.test.js          #   引用抽取引擎
     ├── db.test.js            #   数据库结构与不变式
     ├── search.test.js        #   检索、排序、分页、高亮
     ├── server.test.js        #   端到端 HTTP 冒烟（随机端口起真服务）
+    ├── export.test.js        #   静态导出：条文地址往返、前缀改写、样本导出结构
     └── docs.test.js          #   文档一致性：README/docs 的链接与锚点可达
 ```
 

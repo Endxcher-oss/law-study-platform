@@ -10,7 +10,7 @@
 
 ## 分层与依赖
 
-- **零依赖**：只用 Node ≥ 20 标准库（ESM，`dependencies: {}`）。不引入框架、模板引擎、打包器、分词库。
+- **零依赖**：只用 Node ≥ 20 标准库（ESM，`dependencies: {}`）。不引入框架、模板引擎、打包器、分词库。静态站点需要的浏览器代码也是原生 ES 模块（见 [deploy.md](deploy.md)）。
 - 数据只朝一个方向流：
 
   ```
@@ -21,6 +21,7 @@
 
 - **只读约定**：`data/raw/` 与 `db/` 都不手改。改内容要么改 `data/annotations/*.mjs`（人工内容），要么改 `scripts/`（构建逻辑），然后 `npm run build`。
 - `server/db.js` 是唯一的数据访问层：换存储（SQLite / ES）只要保持它的导出接口不变（见 `docs/extending.md`）。
+- **浏览器可加载的模块**：`server/html.js`、`server/search.js`、`scripts/lib/cn-num.js` 会被静态导出原样发布给浏览器，因此它们只能依赖标准 JS 与 `server/constants.js`（json/db 由调用方注入）。分层与导出规则见 [deploy.md](deploy.md)。
 - 页面渲染只用模板字符串 + 显式转义（`server/html.js`），不做字符串拼接式的“优化”。
 
 ## 前端约定（渐进增强）
@@ -58,7 +59,7 @@
 ```bash
 npm run build      # 重建 db/（含告警统计）
 npm run verify     # 结构、引文逐字、条旨与 mentions 等不变式
-npm test           # 67 项：引用抽取 / 数据库 / 检索 / HTTP 端到端 / 文档
+npm test           # 70 项：引用抽取 / 数据库 / 检索 / HTTP 端到端 / 静态导出 / 文档
 ```
 
 数据库或渲染层改动，建议再跑一次全库渲染扫描（每部文档的目录树与条文窗不变式）。

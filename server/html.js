@@ -3,7 +3,7 @@
  * 不引入模板引擎，全部用模板字符串 + 显式转义，避免注入。
  */
 
-import { CONFIDENCE, HIERARCHY } from './db.js';
+import { CONFIDENCE } from './constants.js';
 
 export function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -14,7 +14,7 @@ export function articleUrl(docId, slug) {
 }
 
 export function articleIdUrl(articleId) {
-  const m = String(articleId).match(/^(.*?)-(\d{3,})(?:-(\d+))?$/);
+  const m = String(articleId).match(/^(.*)-(\d{3,})(?:-(\d+))?$/);
   if (m) return `/d/${encodeURIComponent(m[1])}/${m[3] ? `${Number(m[2])}-${m[3]}` : Number(m[2])}`;
   return `/search?q=${encodeURIComponent(articleId)}`;
 }
@@ -180,5 +180,3 @@ export function statCard(label, value, hint = '') {
 export function emptyState(text, hint = '') {
   return `<div class="empty"><p>${esc(text)}</p>${hint ? `<p class="muted">${esc(hint)}</p>` : ''}</div>`;
 }
-
-export { HIERARCHY };

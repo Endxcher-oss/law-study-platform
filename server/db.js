@@ -7,6 +7,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { HIERARCHY, CONFIDENCE } from './constants.js';
+
+export { HIERARCHY, CONFIDENCE };
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
 export const DB = path.join(ROOT, 'db');
@@ -22,15 +26,6 @@ function listJson(dir) {
     .filter((f) => f.endsWith('.json'))
     .map((f) => path.join(dir, f));
 }
-
-export const HIERARCHY = ['宪法', '法律', '行政法规', '司法解释'];
-
-export const CONFIDENCE = {
-  explicit: { label: '直接引用', weight: 3, color: 'strong', hint: '法名与条号紧邻出现，可靠性最高' },
-  list: { label: '并列引用', weight: 2, color: 'mid', hint: '与上一条引用构成“第X条、第Y条”并列，继承目标' },
-  contextual: { label: '同句推断', weight: 1, color: 'weak', hint: '同一句内最近的法名，建议核对原文' },
-  document: { label: '待核对', weight: 0, color: 'weak', hint: '仅识别出条号，未能确定所属法律' },
-};
 
 class Database {
   constructor() {
