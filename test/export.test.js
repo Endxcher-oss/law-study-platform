@@ -65,6 +65,26 @@ test('链接改写只加前缀，外链 / 锚点 / 协议相对地址不动', ()
   assert.equal(rebaseUrl('https://e.com/x', '/laws'), 'https://e.com/x');
 });
 
+test('超过 100 条的文件的跨窗口目录项，落到包含该锚点的窗口页', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'laws-export-doc-'));
+  execFileSync(process.execPath, ['scripts/export-static.js'], {
+    cwd: ROOT,
+    env: { ...process.env, OUT_DIR: out, EXPORT_DOCS: 'civil-code,criminal-law', BASE_PATH: '/laws' },
+    stdio: 'pipe',
+  });
+
+  const tree = fs.readFileSync(path.join(out, 'd/criminal-law/index.html'), 'utf8');
+  const links = [...tree.matchAll(/href="\/laws\/d\/criminal-law\/from\/(\d+)#(a[\w-]+)"/g)].map((m) => ({ from: Number(m[1]), anchor: m[2] }));
+  assert.ok(links.length > 5, `跨窗口目录项太少：${links.length}`);
+  assert.ok(links.every((l) => l.from > 1 && l.from % 100 === 1), '窗口页的 from 必须是 100 的整数倍加一');
+
+  for (const link of links.slice(0, 12)) {
+    const file = path.join(out, `d/criminal-law/from/${link.from}/index.html`);
+    assert.ok(fs.existsSync(file), `窗口页不存在：from=${link.from}`);
+    assert.ok(fs.readFileSync(file, 'utf8').includes(`id="${link.anchor}"`), `from=${link.from} 里没有锚点 ${link.anchor}`);
+  }
+});
+
 test('样本导出：目录结构、部署前缀、查询参数改写与浏览器模块可达', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'laws-export-'));
   execFileSync(process.execPath, ['scripts/export-static.js'], {
@@ -119,17 +139,18 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   const leftovers = [];
   for (const file of walk(out).filter((f) => f.endsWith('.html'))) {
     const html = fs.readFileSync(file, 'utf8');
-    if (/href="[^"]*\/(notes|cases)\?/.test(html)) leftovers.push(`${path.relative(out, file)} 仍有查询串链接`);
-    if (/href="[^"]*\/d\/[^"]*\?from=/.test(html)) leftovers.push(`${path.relative(out, file)} 仍有条文窗查询串`);
+    for (const m of html.matchAll(/\b(?:href|action)="([^"]*\?[^"]*)"/g)) {
+      if (/^\/laws\/search\?|^\/search\?/.test(m[1])) continue;
+      leftovers.push(`${path.relative(out, file)} → ${m[1]}`);
+    }
   }
-  assert.deepEqual(leftovers, [], leftovers.slice(0, 5).join('\n'));
+  assert.deepEqual(leftovers.slice(0, 5), [], `非检索页不应残留查询串链接：\n${leftovers.slice(0, 5).join('\n')}`);
 
   const index = JSON.parse(fs.readFileSync(path.join(out, 'assets/index.json'), 'utf8'));
   assert.ok(index.length > 0 && index.length < 500, `样本模式的检索索引条数异常：${index.length}`);
   assert.ok(index.every((rec) => rec.id && rec.text !== undefined), '检索索引缺字段');
 
-  const modules = walk(path.join(out, 'assets')).filter((f) => f.endsWith('.js'));
-  assert.ok(modules.length >= 6, `浏览器模块太少：${modules.length}`);
+  const modules = walk(path.join(out, 'assets')).filter((f) => f.endsWith('.js'));  assert.ok(modules.length >= 6, `浏览器模块太少：${modules.length}`);
   for (const file of modules) {
     const text = fs.readFileSync(file, 'utf8');
     assert.ok(!/from\s+'node:/.test(text), `${path.relative(out, file)} 依赖 Node 内置模块，浏览器无法加载`);

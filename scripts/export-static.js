@@ -15,6 +15,11 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.resolve(ROOT, process.env.OUT_DIR || 'dist');
 const BASE = normBase(process.env.BASE_PATH ?? '/laws');
 const SAMPLE = Number(process.env.EXPORT_SAMPLE || 0);
+const ONLY_DOCS = (process.env.EXPORT_DOCS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const SUBSET = SAMPLE > 0 || ONLY_DOCS.length > 0;
 const DOC_STEP = 100;
 const CASE_PAGE_SIZE = 20;
 const LEVELS = ['all', 'key', 'warning'];
@@ -96,7 +101,9 @@ function buildQueryMap(db) {
     const m = route.match(/^\/d\/([^/]+)$/);
     if (m) {
       if (params.get('q')) return null;
-      return windows.get(canonical({ doc: decodeURIComponent(m[1]), from: Number(params.get('from')) || 1 })) || null;
+      const from = Math.max(1, Number(params.get('from')) || 1);
+      const start = Math.floor((from - 1) / DOC_STEP) * DOC_STEP + 1;
+      return windows.get(canonical({ doc: decodeURIComponent(m[1]), from: start })) || null;
     }
     return null;
   };
@@ -131,10 +138,9 @@ function projectCorpus(corpus, docIds) {
 }
 
 function sampledDocs(db) {
-  const docs = [...db.docs.values()];
-  if (!SAMPLE) return { docs, ids: null };
-  const picked = docs.slice(0, SAMPLE);
-  return { docs: picked, ids: new Set(picked.map((d) => d.id)) };
+  const all = [...db.docs.values()];
+  const picked = ONLY_DOCS.length ? all.filter((d) => ONLY_DOCS.includes(d.id)) : SAMPLE ? all.slice(0, SAMPLE) : all;
+  return { docs: picked, ids: picked.length === all.length ? null : new Set(picked.map((d) => d.id)) };
 }
 
 function collectRoutes(db) {
@@ -180,6 +186,18 @@ function collectRoutes(db) {
 
   add('/search', pages.searchPage(db, {}));
   return { routes, caseForms, casePages, missing };
+}
+
+function checkQueryRewrite(routes) {
+  const bad = [];
+  for (const { route, html } of routes) {
+    for (const m of html.matchAll(/\b(?:href|action)="([^"]*\?[^"]*)"/g)) {
+      const url = m[1];
+      if (url.startsWith('/search') || url.startsWith(`${BASE}/search`)) continue;
+      bad.push(`${route} → ${url}`);
+    }
+  }
+  return bad;
 }
 
 function checkLinks(routes, written) {
@@ -242,16 +260,23 @@ function main() {
     assets: assets.length,
     megabytes: Math.round(bytes / 1024 / 1024),
     seconds: Math.round((Date.now() - started) / 1000),
-    sample: SAMPLE || null,
+    subset: SUBSET ? { sample: SAMPLE || null, docs: ONLY_DOCS.length ? ONLY_DOCS : null } : null,
   };
 
-  if (!SAMPLE) {
+  if (!SUBSET) {
     const { checked, bad } = checkLinks(routes, written);
     report.linksChecked = checked;
     report.brokenLinks = bad.length;
     if (bad.length) {
       console.error(`发现 ${bad.length} 条站内链接没有对应页面：`);
       for (const line of bad.slice(0, 20)) console.error(`  ${line}`);
+      process.exitCode = 1;
+    }
+    const unmapped = checkQueryRewrite(routes);
+    report.unmappedQueries = unmapped.length;
+    if (unmapped.length) {
+      console.error(`发现 ${unmapped.length} 条查询串链接没有被改写成静态路径（静态主机不处理查询串）：`);
+      for (const line of unmapped.slice(0, 20)) console.error(`  ${line}`);
       process.exitCode = 1;
     }
   }
@@ -266,8 +291,8 @@ function main() {
 
   console.log(`静态站点已导出到 ${path.relative(ROOT, OUT)}/（部署前缀 ${BASE || '/'}）`);
   console.log(`  页面 ${report.pages} 个 · 资源 ${assets.length} 个 · 合计 ${report.megabytes} MB · 耗时 ${report.seconds}s`);
-  if (SAMPLE) console.log(`  样本模式：只渲染前 ${SAMPLE} 部文档，跳过链接自检`);
-  else console.log(`  链接自检：${report.linksChecked} 条站内链接，未找到对应页面 ${report.brokenLinks} 条`);
+  if (SUBSET) console.log(`  子集模式：${ONLY_DOCS.length ? `只渲染 ${ONLY_DOCS.join('、')}` : `只渲染前 ${SAMPLE} 部文档`}，跳过链接与查询串自检`);
+  else console.log(`  链接自检：${report.linksChecked} 条站内链接，未找到对应页面 ${report.brokenLinks} 条；未改写的查询串链接 ${report.unmappedQueries} 条`);
 }
 
 main();

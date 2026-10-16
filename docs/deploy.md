@@ -10,7 +10,8 @@ GitHub Pages 只发静态文件，而本项目的正文页、目录页都是服�
 npm run export:static          # 导出到 dist/（默认部署前缀 /laws）
 BASE_PATH= npm run export:static   # 前缀为空：本地根路径预览时用
 BASE_PATH=/other npm run export:static
-EXPORT_SAMPLE=3 npm run export:static   # 只渲染前 3 部文档（自检、测试用，跳过链接自检）
+EXPORT_SAMPLE=3 npm run export:static      # 只渲染前 3 部文档（自检、测试用，跳过链接自检）
+EXPORT_DOCS=civil-code,criminal-law npm run export:static   # 只渲染指定文件（同上，用于验证跨窗口目录）
 OUT_DIR=/tmp/site npm run export:static
 ```
 
@@ -40,9 +41,10 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 | `/cases?page=3` | `/cases/page/3` |
 | `/cases?q=居间合同` | `/search?q=居间合同&type=指导性案例` |
 | `/d/civil-code?from=101` | `/d/civil-code/from/101` |
+| `/d/civil-code?from=585` | `/d/civil-code/from/501`（落到**包含**该条的窗口页，锚点依旧可达） |
 | `/search?q=违约金&scope=civil` | 保持查询串，交给浏览器检索 |
 
-条文窗（`?from=`）之所以也要改写成路径，是因为一部法律超过 100 条时分页显示目录，静态站点必须为每一窗准备文件。案例页的检索表单改接全局检索，静态站点没有服务端过滤。
+条文窗（`?from=`）之所以也要改写成路径，是因为一部法律超过 100 条时分页显示目录，静态站点必须为每一窗准备文件。服务端接受任意的 `from`（例如目录树的“第三编 合同”指向 `?from=463`），静态站点只有 100 条一档的窗口文件，所以改写时按 `floor((from-1)/100)` 归到**包含该条**的窗口，窗口里的锚点保证存在；改写后仍带查询串的站内链接会被导出自检判为错误（检索页除外）。案例页的检索表单改接全局检索，静态站点没有服务端过滤。
 
 ## 静态检索
 
@@ -80,8 +82,8 @@ dist/
 
 ## 自检
 
-- **链接自检**：完整导出会遍历所有页面里的站内链接（约 73 万条），每一条都必须在导出物里有对应文件，否则导出以非零状态结束（CI 会因此失败）。
-- **样本模式**：`EXPORT_SAMPLE=N` 只渲染前 N 部文档并跳过链接自检，供 `test/export.test.js` 校验目录结构、前缀改写、查询串改写、浏览器模块的 import 是否都能在导出物里解析。
+- **链接自检**：完整导出会遍历所有页面里的站内链接（约 73 万条），每一条都必须在导出物里有对应文件；同时检查除检索页外**不再残留查询串链接**（静态主机不会处理它们）。任一不过就以非零状态结束（CI 会因此失败）。
+- **子集模式**：`EXPORT_SAMPLE=N` / `EXPORT_DOCS=id,id` 只渲染一部分文档并跳过链接自检，供 `test/export.test.js` 校验目录结构、前缀改写、查询串改写、浏览器模块的 import 是否都能在导出物里解析，以及跨窗口目录项是否落在含锚点的窗口页上。
 - **条文地址往返**：同一个测试逐条检查“条文 id → URL → 真实条文页”，防止 id 里含数字的文件名（如 `sfjs-3492980330-0002`）被解析错。
 
 ## 已知边界
