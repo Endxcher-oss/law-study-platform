@@ -243,7 +243,7 @@ function main() {
         let note = r.note || null;
         if (!targetArticleId) {
           if (targetDocId) {
-            note = `《${docById.get(targetDocId)?.shortTitle || targetDocId}》第${r.articleNumber}条未在本库收录的条文中找到（可能为已废止或旧版条号）`;
+            note = `《${docById.get(targetDocId)?.shortTitle || targetDocId}》第${r.articleNumber}条未在本平台收录的条文中找到（可能为已废止或旧版条号）`;
           }
           confidence = 'document';
         }
@@ -691,7 +691,7 @@ function buildDerivedAnnotations({ docById, articlesById, linkRecords, catalog }
       topic: `${interpDocs.length} 件司法解释的条文引用了本条`,
       question: '',
       analysis: [
-        `机器抽取结果：本库中有 ${interpDocs.length} 件司法解释、共 ${basis.length} 个条文引用了${law.shortTitle}${article.displayNumber}。下方“依据条文”已按关联强度排序。`,
+        `机器抽取结果：本平台中有 ${interpDocs.length} 件司法解释、共 ${basis.length} 个条文引用了${law.shortTitle}${article.displayNumber}。下方“依据条文”已按关联强度排序。`,
       ],
       points: [],
       pitfalls: [],

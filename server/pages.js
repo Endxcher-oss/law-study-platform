@@ -472,7 +472,7 @@ ${
 ${
   loose.length
     ? `<section class="block" id="sec-data"><details class="loose-list"><summary>数据说明：本文件有 ${loose.length} 处条号引用未建立关联</summary>
-  <p class="muted">这些位置只写了条号（如“第五十七条”）而没有指明法律名称，或者该条号不在本库收录范围内（常见于旧版条号、已废止法律）。本平台不做推测，因此未建立关联——原文未改动，可回到正文核对。</p>
+  <p class="muted">这些位置只写了条号（如“第五十七条”）而没有指明法律名称，或者该条号不在本平台收录范围内（常见于旧版条号、已废止法律）。本平台不做推测，因此未建立关联——原文未改动，可回到正文核对。</p>
   <ul class="doc-list muted">${loose
     .slice(0, 40)
     .map((l) => {
@@ -786,7 +786,7 @@ function basisBlock(db, basis, title) {
       </div>
       ${b.note ? `<p class="basis-note">${esc(b.note)}</p>` : ''}
       <blockquote>${textToHtml(b.quote || b.excerpt || '')}</blockquote>
-      ${b.asMentioned ? `<p class="muted basis-source">本库识别到的引用表述：${esc(b.asMentioned)}${b.mentions > 1 ? `（同一条文提及 ${b.mentions} 处）` : ''}</p>` : ''}
+      ${b.asMentioned ? `<p class="muted basis-source">本平台识别到的引用表述：${esc(b.asMentioned)}${b.mentions > 1 ? `（同一条文提及 ${b.mentions} 处）` : ''}</p>` : ''}
     </div>`,
       )
       .join('')}
@@ -859,7 +859,7 @@ function outgoingBlock(db, outgoing) {
     ${
       o.resolved
         ? `<a href="${articleUrl(o.docId, o.targetSlug ?? o.targetNumber)}">${esc(o.docShortTitle)} ${esc(o.targetDisplay)}</a>`
-        : `<span class="muted">${esc(o.link?.name || o.docShortTitle)} ${esc(o.targetDisplay)}（本库未定位到原文）</span>`
+        : `<span class="muted">${esc(o.link?.name || o.docShortTitle)} ${esc(o.targetDisplay)}（本平台未定位到原文）</span>`
     }
     ${confBadge(o.confidence)}
     ${o.link?.note ? `<div class="muted">${esc(o.link.note)}</div>` : ''}
@@ -1077,7 +1077,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '指导性案例', href: '/ca
         .map(([lawId, rs]) => {
           const doc = db.catalogById.get(lawId);
           return `<li class="case-law">
-        ${doc ? `<a href="${docUrl(lawId)}">${esc(doc.title)}</a>` : `<span class="muted" title="本库未收录该文件，故不建立链接">${esc(rs[0].lawName || '未识别')}</span>`}
+        ${doc ? `<a href="${docUrl(lawId)}">${esc(doc.title)}</a>` : `<span class="muted" title="本平台未收录该文件，故不建立链接">${esc(rs[0].lawName || '未识别')}</span>`}
         <ul>${rs
           .map(
             (r) =>
@@ -1140,7 +1140,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
   <h2>6. 已知局限</h2>
   <ul>
     <li>条文级关联由规则抽取，个别“同句推断”的关联可能张冠李戴，条文页已用标签区分，请以原文为准。</li>
-    <li>仅收录公开文本，不含地方性法规、部门规章与本库之外的司法文件（如《关于依法适用正当防卫制度的指导意见》）。</li>
+    <li>仅收录公开文本，不含地方性法规、部门规章与本平台之外的司法文件（如《关于依法适用正当防卫制度的指导意见》）。</li>
     <li>人工注解覆盖范围有限（当前 ${db.curatedAnnotations.length} 条），其余条文以自动派生摘要与原文为主。</li>
     <li>本平台为学习工具，内容不构成法律意见，引用请以官方发布文本为准。</li>
   </ul>

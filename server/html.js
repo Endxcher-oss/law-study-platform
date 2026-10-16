@@ -108,7 +108,7 @@ ${body}
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>数据来源</strong>：${esc(meta.sourceName || '')}（${esc(meta.license || '')}）· 条文来自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 公开文本，司法解释、指导性案例来自最高人民法院公开发布。本库为学习工具，内容不作裁判依据，以官方发布文本为准。</p>
+    <p><strong>数据来源</strong>：${esc(meta.sourceName || '')}（${esc(meta.license || '')}）· 条文来自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 公开文本，司法解释、指导性案例来自最高人民法院公开发布。本平台为学习工具，内容不作裁判依据，以官方发布文本为准。</p>
     <p class="muted">数据库构建于 ${esc((meta.builtAt || '').slice(0, 10))} · 收录 ${esc(meta.counts?.documents ?? '')} 部文件 / ${esc(meta.counts?.articles ?? '')} 条条文 / ${esc(meta.counts?.links ?? '')} 条关联 / ${esc(meta.counts?.annotations ?? '')} 条注解</p>
   </div>
 </footer>
