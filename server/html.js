@@ -9,6 +9,14 @@ export function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
+const SECTION_RE = /^(第[〇零一二三四五六七八九十百千]+(?:分)?[编章节])\s*(.+)$/;
+
+export function sectionTitle(text) {
+  const s = String(text ?? '').trim();
+  const m = SECTION_RE.exec(s);
+  return m ? `${m[1]} ${m[2]}` : s;
+}
+
 export function articleUrl(docId, slug) {
   return `/d/${encodeURIComponent(docId)}/${slug}`;
 }
@@ -117,8 +125,7 @@ function defaultSearchBar(meta) {
   </form>`;
 }
 
-export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc = true } = {}) {
-  const path = (rec.path || []).filter(Boolean);
+export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc = true } = {}) {  const path = (rec.path || []).filter(Boolean);
   const docTitle = esc(rec.docShortTitle || rec.docTitle);
   const num = esc(rec.displayNumber || '');
   if (rec.kind === 'case') {
@@ -140,7 +147,7 @@ export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc 
       ${showDoc ? `<a href="${docUrl(rec.docId)}" class="result-doc">${docTitle}</a>` : ''}
       <a href="${articleUrl(rec.docId, rec.slug || rec.number)}" class="result-num">${num}</a>
     </h3>
-    ${path.length ? `<span class="result-path">${path.map(esc).join(' · ')}</span>` : ''}
+    ${path.length ? `<span class="result-path">${path.map((p) => esc(sectionTitle(p))).join(' · ')}</span>` : ''}
   </div>
   ${snippet ? `<p class="result-snippet">${snippet.html}</p>` : `<p class="result-text">${esc((rec.text || '').slice(0, 220))}${(rec.text || '').length > 220 ? '…' : ''}</p>`}
   <div class="result-foot">

@@ -6,7 +6,7 @@
 import { getDb, CONFIDENCE } from './db.js';
 import {
   esc, layout, categoryBadge, levelBadge, confBadge, crumbs, articleUrl, docUrl, caseUrl,
-  divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl,
+  divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle,
 } from './html.js';
 import { search as runSearch, directHit, nameMatches } from './search.js';
 
@@ -580,7 +580,7 @@ function tocBranch(doc, node, ctx, chain) {
   const cls = isCurrent ? ' class="is-current"' : onPath ? ' class="is-on-path"' : '';
   const row = (extra) =>
     `<a href="${tocHref(doc, node.slug, node.idx, ctx)}"${cls}${extra}><span class="toc-label">${esc(
-      node.title,
+      sectionTitle(node.title),
     )}</span><span class="toc-count">${node.count}</span>${tocPageHint(node.idx, ctx)}</a>`;
   if (!children.length) {
     const elsewhere = inTocWindow(node.idx, ctx) ? '' : ' data-elsewhere="1"';
@@ -668,7 +668,7 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
       </h1>
       <p class="doc-meta">
         ${categoryBadge(doc.category)}
-        ${path.map((p, i) => `<span class="meta">${esc(p)}</span>`).join('')}
+        ${path.map((p) => `<span class="meta">${esc(sectionTitle(p))}</span>`).join('')}
         <span class="meta">${sib.index} / ${sib.total}</span>
         ${curated ? levelBadge(curated.level) : ''}
       </p>

@@ -252,8 +252,8 @@ test('目录树：编 → 分编 → 章 → 节，层级可展开收起，并�
   assert.ok(tree.includes('class="toc-end'), '最深一层章节应渲染成一行链接（不再套空的可展开框）');
   assert.ok(!/lvl-5/.test(tree), '目录层级不应超过数据里的最深一级');
   assert.ok(tree.includes('<details open>'), '当前浏览位置所在的各级章节应默认展开');
-  assert.match(tree, /class="is-current"[^>]*><span class="toc-label">第八章违约责任</, '当前所在章节应高亮');
-  assert.match(tree, /class="is-on-path"[^>]*><span class="toc-label">第三编/, '祖先层级应标为路径');
+  assert.match(tree, /class="is-current"[^>]*><span class="toc-label">第八章 违约责任</, '当前所在章节应高亮');
+  assert.match(tree, /class="is-on-path"[^>]*><span class="toc-label">第三编 合同</, '祖先层级应标为路径');
   assert.ok(/<li class="toc-branch lvl-1" data-idx="0" data-count="\d+">\s*<details>/.test(tree), '远离当前位置的编应保持折叠');
   assert.ok(tree.includes('class="toc-count"'), '章节节点应带条文数');
 
@@ -271,15 +271,33 @@ test('目录树：编 → 分编 → 章 → 节，层级可展开收起，并�
   assert.ok(mixedTree.includes('司法文书的送达'), '混合文件应保留有章节的分支');
 });
 
+test('编 / 章 / 节标记与其后的标题之间留一个空格', async () => {
+  const doc = await html('/d/civil-code?from=585');
+  assert.equal(doc.status, 200);
+  const tree = doc.body.slice(doc.body.indexOf('section-tree'), doc.body.indexOf('</aside>'));
+  assert.match(tree, /<span class="toc-label">第三编 合同<\/span>/, '目录树的分编标题应留空格');
+  assert.match(tree, /<span class="toc-label">第八章 违约责任<\/span>/, '目录树的章标题应留空格');
+  assert.ok(
+    !/toc-label">第[〇零一二三四五六七八九十百千]+(?:分)?[编章节][^\s<]/.test(tree),
+    '目录树里不应再有“第X章标题”这样连写的节点',
+  );
+
+  const article = await html('/d/civil-code/585');
+  assert.ok(article.body.includes('<span class="meta">第八章 违约责任</span>'), '条文页头部的章节应留空格');
+
+  const search = await html('/search?q=%E6%B0%91%E6%B3%95%E5%85%B8%20585');
+  assert.match(search.body, /class="result-path">第三编 合同 · 第一分编 通则 · 第八章 违约责任</, '检索结果的章节路径应留空格');
+});
+
 test('目录跨页跳转：超出当前 100 条窗口的章节带 ?from=，落地页有锚点并标出当前位置', async () => {
   const first = await html('/d/criminal-law');
   assert.equal(first.status, 200);
   const cross = [...first.body.matchAll(/href="(\/d\/criminal-law\?from=(\d+)#a[\w-]+)"/g)].map((m) => ({ href: m[1], from: Number(m[2]) }));
   assert.ok(cross.length > 5, `应有多个跨页目录项，实际 ${cross.length}`);
   assert.ok(cross.every((c) => c.from > 100), '跨页目录项必须带 ?from=（裸锚点在落地页不存在）');
-  const seg = first.body.slice(0, first.body.indexOf('第二编分则'));
+  const seg = first.body.slice(0, first.body.indexOf('第二编 分则'));
   const mFen = seg.match(/href="\/d\/criminal-law\?from=(\d+)#a[\w-]+"[^>]*><span class="toc-label">$/);
-  assert.ok(mFen, '第二编分则应是带 ?from= 的跨页目录项');
+  assert.ok(mFen, '第二编 分则应是带 ?from= 的跨页目录项');
   assert.equal(Number(mFen[1]), 104, '第二编分则的首条是第一百零二条（第 104 个条文），?from= 应为 104');
   assert.match(first.body, /class="toc-page">第 2 页</, '跨页章节要标出页码');
 

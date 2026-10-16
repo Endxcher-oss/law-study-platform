@@ -122,12 +122,21 @@
     }
   }
 
+  function syncTree(node) {
+    var chain = [];
+    for (var d = node.parentElement; d && d !== tree.parentElement; d = d.parentElement) {
+      if (d.tagName === 'DETAILS') chain.push(d);
+    }
+    tree.querySelectorAll('details').forEach(function (det) {
+      var want = chain.indexOf(det) !== -1 || det.dataset.keep === '1';
+      if (det.open !== want) det.open = want;
+    });
+  }
+
   function reveal(idx, follow) {
     var node = nodeByIndex(idx);
     if (!node) return;
-    for (var d = node.parentElement; d && d !== tree.parentElement; d = d.parentElement) {
-      if (d.tagName === 'DETAILS') d.open = true;
-    }
+    syncTree(node);
     if (follow) keepInPanel(node);
     if (tree.dataset.at === node.dataset.idx) return;
     tree.dataset.at = node.dataset.idx;
@@ -143,6 +152,14 @@
   }
 
   if (tree) {
+    tree.addEventListener('click', function (e) {
+      var sum = e.target.closest ? e.target.closest('summary') : null;
+      var det = sum ? sum.parentElement : null;
+      if (!det || det.tagName !== 'DETAILS') return;
+      if (det.open) delete det.dataset.keep;
+      else det.dataset.keep = '1';
+    });
+
     var anchored = hash && /^#a[\w-]+$/.test(hash) ? document.getElementById(hash.slice(1)) : null;
     if (anchored && anchored.dataset.idx !== undefined) {
       reveal(Number(anchored.dataset.idx), true);
