@@ -76,6 +76,8 @@ dist/
 
 仓库设置里需要把 Pages 的来源设为 **GitHub Actions**（Settings → Pages → Build and deployment → Source）。整站约 3.1 万个文件 / 260 MB，仍在 Pages 的 1 GB 上限内。
 
+仓库可见性变私有会**删掉** Pages 站点（Free 套餐的私有仓库不支持 Pages），改回公开后不会自动恢复：工作流会卡在 `actions/configure-pages` 报 `Get Pages site failed … Not Found`。在 Settings → Pages 里重新选择 Source = GitHub Actions（等价于 `POST /repos/{owner}/{repo}/pages -f build_type=workflow`）再重跑即可。`configure-pages` 自带的 `enablement: true` 需要另备一个非 `GITHUB_TOKEN` 的令牌（`repo` 或 Pages write 权限），本项目不引入额外密钥，故仍需手工重建一次。
+
 ## 自检
 
 - **链接自检**：完整导出会遍历所有页面里的站内链接（约 73 万条），每一条都必须在导出物里有对应文件，否则导出以非零状态结束（CI 会因此失败）。
