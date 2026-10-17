@@ -73,6 +73,7 @@ class Database {
     this._loadAnnotations();
     this._loadRubrics();
     this._loadCases();
+    this._loadGazettes();
     this._buildSearchCorpus();
   }
 
@@ -253,6 +254,18 @@ class Database {
     this.rubricByArticle = new Map(this.rubrics.map((r) => [r.articleId, r.text]));
   }
 
+  _loadGazettes() {
+    const file = path.join(DB, 'cases', 'gazette.json');
+    this.gazettes = fs.existsSync(file) ? readJson(file).cases : [];
+    this.gazetteById = new Map(this.gazettes.map((g) => [g.id, g]));
+    this.gazetteByYear = new Map();
+    for (const g of this.gazettes) {
+      if (g.issueYear === null) continue;
+      if (!this.gazetteByYear.has(g.issueYear)) this.gazetteByYear.set(g.issueYear, 0);
+      this.gazetteByYear.set(g.issueYear, this.gazetteByYear.get(g.issueYear) + 1);
+    }
+  }
+
   _loadCases() {
     const file = path.join(DB, 'cases', 'guiding.json');
     this.cases = fs.existsSync(file) ? readJson(file).cases : [];
@@ -344,6 +357,41 @@ class Database {
         annotTextLower: '',
         hasAnnotation: false,
         annotLevel: null,
+      });
+    }
+    for (const g of this.gazettes) {
+      const text = [...(g.summary || []), ...(g.body || [])].join('\n');
+      const titleText = `${g.title} ${g.caseNumber} ${g.court} ${g.docType} 公报${g.issueYear}年第${g.issueNo}期`;
+      corpus.push({
+        kind: 'gazette',
+        id: g.id,
+        docId: g.id,
+        docTitle: `${g.title}（${g.caseNumber}）`,
+        docShortTitle: `公报 ${g.issueYear} 年第 ${g.issueNo} 期`,
+        category: '裁判文书',
+        division: 'gazette',
+        domain: 'gazette',
+        promulgationDate: null,
+        effectiveDate: null,
+        number: null,
+        seq: 0,
+        slug: null,
+        displayNumber: g.docType || '裁判文书',
+        path: [],
+        text,
+        titleText,
+        annotText: '',
+        textLower: text.toLowerCase(),
+        titleTextLower: titleText.toLowerCase(),
+        annotTextLower: '',
+        hasAnnotation: false,
+        annotLevel: null,
+        caseTitle: g.title,
+        caseNumber: g.caseNumber,
+        court: g.court,
+        docType: g.docType,
+        issueYear: g.issueYear,
+        issueNo: g.issueNo,
       });
     }
     this.corpus = corpus;

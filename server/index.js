@@ -103,6 +103,9 @@ export function createServer() {
       if (pathname === '/cases') out = pages.casesPage(db, query);
       m = pathname.match(/^\/case\/([^/]+)$/);
       if (m) out = pages.casePage(db, m[1]);
+      if (pathname === '/gazettes') out = pages.gazettesPage(db, query);
+      m = pathname.match(/^\/gazette\/([^/]+)$/);
+      if (m) out = pages.gazettePage(db, m[1]);
       if (pathname === '/about') out = pages.aboutPage(db);
       if (pathname === '/health') return sendJson(res, { status: 200, json: { ok: true, docs: db.docs.size, articles: db.articles.size } });
       if (!out) out = pages.notFoundPage(db, `找不到路径：${pathname}`);
@@ -124,6 +127,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   server.listen(PORT, HOST, () => {
     const c = db.meta.counts;
     console.log(`法律学习平台已启动：http://${HOST}:${PORT}`);
-    console.log(`  数据：${c.documents} 部文件 / ${c.articles} 条条文 / ${c.links} 条关联 / ${c.annotations} 条注解 / ${c.cases} 件案例`);
+    console.log(
+      `  数据：${c.documents} 部文件 / ${c.articles} 条条文 / ${c.links} 条关联 / ${c.annotations} 条注解 / ${c.cases} 件指导性案例 / ${c.gazette} 件公报裁判文书`,
+    );
   });
 }

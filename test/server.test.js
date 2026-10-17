@@ -449,3 +449,71 @@ test('页脚：语料仓库、本项目仓库与构建提交都给出链接', as
   assert.equal(about.status, 200);
   assert.ok(/本平台源码以 MIT 许可发布/.test(about.body), '“关于数据”页应说明源码许可');
 });
+
+test('裁判文书：导航位于“指导性案例”与“关于数据”之间，列表页与详情页可用且不链接条文', async () => {
+  const home = await html('/');
+  const nav = home.body.slice(home.body.indexOf('site-nav'), home.body.indexOf('</nav>'));
+  const order = [...nav.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]);
+  assert.deepEqual(order, ['首页', '编 / 门类', '疑难注解', '指导性案例', '裁判文书', '关于数据'], '顶部导航顺序');
+
+  const list = await html('/gazettes');
+  assert.equal(list.status, 200);
+  assert.match(list.body, /共 \d+ 件（\d{4}–\d{4} 年）/, '列表页应给出件数与年份区间');
+  assert.match(list.body, /href="\/gazette\/[\w-]+"/, '列表应链到详情页');
+  assert.match(list.body, /不与法条建立条文级关联/, '列表页应写明不与条文关联');
+  assert.match(list.body, /<input type="hidden" name="gazette" value="1">/, '列表页的检索表单应带上 gazette=1');
+  assert.ok(!/href="\/d\//.test(list.body.slice(list.body.indexOf('class="results"'))), '列表不应链接到条文');
+
+  const firstId = list.body.match(/href="\/gazette\/([\w-]+)"/)[1];
+  const detail = await html(`/gazette/${firstId}`);
+  assert.equal(detail.status, 200);
+  assert.ok(detail.body.includes('文书全文'), '详情页应有文书全文');
+  assert.ok(detail.body.includes('《最高人民法院公报》'), '详情页应标注公报期号');
+  assert.ok(!/href="\/d\/[\w-]+/.test(detail.body), '详情页不链接到条文（独立收录）');
+  assert.ok(/href="https?:\/\/gongbao\.court\.gov\.cn/.test(detail.body), '详情页应给出公报原文链接');
+
+  const missing = await html('/gazette/nope');
+  assert.equal(missing.status, 404);
+  assert.match(missing.body, /未收录该裁判文书/);
+});
+
+test('检索：只在勾选“只搜索裁判文书”时检索裁判文书，且此时仅返回裁判文书', async () => {
+  const normal = await html('/search?q=%E4%B8%93%E5%88%A9');
+  assert.equal(normal.status, 200);
+  assert.ok(normal.body.includes('只搜索裁判文书'), '检索表单应有该复选框');
+  assert.ok(!normal.body.includes('name="gazette" value="1" checked'), '默认不勾选');
+  const normalResults = normal.body.slice(normal.body.indexOf('class="results"'));
+  assert.ok(!/href="\/gazette\//.test(normalResults), '默认结果不含裁判文书');
+  assert.match(normal.body, /只看有注解的条文/);
+
+  const only = await html('/search?q=%E4%B8%93%E5%88%A9&gazette=1');
+  assert.equal(only.status, 200);
+  assert.ok(only.body.includes('name="gazette" value="1" checked'), '勾选状态应回显');
+  assert.match(only.body, /篇裁判文书/, '结果计数应说“篇裁判文书”');
+  assert.match(only.body, /· 仅裁判文书/, '结果行应标明仅裁判文书');
+  const onlyResults = only.body.slice(only.body.indexOf('class="results"'));
+  assert.ok(/href="\/gazette\//.test(onlyResults), '应命中裁判文书');
+  assert.ok(!/href="\/d\/[\w-]+/.test(onlyResults), '勾选后不应出现条文结果');
+  assert.ok(!/class="callout direct-hit"/.test(only.body), '裁判文书模式不做“直接定位条文”');
+});
+
+test('API：/api/gazettes 列表与详情，/api/search 支持 gazette=1', async () => {
+  const list = await (await fetch(`${BASE}/api/gazettes?size=5`)).json();
+  assert.equal(list.ok, true);
+  assert.equal(list.total, 445);
+  assert.equal(list.items.length, 5);
+  assert.ok(list.items.every((g) => g.id && g.caseNumber && g.court && g.docType));
+
+  const byYear = await (await fetch(`${BASE}/api/gazettes?year=2003`)).json();
+  assert.equal(byYear.total, 4);
+
+  const one = await (await fetch(`${BASE}/api/gazettes/${list.items[0].id}`)).json();
+  assert.equal(one.gazette.id, list.items[0].id);
+  assert.ok(Array.isArray(one.gazette.body) && one.gazette.body.length > 0);
+
+  const normal = await (await fetch(`${BASE}/api/search?q=%E4%B8%93%E5%88%A9&size=3`)).json();
+  assert.ok(normal.items.every((r) => r.kind !== 'gazette'));
+  const only = await (await fetch(`${BASE}/api/search?q=%E4%B8%93%E5%88%A9&gazette=1&size=3`)).json();
+  assert.equal(only.gazetteOnly, true);
+  assert.ok(only.items.every((r) => r.kind === 'gazette'));
+});

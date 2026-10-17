@@ -285,3 +285,25 @@ test('同一条文多处提及同一目标时只列一行（提及次数记在 m
     assert.equal(new Set(keys).size, keys.length, `${id} 的引用列表存在重复行`);
   }
 });
+
+test('公报裁判文书：独立收录，不带任何条文关联字段', () => {
+  const counts = db.meta.counts;
+  assert.equal(db.gazettes.length, counts.gazette, '装载的裁判文书数应与 meta.counts.gazette 一致');
+  assert.equal(db.gazetteById.size, db.gazettes.length, 'id 不应重复');
+  assert.ok(db.gazettes.length >= 400, `裁判文书偏少：${db.gazettes.length}`);
+  const bad = db.gazettes.filter(
+    (g) => !g.title || !g.caseNumber || !g.court || !g.docType || !g.issueYear || !g.issueNo || !(g.body || []).length,
+  );
+  assert.deepEqual(bad.map((g) => g.id).slice(0, 5), [], '每件都应有标题 / 案号 / 法院 / 文书类型 / 期号 / 正文');
+  const linked = db.gazettes.filter((g) => 'related' in g || 'articleId' in g || 'lawId' in g);
+  assert.deepEqual(linked.map((g) => g.id).slice(0, 5), [], '裁判文书不与条文建立条文级关联');
+  assert.equal(db.gazetteByYear.size, new Set(db.gazettes.map((g) => g.issueYear)).size, '年份索引应覆盖所有期号年份');
+});
+
+test('检索语料：条文 / 指导性案例 / 裁判文书三类齐备', () => {
+  const kinds = {};
+  for (const rec of db.corpus) kinds[rec.kind] = (kinds[rec.kind] || 0) + 1;
+  assert.equal(kinds.article, db.articles.size);
+  assert.equal(kinds.case, db.cases.length);
+  assert.equal(kinds.gazette, db.gazettes.length);
+});

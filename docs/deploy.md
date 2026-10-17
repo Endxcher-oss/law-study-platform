@@ -49,7 +49,7 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 ## 静态检索
 
 - 打分、摘要高亮、分面全部复用 `server/search.js`：导出时把该模块与 `server/html.js`、`server/constants.js`、`scripts/lib/cn-num.js` 原样复制进 `dist/assets/`，浏览器按原生 ES 模块加载，**没有打包器，也没有第二套实现**。为此 `server/html.js` 只依赖 `server/constants.js`，`server/search.js` 只依赖 `scripts/lib/cn-num.js`。
-- 条文语料导出成 `assets/index.json`（约 3 万条、31 MB，gzip 后约 4.7 MB），只在检索页按需下载，之后走浏览器缓存；`assets/catalog.json`、`assets/taxonomy.json` 供“法律名 + 条号”直达与分面标签使用。
+- 条文语料导出成 `assets/index.json`（30,347 条、31 MB，gzip 后约 4.7 MB），只在检索页按需下载，之后走浏览器缓存；公报裁判文书另出 `assets/gazette-index.json`（445 篇、14 MB），**只在勾选“只搜索裁判文书”时才下载**（静态检索同样按 `gazette` 二分候选池）；`assets/catalog.json`、`assets/taxonomy.json` 供“法律名 + 条号”直达与分面标签使用。
 - 检索页首屏仍是服务端渲染的“按当前范围浏览”第一页，禁用 JS 也能看到表单与内容；一旦 URL 带参数（`q` / `page` / `scope` / `type` / `sort` / `doc` / `annotated`），`public/static.js` 才会在浏览器里重算并替换结果区。搜索表单是普通 GET 表单，回车即跳转，不需要 JS 拦截。
 
 ## 导出物结构
@@ -76,7 +76,7 @@ dist/
 
 `.github/workflows/pages.yml`：推送到 `main` 或手动触发 → 构建 `db/` → `verify` → `npm test` → 静态导出 → 发布到 Pages。部署前缀默认取仓库名（`/${{ github.event.repository.name }}`）；换自定义域名时把仓库变量 `BASE_PATH` 设为空串即可（Settings → Secrets and variables → Actions → Variables）。
 
-仓库设置里需要把 Pages 的来源设为 **GitHub Actions**（Settings → Pages → Build and deployment → Source）。整站约 3.1 万个文件 / 260 MB，仍在 Pages 的 1 GB 上限内。
+仓库设置里需要把 Pages 的来源设为 **GitHub Actions**（Settings → Pages → Build and deployment → Source）。整站约 3.2 万个文件 / 314 MB，仍在 Pages 的 1 GB 上限内。
 
 仓库可见性变私有会**删掉** Pages 站点（Free 套餐的私有仓库不支持 Pages），改回公开后不会自动恢复：工作流会卡在 `actions/configure-pages` 报 `Get Pages site failed … Not Found`。在 Settings → Pages 里重新选择 Source = GitHub Actions（等价于 `POST /repos/{owner}/{repo}/pages -f build_type=workflow`）再重跑即可。`configure-pages` 自带的 `enablement: true` 需要另备一个非 `GITHUB_TOKEN` 的令牌（`repo` 或 Pages write 权限），本项目不引入额外密钥，故仍需手工重建一次。
 

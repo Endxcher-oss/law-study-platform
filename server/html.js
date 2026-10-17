@@ -29,6 +29,7 @@ export function articleIdUrl(articleId) {
 
 export const docUrl = (id) => `/d/${encodeURIComponent(id)}`;
 export const caseUrl = (id) => `/case/${encodeURIComponent(id)}`;
+export const gazetteUrl = (id) => `/gazette/${encodeURIComponent(id)}`;
 export const divisionUrl = (id) => `/division/${encodeURIComponent(id)}`;
 export const domainUrl = (id) => `/domain/${encodeURIComponent(id)}`;
 export const searchUrl = (params) => {
@@ -43,6 +44,7 @@ const CATEGORY_CLASS = {
   行政法规: 'cat-regulation',
   司法解释: 'cat-interpretation',
   指导性案例: 'cat-case',
+  裁判文书: 'cat-gazette',
 };
 
 export function categoryBadge(category) {
@@ -77,6 +79,7 @@ export function layout({ title, body, meta = {}, searchBar = null, breadcrumbs =
     { href: '/divisions', label: '编 / 门类', key: 'divisions' },
     { href: '/notes', label: '疑难注解', key: 'notes' },
     { href: '/cases', label: '指导性案例', key: 'cases' },
+    { href: '/gazettes', label: '裁判文书', key: 'gazettes' },
     { href: '/about', label: '关于数据', key: 'about' },
   ]
     .map((n) => `<a href="${n.href}" class="nav-link${activeNav === n.key ? ' is-active' : ''}">${n.label}</a>`)
@@ -151,6 +154,22 @@ function defaultSearchBar(meta) {
 
 export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc = true } = {}) {
   const path = (rec.path || []).filter(Boolean);
+  if (rec.kind === 'gazette') {
+    const period = rec.issueYear ? `公报 ${rec.issueYear} 年第 ${rec.issueNo} 期` : '';
+    return `<article class="result">
+  <div class="result-head">
+    ${categoryBadge(rec.category)}
+    <h3><a href="${gazetteUrl(rec.id)}" class="result-num">${esc(rec.docType || '裁判文书')}</a></h3>
+  </div>
+  <p class="result-case-title"><a href="${gazetteUrl(rec.id)}">${esc(rec.caseTitle || rec.docTitle || '')}</a></p>
+  ${snippet ? `<p class="result-snippet">${snippet.html}</p>` : `<p class="result-text">${esc((rec.text || '').slice(0, 220))}${(rec.text || '').length > 220 ? '…' : ''}</p>`}
+  <div class="result-foot">
+    ${rec.caseNumber ? `<span class="meta">${esc(rec.caseNumber)}</span>` : ''}
+    ${rec.court ? `<span class="meta">${esc(rec.court)}</span>` : ''}
+    ${period ? `<span class="meta">${esc(period)}</span>` : ''}
+  </div>
+</article>`;
+  }
   const docTitle = esc(rec.docShortTitle || rec.docTitle);
   const num = esc(rec.displayNumber || '');
   if (rec.kind === 'case') {

@@ -11,6 +11,7 @@ law-study-platform/
 │   ├── raw/                  # 只读语料（上游 CC0 语料，未经改写）
 │   │   ├── laws/             #   520 部法律/司法解释/行政法规 JSON + index.json + manifest
 │   │   ├── guiding-cases/    #   278 件指导性案例 JSON + manifest.json
+│   │   ├── gazette-cases/    #   445 件《最高人民法院公报》裁判文书 JSON + manifest.json
 │   │   └── LICENSE           #   语料来源与许可（CC0-1.0）
 │   └── annotations/
 │       ├── curated.mjs       # ★ 人工撰写的疑难注解（唯一需要手写的业务文件）
@@ -31,6 +32,7 @@ law-study-platform/
 │   ├── interpretations/      #   司法解释条文（175 部，一部一文件）
 │   ├── regulations/          #   行政法规条文（32 部，一部一文件）
 │   ├── cases/guiding.json    #   指导性案例（278 件）+ manifest.json
+│   ├── cases/gazette.json    #   公报裁判文书（445 件，独立收录、不与条文关联）
 │   ├── annotations/          #   curated.json / derived.json / index.json
 │   ├── links.json            #   ★ 条文级关联表（2,717 条，合计 3,043 处提及）
 │   ├── rubrics.json          #   条文主旨（条旨，人工撰写的编辑层）
@@ -42,8 +44,8 @@ law-study-platform/
 │   ├── index.js              #   路由 + 静态资源 + 启动
 │   ├── db.js                 #   载入 db/ 并建索引（供 API 与页面共用）
 │   ├── search.js             #   ★ 检索：查询解析、加权打分、分面、快照高亮（浏览器端复用同一份）
-│   ├── pages.js              #   ★ 服务端渲染的 12 个页面
-│   ├── api.js                #   12 个 JSON API
+│   ├── pages.js              #   ★ 服务端渲染的 14 个页面
+│   ├── api.js                #   14 个 JSON API
 │   ├── html.js               #   极简模板/转义工具（只依赖 constants.js，浏览器可加载）
 │   └── constants.js          #   展示层常量：法律位阶、关联可靠度分级
 ├── public/                   # 前端增强（零依赖，禁用 JS 也能用）
@@ -63,5 +65,5 @@ law-study-platform/
 ## 数据层（`server/db.js`）要点
 
 - `db/` 是唯一数据源，这一层**不做再加工**，只建内存索引（改数据请改 `scripts/` 后重新构建）。
-- 全部文档一次性载入（约 4.6M 字正文），换页零延迟；条文对象同时充当检索语料（含预先算好的小写副本），不做二次拷贝。
+- 全部文档一次性载入（约 4.6M 字正文，另有 445 件公报裁判文书约 475 万字，见 `docs/data-source.md`），换页零延迟；条文对象同时充当检索语料（含预先算好的小写副本），不做二次拷贝。
 - 对上层只暴露只读视图：`docs / articles / links / annotations / cases`，以及反查 Map（`linksByTarget`、`interpByLaw`、`casesByArticle`…）。

@@ -19,6 +19,7 @@ const ROOT = path.resolve(__dirname, '..');
 const PKG = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const RAW_LAWS = path.join(ROOT, 'data/raw/laws');
 const RAW_CASES = path.join(ROOT, 'data/raw/guiding-cases');
+const RAW_GAZETTES = path.join(ROOT, 'data/raw/gazette-cases');
 const DB = path.join(ROOT, 'db');
 
 const log = (...a) => console.log('[build-db]', ...a);
@@ -335,6 +336,31 @@ function main() {
     cases.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
   }
 
+  log('处理公报裁判文书…');
+  let gazettes = [];
+  if (fs.existsSync(RAW_GAZETTES)) {
+    for (const f of fs.readdirSync(RAW_GAZETTES).filter((n) => /^gazette-[\w-]+\.json$/.test(n))) {
+      const g = readJson(path.join(RAW_GAZETTES, f));
+      const paragraphs = (v) => (Array.isArray(v) ? v : [v]).map((t) => normalizeText(t)).filter(Boolean);
+      gazettes.push({
+        id: g.id,
+        title: normalizeText(g.title || ''),
+        category: normalizeText(g.category || '裁判文书选登'),
+        court: normalizeText(g.court || ''),
+        caseNumber: normalizeText(g.caseNumber || ''),
+        docType: normalizeText(g.docType || ''),
+        issueYear: g.issueYear ?? null,
+        issueNo: g.issueNo ?? null,
+        summary: paragraphs(g.summary),
+        body: paragraphs(g.body),
+        sourceUrl: g.sourceUrl || '',
+      });
+    }
+    gazettes.sort(
+      (a, b) => (b.issueYear ?? 0) - (a.issueYear ?? 0) || (b.issueNo ?? 0) - (a.issueNo ?? 0) || (a.id < b.id ? -1 : 1),
+    );
+  }
+
   log('写出 db/ …');
   fs.rmSync(path.join(DB, 'codes'), { recursive: true, force: true });
   fs.rmSync(path.join(DB, 'interpretations'), { recursive: true, force: true });
@@ -376,6 +402,7 @@ function main() {
   });
 
   writeJson(path.join(DB, 'cases', 'guiding.json'), { schemaVersion: 1, count: cases.length, cases });
+  writeJson(path.join(DB, 'cases', 'gazette.json'), { schemaVersion: 1, count: gazettes.length, cases: gazettes });
   writeJson(
     path.join(DB, 'cases', 'manifest.json'),
     cases.map((c) => ({
@@ -433,6 +460,7 @@ function main() {
       links: validLinks.length,
       linkMentions,
       cases: cases.length,
+      gazette: gazettes.length,
     },
     divisions: divisionStats,
   };
@@ -524,7 +552,7 @@ function main() {
   };
   writeJson(path.join(DB, 'reports', 'build-report.json'), report, { pretty: true });
 
-  log(`完成：${meta.counts.documents} 部文档 / ${meta.counts.articles} 条条文 / ${meta.counts.links} 条关联 / ${meta.counts.cases} 件案例 / ${meta.counts.annotations} 条注解，用时 ${Date.now() - started}ms`);
+  log(`完成：${meta.counts.documents} 部文档 / ${meta.counts.articles} 条条文 / ${meta.counts.links} 条关联 / ${meta.counts.cases} 件指导性案例 / ${meta.counts.gazette} 件公报裁判文书 / ${meta.counts.annotations} 条注解，用时 ${Date.now() - started}ms`);
 }
 
 function squeeze(s) {

@@ -39,6 +39,7 @@ const REQUIRED = [
   'annotations/curated.json',
   'annotations/derived.json',
   'cases/guiding.json',
+  'cases/gazette.json',
   'cases/manifest.json',
 ];
 for (const f of REQUIRED) if (!exists(path.join(DB, f))) err(`缺少数据库文件：db/${f}`);
@@ -56,6 +57,7 @@ const annIndex = readJson(path.join(DB, 'annotations/index.json'));
 const curated = readJson(path.join(DB, 'annotations/curated.json')).annotations || [];
 const derived = readJson(path.join(DB, 'annotations/derived.json')).annotations || [];
 const guiding = readJson(path.join(DB, 'cases/guiding.json'));
+const gazette = readJson(path.join(DB, 'cases/gazette.json'));
 const caseManifest = readJson(path.join(DB, 'cases/manifest.json'));
 
 const DIR_OF_CATEGORY = { 法律: 'codes', 宪法: 'codes', 司法解释: 'interpretations', 行政法规: 'regulations' };
@@ -146,6 +148,7 @@ const expect = {
   articles: articleTotal,
   links: links.length,
   cases: guiding.cases?.length ?? guiding.count,
+  gazette: gazette.cases?.length ?? gazette.count,
   annotations: curated.length + derived.length,
 };
 for (const [k, v] of Object.entries(expect)) {
@@ -378,6 +381,24 @@ for (const m of caseManifest) {
   for (const aid of m.articleIds || []) if (!articleById.has(aid)) err(`manifest ${m.id} 的条文不存在：${aid}`);
 }
 note(`指导性案例 ${caseById.size} 件 / 关联引用 ${caseRefs} 处`);
+
+const gazetteIds = new Set();
+let gazetteParagraphs = 0;
+if (gazette.count !== gazette.cases?.length) err(`cases/gazette.json count=${gazette.count}，实际 ${gazette.cases?.length} 件`);
+for (const g of gazette.cases || []) {
+  const at = `公报裁判文书 ${g.id}`;
+  if (gazetteIds.has(g.id)) err(`${at} id 重复`);
+  gazetteIds.add(g.id);
+  for (const field of ['title', 'caseNumber', 'court', 'docType']) if (!g[field]) err(`${at} 缺少 ${field}`);
+  if (!g.issueYear || !g.issueNo) err(`${at} 缺少公报期号`);
+  if (!Array.isArray(g.body) || !g.body.length) err(`${at} 缺少正文`);
+  if (!g.sourceUrl) warn(`${at} 缺少原文链接`);
+  gazetteParagraphs += (g.body || []).length;
+  for (const field of ['related', 'articleId', 'lawId']) {
+    if (field in g) err(`${at} 不该有 ${field}：裁判文书不与条文建立条文级关联`);
+  }
+}
+note(`公报裁判文书 ${gazetteIds.size} 件 / 正文 ${gazetteParagraphs} 段（不与条文建立关联）`);
 
 if (meta.coverage) {
   if (meta.coverage.lawArticles !== lawLikeArticles) {

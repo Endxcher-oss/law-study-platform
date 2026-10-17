@@ -5,12 +5,13 @@
 
 import { getDb, CONFIDENCE } from './db.js';
 import {
-  esc, layout, categoryBadge, levelBadge, confBadge, crumbs, articleUrl, docUrl, caseUrl,
+  esc, layout, categoryBadge, levelBadge, confBadge, crumbs, articleUrl, docUrl, caseUrl, gazetteUrl,
   divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle,
 } from './html.js';
 import { search as runSearch, directHit, nameMatches } from './search.js';
 
 const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
+const FACET_ORDER = [...CATEGORY_ORDER, '裁判文书'];
 const SORTS = [
   ['relevance', '相关度'],
   ['date_desc', '颁布时间：新 → 旧'],
@@ -82,7 +83,7 @@ export function homePage(db) {
   const body = `
 <section class="hero">
   <h1>法律学习平台</h1>
-  <p class="hero-sub">条文、司法解释、疑难注解与指导性案例的关联检索</p>
+  <p class="hero-sub">条文、司法解释、疑难注解与指导性案例的关联检索，另有《最高人民法院公报》裁判文书全文</p>
   ${searchForm(db, { big: true })}
   <div class="hero-stats">
     ${statCard('收录文件', c.documents, '法律 / 行政法规 / 司法解释')}
@@ -90,6 +91,7 @@ export function homePage(db) {
     ${statCard('条文级关联', c.links, c.linkMentions ? `合计 ${c.linkMentions} 处提及` : '法条 ↔ 司法解释')}
     ${statCard('疑难注解', c.annotations, '人工 + 自动派生')}
     ${statCard('指导性案例', c.cases, '裁判要点与关联法条')}
+    ${statCard('裁判文书', c.gazette, '《最高人民法院公报》，独立收录')}
   </div>
 </section>
 
@@ -147,6 +149,7 @@ function searchForm(db, { big = false, opts = {} } = {}) {
     <label>类型 <select name="type">${typeOpts}</select></label>
     <label>排序 <select name="sort">${sortOpts}</select></label>
     <label class="check"><input type="checkbox" name="annotated" value="1"${opts.onlyAnnotated ? ' checked' : ''}> 只看有注解的条文</label>
+    <label class="check"><input type="checkbox" name="gazette" value="1"${opts.gazetteOnly ? ' checked' : ''}> 只搜索裁判文书</label>
     ${opts.docId ? `<input type="hidden" name="doc" value="${esc(opts.docId)}">` : ''}
   </div>
 </form>`;
@@ -881,11 +884,12 @@ export function searchPage(db, query) {
     page: Math.max(1, Number(query.page) || 1),
     pageSize: Number(query.pagesize || query.size) || 20,
     onlyAnnotated: query.annotated === '1',
+    gazetteOnly: query.gazette === '1',
   };
   const res = runSearch(db, opts);
   const doc = opts.docId ? db.getDoc(opts.docId) : null;
-  const params = { q, scope: opts.scope, type: opts.type, sort: opts.sort, doc: opts.docId, annotated: opts.onlyAnnotated ? 1 : '' };
-  const dh = q ? directHit(db, q) : null;
+  const params = { q, scope: opts.scope, type: opts.type, sort: opts.sort, doc: opts.docId, annotated: opts.onlyAnnotated ? 1 : '', gazette: opts.gazetteOnly ? 1 : '' };
+  const dh = q && !opts.gazetteOnly ? directHit(db, q) : null;
   const altDocs = dh?.ambiguous
     ? dh.ambiguous
         .filter((id) => id !== dh.docId)
@@ -903,7 +907,7 @@ export function searchPage(db, query) {
 
   const facetChips = (() => {
     if (!q) return '';
-    const cat = CATEGORY_ORDER.filter((c) => res.facets.category[c]).map(
+    const cat = FACET_ORDER.filter((c) => res.facets.category[c]).map(
       (c) =>
         `<a class="chip${opts.type === c ? ' is-active' : ''}" href="${searchUrl({ ...params, page: 1, type: opts.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`,
     );
@@ -921,18 +925,18 @@ export function searchPage(db, query) {
 ${crumbs([{ label: '首页', href: '/' }, { label: '检索' }])}
 <section class="page-head search-head">
   <h1>全库检索</h1>
-  <p class="muted">可指定检索范围（编）、文件类型、排序方式；输入“民法典 585”可直接定位条文。</p>
+  <p class="muted">可指定检索范围（编）、文件类型、排序方式；输入“民法典 585”可直接定位条文。勾选“只搜索裁判文书”则只在《最高人民法院公报》裁判文书里检索。</p>
   ${searchForm(db, { opts })}
   ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${searchUrl({ ...params, doc: '' })}">取消限定</a></p>` : ''}
 </section>
 ${direct}
 ${
   q
-    ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> 条结果（扫描耗时 ${res.ms} ms）${opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>${facetChips}`
-    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> 条</div>`
+    ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条结果'}（扫描耗时 ${res.ms} ms）${opts.gazetteOnly ? ' · 仅裁判文书' : opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>${facetChips}`
+    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条'}</div>`
 }
 <section class="results">
-  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}
+  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', opts.gazetteOnly ? '裁判文书里没有命中，换个更短的关键词试试。' : '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}
 </section>
 ${pagination({
   page: res.page,
@@ -1101,6 +1105,104 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '指导性案例', href: '/ca
   return layout({ title: `指导案例 ${c.number} 号`, body, meta, activeNav: 'cases' });
 }
 
+export function gazettesPage(db, query) {
+  const meta = metaFromDb(db);
+  const q = (query.q || '').trim();
+  const page = Math.max(1, Number(query.page) || 1);
+  const pageSize = 20;
+  const all = db.gazettes;
+  let list = all;
+  if (q) {
+    const terms = q.split(/\s+/).filter(Boolean);
+    list = all.filter((g) => {
+      const hay = [g.title, g.caseNumber, g.court, g.docType, ...(g.summary || []), ...(g.body || [])].join(' ');
+      return terms.every((t) => hay.includes(t));
+    });
+  }
+  const years = [...db.gazetteByYear.keys()].sort((a, b) => b - a);
+  const items = list.slice((page - 1) * pageSize, page * pageSize);
+
+  const body = `
+${crumbs([{ label: '首页', href: '/' }, { label: '裁判文书' }])}
+<section class="page-head">
+  <h1>《最高人民法院公报》裁判文书</h1>
+  <p class="muted">共 ${all.length} 件（${years[years.length - 1]}–${years[0]} 年），含裁判摘要与文书全文，来源于最高人民法院公报官网。本页只收文书正文与客观元数据，<strong>不与法条建立条文级关联</strong>：需要按法条检索请用<a href="/search">全库检索</a>。</p>
+  <form class="search-form" action="/search" method="get" role="search">
+    <input type="hidden" name="gazette" value="1">
+    <div class="search-row"><input type="search" name="q" value="${esc(q)}" placeholder="在裁判文书里检索（标题、案号、法院、裁判摘要与全文）…"><button type="submit">检索裁判文书</button></div>
+  </form>
+  <div class="domain-nav">${years
+    .map((y) => `<span class="chip is-static">${y} 年 <em>${db.gazetteByYear.get(y)}</em></span>`)
+    .join('')}</div>
+</section>
+<section class="results">
+  ${items
+    .map(
+      (g) => `<article class="result">
+    <div class="result-head">
+      <span class="badge cat-gazette">${esc(g.docType || '裁判文书')}</span>
+      <h3><a href="${gazetteUrl(g.id)}">${esc(g.title)}</a></h3>
+    </div>
+    ${g.summary?.length ? `<p class="result-text">${esc(g.summary[0].slice(0, 180))}${g.summary[0].length > 180 ? '…' : ''}</p>` : '<p class="result-text muted">（该期未收录裁判摘要）</p>'}
+    <div class="result-foot">
+      ${g.caseNumber ? `<span class="meta">${esc(g.caseNumber)}</span>` : ''}
+      <span class="meta">${esc(g.court)}</span>
+      <span class="meta">公报 ${g.issueYear} 年第 ${g.issueNo} 期</span>
+      <span class="meta">全文 ${g.body.length} 段</span>
+    </div>
+  </article>`,
+    )
+    .join('') || emptyState('没有命中裁判文书。')}
+</section>
+${pagination({ page, pageSize, total: list.length, makeUrl: (p) => `/gazettes?page=${p}` })}
+`;
+  return layout({ title: '裁判文书', body, meta, activeNav: 'gazettes' });
+}
+
+export function gazettePage(db, id) {
+  const meta = metaFromDb(db);
+  const g = db.gazetteById.get(id);
+  if (!g) return notFoundPage(db, `未收录该裁判文书：${id}`, [{ href: '/gazettes', label: '回到裁判文书列表' }]);
+
+  const body = `
+${crumbs([{ label: '首页', href: '/' }, { label: '裁判文书', href: '/gazettes' }, { label: `${g.issueYear} 年第 ${g.issueNo} 期` }])}
+<article class="article-main gazette-main">
+  <header class="article-head">
+    <h1>${esc(g.title)}</h1>
+    <p class="doc-meta">
+      ${categoryBadge('裁判文书')}
+      <span class="meta">${esc(g.docType || '裁判文书')}</span>
+      ${g.caseNumber ? `<span class="meta">${esc(g.caseNumber)}</span>` : ''}
+      <span class="meta">${esc(g.court)}</span>
+      <span class="meta">《最高人民法院公报》${g.issueYear} 年第 ${g.issueNo} 期</span>
+    </p>
+  </header>
+
+  ${
+    g.summary?.length
+      ? `<section class="block annotation"><div class="annotation-head"><h2>裁判摘要</h2><span class="badge badge-source">公报原文</span></div>
+    <div class="annotation-analysis">${g.summary.map((t) => `<p>${esc(t)}</p>`).join('')}</div></section>`
+      : `<section class="block"><p class="muted">该期公报未收录裁判摘要。</p></section>`
+  }
+
+  <section class="block">
+    <h2>文书全文</h2>
+    <div class="article-body" id="gazette-text">${textToHtml((g.body || []).join('\n'))}</div>
+    <div class="article-tools">
+      <button class="btn js-copy" data-target="#gazette-text">复制全文</button>
+      ${g.sourceUrl ? `<a class="btn" href="${esc(g.sourceUrl)}" target="_blank" rel="noopener">公报原文</a>` : ''}
+      <a class="btn" href="/gazettes">回到列表</a>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="muted">本文书收录的是裁判文书正文与客观元数据（案号、审理法院、文书类型、公报期号），编辑加工的评述未收录。本平台<strong>不与法条建立条文级关联</strong>；文书里引用的法条请以原文为准，需要按条文查看请用<a href="/search">全库检索</a>。</p>
+  </section>
+</article>
+`;
+  return layout({ title: g.title, body, meta, activeNav: 'gazettes' });
+}
+
 export function aboutPage(db) {
   const meta = metaFromDb(db);
   const c = db.meta.counts;
@@ -1119,6 +1221,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
   <h2>1. 数据来源</h2>
   <p>条文正文取自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 的公开文本，经 <code>chinese-law-corpus</code>（CC0-1.0）项目整理为逐条结构化语料；司法解释与指导性案例来自最高人民法院公开发布。本平台不修改条文正文，仅做结构化、分类与关联。</p>
   <p>收录情况：${c.documents} 部文件（法律 ${c.codes} 部、行政法规 ${c.regulations} 部、司法解释 ${c.interpretations} 部），共 ${c.articles} 条条文；构建 ${c.links} 条条文级关联、${c.annotations} 条注解、${c.cases} 件指导性案例${c.rubrics ? `，另有 ${c.rubrics} 条人工撰写的条文主旨` : ''}。</p>
+  <p>另独立收录《最高人民法院公报》裁判文书 ${c.gazette} 件（2003 年以来，含裁判摘要与文书全文，见<a href="/gazettes">裁判文书</a>）。这批文书只保留客观元数据与正文，<strong>不与法条建立条文级关联</strong>，也不参与默认的条文检索（检索页勾选“只搜索裁判文书”时可全文检索）。</p>
   <p>本平台源码以 MIT 许可发布（见页脚“源码”链接），静态站点由 GitHub Actions 构建并发布到 Pages。</p>
 
   <h2>2. 编与门类的划分</h2>

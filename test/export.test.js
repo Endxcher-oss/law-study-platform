@@ -110,6 +110,9 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
     'assets/catalog.json',
     'assets/taxonomy.json',
     'assets/public/static.js',
+    'assets/gazette-index.json',
+    'gazettes/index.html',
+    'gazettes/page/2/index.html',
   ];
   const missing = expected.filter((rel) => !fs.existsSync(path.join(out, rel)));
   assert.deepEqual(missing, [], `导出物缺少文件：${missing.join(', ')}`);
@@ -134,6 +137,12 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   assert.ok(cases.includes('name="type" value="指导性案例"'), '案例页检索未限定类型');
   assert.ok(cases.includes('href="/law-study-platform/cases/page/2"'), '案例分页未改写成静态路径');
 
+  const gazettes = fs.readFileSync(path.join(out, 'gazettes/index.html'), 'utf8');
+  assert.ok(gazettes.includes('href="/law-study-platform/gazettes/page/2"'), '裁判文书分页未改写成静态路径');
+  assert.ok(gazettes.includes('<input type="hidden" name="gazette" value="1">'), '裁判文书列表的表单应带 gazette=1');
+  const gid = getDb().gazettes[0].id;
+  assert.ok(fs.existsSync(path.join(out, `gazette/${gid}/index.html`)), '裁判文书详情页应导出');
+
   const notes = fs.readFileSync(path.join(out, 'notes/index.html'), 'utf8');
   assert.ok(notes.includes('href="/law-study-platform/notes/d/civil"'), '注解筛选未改写成静态路径');
   assert.ok(notes.includes('href="/law-study-platform/notes/l/key"'), '注解等级筛选未改写成静态路径');
@@ -148,9 +157,14 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   }
   assert.deepEqual(leftovers.slice(0, 5), [], `非检索页不应残留查询串链接：\n${leftovers.slice(0, 5).join('\n')}`);
 
+  const gazetteIndex = JSON.parse(fs.readFileSync(path.join(out, 'assets/gazette-index.json'), 'utf8'));
+  assert.equal(gazetteIndex.length, getDb().gazettes.length, '裁判文书索引应收全量');
+  assert.ok(gazetteIndex.every((r) => r.kind === 'gazette' && r.caseNumber), '裁判文书索引条目应带案号');
+
   const index = JSON.parse(fs.readFileSync(path.join(out, 'assets/index.json'), 'utf8'));
   assert.ok(index.length > 0 && index.length < 500, `样本模式的检索索引条数异常：${index.length}`);
   assert.ok(index.every((rec) => rec.id && rec.text !== undefined), '检索索引缺字段');
+  assert.ok(!index.some((rec) => rec.kind === 'gazette'), '主检索索引不应包含裁判文书（单独按需下载）');
 
   const modules = walk(path.join(out, 'assets')).filter((f) => f.endsWith('.js'));  assert.ok(modules.length >= 6, `浏览器模块太少：${modules.length}`);
   for (const file of modules) {

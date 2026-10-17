@@ -10,11 +10,13 @@ import { rebaseHtml } from './static-url.js';
 const BASE = document.body.dataset.base || '';
 const PAGE_SIZE = 20;
 const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
-const SCOPES = ['q', 'page', 'scope', 'type', 'sort', 'doc', 'annotated'];
+const SCOPES = ['q', 'page', 'scope', 'type', 'sort', 'doc', 'annotated', 'gazette'];
+const FACET_ORDER = [...CATEGORY_ORDER, '裁判文书'];
 
 const metaEl = document.querySelector('.result-meta');
 const resultsEl = document.querySelector('.results');
 let cache = null;
+let gazetteCache = null;
 
 function init() {
   const sp = new URLSearchParams(location.search);
@@ -32,6 +34,7 @@ function readParams() {
     doc: sp.get('doc') || null,
     page: Math.max(1, Number(sp.get('page')) || 1),
     annotated: sp.get('annotated') === '1',
+    gazette: sp.get('gazette') === '1',
   };
 }
 
@@ -40,17 +43,27 @@ function loadDb() {
   return cache;
 }
 
+function loadGazettes() {
+  if (!gazetteCache) gazetteCache = fetchJson('gazette-index.json').then(lowerize).catch((err) => { gazetteCache = null; throw err; });
+  return gazetteCache;
+}
+
+function lowerize(records) {
+  for (const rec of records) {
+    rec.textLower = (rec.text || '').toLowerCase();
+    rec.titleTextLower = (rec.titleText || '').toLowerCase();
+    rec.annotTextLower = (rec.annotText || '').toLowerCase();
+  }
+  return records;
+}
+
 async function buildDb() {
   const [corpus, catalog, taxonomy] = await Promise.all([
     fetchJson('index.json'),
     fetchJson('catalog.json'),
     fetchJson('taxonomy.json'),
   ]);
-  for (const rec of corpus) {
-    rec.textLower = (rec.text || '').toLowerCase();
-    rec.titleTextLower = (rec.titleText || '').toLowerCase();
-    rec.annotTextLower = (rec.annotText || '').toLowerCase();
-  }
+  lowerize(corpus);
   const byKey = new Map(corpus.map((r) => [`${r.docId}|${r.slug}`, r]));
   const catalogById = new Map(catalog.map((d) => [d.id, d]));
   const aliasIndex = new Map();
@@ -96,10 +109,11 @@ function slot() {
 }
 
 async function run(p) {
-  slot().innerHTML = `<div class="result-meta">正在装载检索索引（首次约 5 MB，之后走浏览器缓存）…</div>`;
+  slot().innerHTML = `<div class="result-meta">正在装载${p.gazette ? '裁判文书' : '检索'}索引（首次约 ${p.gazette ? '2' : '5'} MB，之后走浏览器缓存）…</div>`;
   let db;
   try {
     db = await loadDb();
+    if (p.gazette) db = { ...db, corpus: await loadGazettes() };
   } catch (err) {
     slot().innerHTML = `<div class="result-meta">${esc(err.message)}</div>`;
     return;
@@ -113,9 +127,10 @@ async function run(p) {
     page: p.page,
     pageSize: PAGE_SIZE,
     onlyAnnotated: p.annotated,
+    gazetteOnly: p.gazette,
   });
-  const doc = p.doc ? db.catalogById.get(p.doc) : null;
-  const dh = p.q ? directHit(db, p.q) : null;
+  const doc = !p.gazette && p.doc ? db.catalogById.get(p.doc) : null;
+  const dh = p.q && !p.gazette ? directHit(db, p.q) : null;
   const altDocs = dh?.ambiguous
     ? dh.ambiguous
         .filter((id) => id !== dh.docId)
@@ -131,10 +146,10 @@ async function run(p) {
       }</div>`
     : '';
 
-  const params = { q: p.q, scope: p.scope, type: p.type, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '' };
+  const params = { q: p.q, scope: p.scope, type: p.type, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
   const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
   const chips = p.q
-    ? `<div class="facet-row"><span class="facet-label">类型</span>${CATEGORY_ORDER.filter((c) => res.facets.category[c])
+    ? `<div class="facet-row"><span class="facet-label">类型</span>${FACET_ORDER.filter((c) => res.facets.category[c])
         .map((c) => `<a class="chip${p.type === c ? ' is-active' : ''}" href="${url({ type: p.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`)
         .join('')}</div>
       <div class="facet-row"><span class="facet-label">编</span>${db.taxonomy.divisions
@@ -147,8 +162,8 @@ async function run(p) {
 ${direct}
 <div class="result-meta">${
     p.q
-      ? `“${esc(p.q)}” 命中 <strong>${res.total}</strong> 条结果（浏览器内检索，索引 ${res.scanned} 条）${p.annotated ? ' · 仅看有注解条文' : ''}`
-      : `按当前范围浏览：<strong>${res.total}</strong> 条`
+      ? `“${esc(p.q)}” 命中 <strong>${res.total}</strong> ${p.gazette ? '篇裁判文书' : '条结果'}（浏览器内检索，索引 ${res.scanned} 条）${p.gazette ? ' · 仅裁判文书' : p.annotated ? ' · 仅看有注解条文' : ''}`
+      : `按当前范围浏览：<strong>${res.total}</strong> ${p.gazette ? '篇裁判文书' : '条'}`
   }</div>
 ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${url({ doc: '' })}">取消限定</a></p>` : ''}
 ${chips}

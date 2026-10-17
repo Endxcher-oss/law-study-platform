@@ -22,6 +22,7 @@ const ONLY_DOCS = (process.env.EXPORT_DOCS || '')
 const SUBSET = SAMPLE > 0 || ONLY_DOCS.length > 0;
 const DOC_STEP = 100;
 const CASE_PAGE_SIZE = 20;
+const GAZETTE_PAGE_SIZE = 20;
 const LEVELS = ['all', 'key', 'warning'];
 const SEARCH_FIELDS = ['kind', 'id', 'docId', 'docTitle', 'docShortTitle', 'category', 'division', 'domain', 'promulgationDate', 'effectiveDate', 'status', 'number', 'seq', 'slug', 'displayNumber', 'path', 'text', 'titleText', 'annotText', 'hasAnnotation', 'annotLevel', 'caseTitle', 'caseNumber'];
 const COPY = [
@@ -61,6 +62,7 @@ function notesRoute(division, level) {
 }
 
 const casesRoute = (page) => (page > 1 ? `/cases/page/${page}` : '/cases');
+const gazetteRoute = (page) => (page > 1 ? `/gazettes/page/${page}` : '/gazettes');
 const docRoute = (docId, from) => (from > 1 ? `/d/${encodeURIComponent(docId)}/from/${from}` : `/d/${encodeURIComponent(docId)}`);
 const articleRoute = (docId, slug) => `/d/${encodeURIComponent(docId)}/${slug}`;
 
@@ -82,6 +84,10 @@ function buildQueryMap(db) {
   const casePages = Math.max(1, Math.ceil(db.cases.length / CASE_PAGE_SIZE));
   for (let page = 1; page <= casePages; page++) cases.set(canonical({ q: '', page }), casesRoute(page));
 
+  const gazettes = new Map();
+  const gazettePages = Math.max(1, Math.ceil(db.gazettes.length / GAZETTE_PAGE_SIZE));
+  for (let page = 1; page <= gazettePages; page++) gazettes.set(canonical({ q: '', page }), gazetteRoute(page));
+
   const windows = new Map();
   for (const doc of db.docs.values()) {
     const count = Math.max(1, Math.ceil(doc.articles.length / DOC_STEP));
@@ -93,6 +99,10 @@ function buildQueryMap(db) {
 
   return function mapQuery(route, params) {
     if (route === '/notes') return notes.get(canonical({ division: params.get('division') || 'all', level: params.get('level') || 'all' })) || null;
+    if (route === '/gazettes') {
+      if (params.get('q')) return `/search?gazette=1&q=${encodeURIComponent(params.get('q'))}`;
+      return gazettes.get(canonical({ q: '', page: Number(params.get('page')) || 1 })) || null;
+    }
     if (route === '/cases') {
       const q = params.get('q');
       if (q) return `/search?q=${encodeURIComponent(q)}&type=${encodeURIComponent('指导性案例')}`;
@@ -175,6 +185,10 @@ function collectRoutes(db) {
   const casePages = Math.max(1, Math.ceil(db.cases.length / CASE_PAGE_SIZE));
   for (let page = 1; page <= casePages; page++) add(casesRoute(page), pages.casesPage(db, { page: String(page) }));
 
+  const gazettePages = Math.max(1, Math.ceil(db.gazettes.length / GAZETTE_PAGE_SIZE));
+  for (let page = 1; page <= gazettePages; page++) add(gazetteRoute(page), pages.gazettesPage(db, { page: String(page) }));
+  for (const g of db.gazettes) add(`/gazette/${encodeURIComponent(g.id)}`, pages.gazettePage(db, g.id));
+
   for (const doc of sampledDocs(db).docs) {
     const count = Math.max(1, Math.ceil(doc.articles.length / DOC_STEP));
     for (let w = 0; w < count; w++) {
@@ -240,9 +254,16 @@ function main() {
   write('.nojekyll', '');
   const notFound = pages.notFoundPage(db, '找不到这个页面（本站为静态站点，没有服务端路由）');
   write('404.html', rebaseHtml(typeof notFound === 'string' ? notFound : notFound.html, BASE));
-  write('assets/index.json', JSON.stringify(projectCorpus(db.corpus, sampledDocs(db).ids)));
+  const sampled = sampledDocs(db).ids;
+  const mainIndex = JSON.stringify(projectCorpus(db.corpus.filter((r) => r.kind !== 'gazette'), sampled));
+  const gazetteIndex = JSON.stringify(projectCorpus(db.corpus.filter((r) => r.kind === 'gazette'), null));
+  write('assets/index.json', mainIndex);
+  write('assets/gazette-index.json', gazetteIndex);
 
-  const assets = [];
+  const assets = [
+    { to: 'assets/index.json', size: Buffer.byteLength(mainIndex), generated: true },
+    { to: 'assets/gazette-index.json', size: Buffer.byteLength(gazetteIndex), generated: true },
+  ];
   for (const [from, to] of COPY) {
     const source = path.join(ROOT, from);
     const target = path.join(OUT, to);

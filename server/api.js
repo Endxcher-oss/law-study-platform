@@ -26,7 +26,7 @@ export function handleApi(db, pathname, query) {
   const p = pathname.replace(/^\/api/, '') || '/';
 
   if (p === '/' || p === '/meta') {
-    return { status: 200, json: { ok: true, meta: db.meta, taxonomy: db.taxonomy, endpoints: ['/api/meta', '/api/taxonomy', '/api/catalog', '/api/docs/:id', '/api/docs/:id/articles/:number', '/api/articles/:articleId', '/api/search', '/api/annotations', '/api/cases', '/api/cases/:id', '/api/links', '/api/suggest', '/api/hot'] } };
+    return { status: 200, json: { ok: true, meta: db.meta, taxonomy: db.taxonomy, endpoints: ['/api/meta', '/api/taxonomy', '/api/catalog', '/api/docs/:id', '/api/docs/:id/articles/:number', '/api/articles/:articleId', '/api/search', '/api/annotations', '/api/cases', '/api/cases/:id', '/api/gazettes', '/api/gazettes/:id', '/api/links', '/api/suggest', '/api/hot'] } };
   }
 
   if (p === '/taxonomy') return { status: 200, json: { ok: true, taxonomy: db.taxonomy, map: db.taxonomyMap } };
@@ -81,6 +81,37 @@ export function handleApi(db, pathname, query) {
     return { status: 200, json: { ok: true, article: stripArticle(article), curated, derived } };
   }
 
+  if (p === '/gazettes') {
+    let list = db.gazettes;
+    if (query.year) list = list.filter((g) => String(g.issueYear) === String(query.year));
+    if (query.docType) list = list.filter((g) => g.docType === query.docType);
+    if (query.q) {
+      const terms = String(query.q).split(/\s+/).filter(Boolean);
+      list = list.filter((g) => {
+        const hay = [g.title, g.caseNumber, g.court, g.docType, ...(g.summary || []), ...(g.body || [])].join(' ');
+        return terms.every((t) => hay.includes(t));
+      });
+    }
+    return {
+      status: 200,
+      json: {
+        ok: true,
+        ...paginate(
+          list.map((g) => ({ id: g.id, title: g.title, caseNumber: g.caseNumber, court: g.court, docType: g.docType, issueYear: g.issueYear, issueNo: g.issueNo, hasSummary: Boolean(g.summary?.length) })),
+          query.page,
+          query.size,
+        ),
+      },
+    };
+  }
+
+  m = p.match(/^\/gazettes\/([^/]+)$/);
+  if (m) {
+    const g = db.gazetteById.get(decodeURIComponent(m[1]));
+    if (!g) return { status: 404, json: { ok: false, error: 'gazette not found' } };
+    return { status: 200, json: { ok: true, gazette: g } };
+  }
+
   if (p === '/search') {
     const res = runSearch(db, {
       q: query.q || '',
@@ -91,6 +122,7 @@ export function handleApi(db, pathname, query) {
       page: query.page,
       pageSize: query.size || query.pagesize,
       onlyAnnotated: query.annotated === '1',
+      gazetteOnly: query.gazette === '1',
     });
     return {
       status: 200,
@@ -105,6 +137,7 @@ export function handleApi(db, pathname, query) {
         pageSize: res.pageSize,
         facets: res.facets,
         direct: res.query ? directHit(db, res.query) : null,
+        gazetteOnly: res.gazetteOnly,
         items: res.items.map((r) => ({ ...r, snippet: r.snippet ? { ...r.snippet, html: undefined, text: r.snippet.html } : null })),
       },
     };

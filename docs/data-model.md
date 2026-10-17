@@ -5,7 +5,7 @@
 - `builtAt` / `generator`：构建时间与构建脚本；页脚的“数据库构建于”取 `builtAt`（收录计数不上页脚，放在首页统计与[关于数据页](web-ui.md)）。
 - `source.repo`：上游语料仓库（`{name, url}`，页脚把语料名链到它）；`source.title` 是语料的中文名，`source.legalSource` 是条文原始出处，`source.license` 为语料许可。
 - `project`：本项目自身信息，`repository` / `homepage` / `license` 来自 `package.json`，`commit` / `committedAt` / `dirty` 在构建时用 git 读取（工作区有未提交改动时页脚会注明）——页脚那个“源码”链接与“构建提交”都取这里。
-- `counts`：文件 / 条文 / 关联 / 注解计数，供首页统计、`/api/meta` 与报表使用；`coverage` 的口径见下文。
+- `counts`：文件 / 条文 / 关联 / 注解 / 指导性案例 / 裁判文书计数，供首页统计、`/api/meta` 与报表使用；`coverage` 的口径见下文。
 
 ## `catalog.json` — 文档目录（数组）
 
@@ -133,6 +133,27 @@
 - `curated.json`：**20 条人工注解**（覆盖刑法、民法、商法、民诉的重点难点条文），来自 `data/annotations/curated.mjs`。
 - `derived.json`：**998 条自动派生注解**，由 `links.json` 汇总生成（“本平台有 N 件司法解释、共 M 个条文引用了本条”），用于把关联结果直接呈现到条文页；文案明确标注“机器抽取结果，非人工意见”。
 - `index.json`：**1,018 条**轻量索引（不含正文），供列表页与检索使用。
+
+## `cases/gazette.json` — 《最高人民法院公报》裁判文书
+
+```json
+{
+  "schemaVersion": 1, "count": 445,
+  "cases": [
+    {
+      "id": "gazette-2004-01-ca296975", "title": "重庆市人民检察院诉陈新贪污、挪用公款案",
+      "category": "裁判文书选登", "court": "最高人民法院", "caseNumber": "（2002）刑复字第19号",
+      "docType": "裁定书", "issueYear": 2004, "issueNo": 1,
+      "summary": ["裁判摘要…"], "body": ["文书正文段落…"],
+      "sourceUrl": "http://gongbao.court.gov.cn/Details/…"
+    }
+  ]
+}
+```
+
+- 与 `cases/guiding.json` 不同：**没有 `related`**，即不与条文建立条文级关联（`verify` 会拒绝任何带 `related` / `articleId` / `lawId` 的条目），因此条文页不会出现这些文书，详情页也不链到条文。
+- 排序键是公报期号（`issueYear` → `issueNo` 倒序，同期的按 id），因为文书本身没有统一的公布日期；`summary`（裁判摘要）可能为空数组（4 件如此），界面会显示“该期未收录裁判摘要”。
+- 检索语料里这些条目 `kind: 'gazette'`，`category` 固定为“裁判文书”，`division` 为 `gazette`（不在编/门类体系内，所以不参与编分面）；默认检索会把它们整体排除，只有 `gazette=1` 时才进入候选池。
 
 ## `rubrics.json` — 条文主旨（条旨）
 

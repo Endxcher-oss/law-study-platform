@@ -44,7 +44,7 @@
 | --- | --- |
 | `slug` | 条文 URL 定位符：普通条 `585`，插入条 `120-1`；排序键 `number*10 + seq`（否则“第十七条之一”会排到 17001 位） |
 | `mentions` | 同一引用写法在来源条文里出现的次数：“条”= 去重后的关联数，“处”= `sum(mentions)` |
-| `kind` | 检索语料条目的类型：`article`（条文，走 `/d/:docId/:slug`）或 `case`（案例，走 `/case/:id`） |
+| `kind` | 检索语料条目的类型：`article`（条文，走 `/d/:docId/:slug`）、`case`（指导性案例，走 `/case/:id`）或 `gazette`（公报裁判文书，走 `/gazette/:id`，不与条文关联） |
 | `status` | 编的状态：`ready`（正式交付）/ `planned`（门类待细化）/ `pending`（待归类兜底） |
 | `confidence` | 关联可靠度：`explicit` / `list` / `contextual` / `document` |
 
@@ -59,7 +59,7 @@
 ```bash
 npm run build      # 重建 db/（含告警统计）
 npm run verify     # 结构、引文逐字、条旨与 mentions 等不变式
-npm test           # 70 项：引用抽取 / 数据库 / 检索 / HTTP 端到端 / 静态导出 / 文档
+npm test           # 80 项：引用抽取 / 数据库 / 检索 / HTTP 端到端 / 静态导出 / 文档
 ```
 
 数据库或渲染层改动，建议再跑一次全库渲染扫描（每部文档的目录树与条文窗不变式）。

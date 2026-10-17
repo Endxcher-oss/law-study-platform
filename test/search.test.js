@@ -150,7 +150,8 @@ test('检索耗时以毫秒上报（scanned 恒等于候选池大小，所以界
   const full = search(db, { q: '违约金' });
   assert.equal(typeof full.ms, 'number');
   assert.ok(Number.isFinite(full.ms) && full.ms >= 0, `ms 应为非负数，实际 ${full.ms}`);
-  assert.equal(full.scanned, db.corpus.length);
+  assert.equal(full.scanned, db.corpus.length - db.gazettes.length, '默认候选池不含裁判文书');
+  assert.equal(search(db, { q: '违约金', gazetteOnly: true }).scanned, db.gazettes.length, '勾选后候选池只有裁判文书');
   const scoped = search(db, { q: '违约金', docId: 'civil-code' });
   assert.equal(scoped.scanned, db.getDoc('civil-code').articles.length);
   assert.ok(scoped.ms <= full.ms || scoped.ms < 5, '限定到单部法律后扫描量更小');
@@ -174,4 +175,24 @@ test('拉丁文检索大小写不敏感（DNA / Web / GB/T / HTTP）', () => {
   }
   const r = search(db, { q: 'web' });
   assert.ok(r.items.some((x) => x.kind === 'case'), 'Web 应命中指导性案例');
+});
+
+test('裁判文书检索：默认不含，勾选“只搜索裁判文书”后仅含裁判文书', () => {
+  const normal = search(db, { q: '专利', pageSize: 10 });
+  assert.ok(normal.total > 0);
+  assert.ok(normal.items.every((r) => r.kind !== 'gazette'), '默认检索不应混入裁判文书');
+
+  const only = search(db, { q: '专利', gazetteOnly: true, pageSize: 10 });
+  assert.ok(only.total > 0, '裁判文书模式应能命中');
+  assert.ok(only.items.every((r) => r.kind === 'gazette'), '勾选后只应有裁判文书');
+  assert.ok(only.items.every((r) => r.caseNumber && r.court), '裁判文书结果应带案号与法院');
+  assert.equal(only.facets.category['裁判文书'], only.total);
+
+  assert.equal(search(db, { q: '', gazetteOnly: true, pageSize: 1 }).total, db.gazettes.length, '空关键词时应列出全部裁判文书');
+  assert.equal(search(db, { q: '', pageSize: 1 }).total, db.corpus.length - db.gazettes.length, '默认模式的总数不含裁判文书');
+  assert.equal(
+    search(db, { q: '专利', gazetteOnly: true, onlyAnnotated: true, pageSize: 1 }).total,
+    only.total,
+    '裁判文书没有注解，“只看有注解”在裁判文书模式下不生效',
+  );
 });

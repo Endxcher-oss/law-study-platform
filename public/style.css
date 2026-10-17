@@ -439,3 +439,8 @@ code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
   .article-layout, .doc-body { grid-template-columns: 1fr; }
   body { background: #fff; }
 }
+
+.cat-gazette { background: #eef2f7; color: #33506e; border-color: #cfdae6; }
+.chip.is-static { cursor: default; color: var(--ink-muted); }
+.chip.is-static:hover { border-color: var(--line); color: var(--ink-muted); }
+.gazette-main { max-width: 900px; }

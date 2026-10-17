@@ -141,15 +141,15 @@ function countOccurrences(hay, term, cap = 6) {
 const CATEGORY_RANK = { 宪法: 0, 法律: 1, 行政法规: 2, 司法解释: 3, 指导性案例: 2 };
 
 export function search(db, opts = {}) {
-  const { q, scope = 'all', type = 'all', docId = null, sort = 'relevance', page = 1, pageSize = 20, onlyAnnotated = false } = opts;
+  const { q, scope = 'all', type = 'all', docId = null, sort = 'relevance', page = 1, pageSize = 20, onlyAnnotated = false, gazetteOnly = false } = opts;
   const { terms, phrases, raw } = tokenize(q);
   const hasQuery = terms.length > 0;
 
-  let pool = db.corpus;
+  let pool = gazetteOnly ? db.corpus.filter((r) => r.kind === 'gazette') : db.corpus.filter((r) => r.kind !== 'gazette');
   if (docId) pool = pool.filter((r) => r.docId === docId);
   if (scope && scope !== 'all') pool = pool.filter((r) => r.division === scope);
   if (type && type !== 'all') pool = pool.filter((r) => r.category === type);
-  if (onlyAnnotated) pool = pool.filter((r) => r.hasAnnotation);
+  if (onlyAnnotated && !gazetteOnly) pool = pool.filter((r) => r.hasAnnotation);
 
   const results = [];
   let scanned = 0;
@@ -233,7 +233,7 @@ export function search(db, opts = {}) {
     facets.division[r.rec.division] = (facets.division[r.rec.division] || 0) + 1;
   }
 
-  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, sort, scope, type, docId, onlyAnnotated };
+  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, sort, scope, type, docId, onlyAnnotated, gazetteOnly };
 }
 
 function buildSnippet(rec, terms, matched) {
