@@ -256,16 +256,30 @@ test('条旨（db/rubrics.json）：人工编辑层，逐条指向真实条文�
   }
   const doc = db.getDoc('criminal-law');
   const rubricable = doc.articles.filter((a) => !(a.text || '').trim().startsWith('（删去）'));
-  const general = rubricable.filter((a) => (a.path || [])[0] === '第一编总则');
-  const specific = rubricable.filter((a) => (a.path || [])[0] === '第二编分则');
-  assert.ok(general.length >= 101, `刑法总则条文数偏少：${general.length}`);
-  assert.ok(specific.length >= 400, `刑法分则条文数偏少：${specific.length}`);
+  assert.ok(rubricable.length >= 504, `刑法条文数偏少：${rubricable.length}`);
   assert.ok(raw.rubrics.length >= rubricable.length, `另有条文未撰写条旨：${rubricable.length - raw.rubrics.length} 条`);
-  for (const art of [...general, ...specific]) {
+  for (const art of rubricable) {
     assert.ok(db.rubricByArticle.get(art.id), `刑法 ${art.displayNumber} 缺条旨`);
   }
   for (const a of db.articles.values()) {
     assert.ok(!(a.text || '').includes('【'), `${a.docId} ${a.displayNumber} 正文含【】`);
+  }
+});
+
+test('附则：粘在末条正文里的“附 则”标题被剥离，其后条文归入附则', () => {
+  for (const a of db.articles.values()) {
+    assert.ok(!/(^|\n)附\s*则\s*$/.test(a.text || ''), `${a.docId} ${a.displayNumber} 正文末尾仍带“附则”标题`);
+  }
+  for (const [docId, slug, nextSlug] of [
+    ['criminal-law', '451', '452'],
+    ['civil-code', '1258', '1259'],
+    ['criminal-procedure-law', '307', '308'],
+  ]) {
+    const last = db.getArticle(docId, slug);
+    const next = db.getArticle(docId, nextSlug);
+    assert.ok(last && next, `${docId} 条文缺失：${slug} / ${nextSlug}`);
+    assert.ok(!/附\s*则/.test(last.text), `${docId}#${slug} 正文仍含“附则”`);
+    assert.deepEqual(next.path, ['附则'], `${docId}#${nextSlug} 应归入附则`);
   }
 });
 

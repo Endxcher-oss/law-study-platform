@@ -9,7 +9,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-import { cleanArticleText, isHeadingLine, normalizeText } from './lib/clean.js';
+import { cleanArticleText, isHeadingLine, normalizeText, RE_APPENDIX_HEADING } from './lib/clean.js';
 import { buildNameIndex, extractArticleRefs, extractQuotedRefs, lawIdFromTitle, SHORT_ALIASES } from './lib/refs.js';
 import { buildCuratedIndex, classify, taxonomyObject, DIVISIONS, DOMAINS } from './lib/taxonomy.js';
 import { intToCn, parseDisplayNumber, suffixSeq, slugOf } from './lib/cn-num.js';
@@ -102,6 +102,7 @@ function cleanDoc(raw) {
   const articles = [];
   const extractedHeadings = [];
   let pendingPart = null;
+  let appendix = null;
 
   const sorted = [...raw.articles].sort(
     (a, b) => (a.order ?? a.articleNumber ?? 0) - (b.order ?? b.articleNumber ?? 0),
@@ -109,9 +110,13 @@ function cleanDoc(raw) {
 
   for (const a of sorted) {
     const { text, trailingHeadings } = cleanArticleText(a.text);
-    const articlePath = Array.isArray(a.path) ? a.path.filter(Boolean) : [];
+    const articlePath = appendix ? [appendix] : Array.isArray(a.path) ? a.path.filter(Boolean) : [];
 
-    for (const h of trailingHeadings) extractedHeadings.push({ after: a.articleNumber, title: h });
+    for (const h of trailingHeadings) {
+      const title = normalizeText(h);
+      extractedHeadings.push({ after: a.articleNumber, title });
+      if (RE_APPENDIX_HEADING.test(title)) appendix = '附则';
+    }
 
     const parsed = parseDisplayNumber(a.displayNumber);
     const number = parsed ? parsed.number : a.articleNumber;

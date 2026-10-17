@@ -3,6 +3,7 @@
 const RE_PART_HEADING = /^[一二三四五六七八九十]+、[^\n。；：，]{2,22}$/;
 const RE_CHAPTER_HEADING = /^第[一二三四五六七八九十]+[编章节]\s*[^\n]{0,40}$/;
 const RE_HZ_HEADING = /^[（(][一二三四五六七八九十]+[)）][^\n。；：，]{2,22}$/;
+const RE_APPENDIX_HEADING = /^附\s*则$/;
 
 function normalizeText(text) {
   if (!text) return '';
@@ -20,7 +21,7 @@ function normalizeText(text) {
 export function isHeadingLine(line) {
   const t = line.trim();
   if (!t || t.length > 40) return false;
-  if (RE_PART_HEADING.test(t) || RE_CHAPTER_HEADING.test(t) || RE_HZ_HEADING.test(t)) return true;
+  if (RE_PART_HEADING.test(t) || RE_CHAPTER_HEADING.test(t) || RE_HZ_HEADING.test(t) || RE_APPENDIX_HEADING.test(t)) return true;
   return false;
 }
 
@@ -46,4 +47,4 @@ export function splitParagraphs(text) {
   return text.split('\n').map((l) => l.trim()).filter(Boolean);
 }
 
-export { normalizeText, RE_PART_HEADING, RE_CHAPTER_HEADING };
+export { normalizeText, RE_PART_HEADING, RE_CHAPTER_HEADING, RE_APPENDIX_HEADING };
