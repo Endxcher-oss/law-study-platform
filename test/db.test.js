@@ -255,9 +255,10 @@ test('条旨（db/rubrics.json）：人工编辑层，逐条指向真实条文�
     seen.add(r.articleId);
   }
   const doc = db.getDoc('criminal-law');
-  const head = doc.articles.slice(0, 21).map((a) => a.slug);
-  for (const slug of head) {
-    const art = db.getArticle('criminal-law', slug);
+  const general = doc.articles.filter((a) => (a.path || [])[0] === '第一编总则' && /^第[一二]章/.test((a.path || [])[1] || ''));
+  assert.ok(general.length >= 32, `刑法总则第一、二章条文数偏少：${general.length}`);
+  assert.ok(raw.rubrics.length >= general.length, '总则第一、二章的条文都应已撰写条旨');
+  for (const art of general) {
     assert.ok(db.rubricByArticle.get(art.id), `刑法 ${art.displayNumber} 缺条旨`);
   }
   for (const a of db.articles.values()) {
