@@ -394,6 +394,7 @@ test('每页右下角有“回到顶部”悬浮按钮（无 JS 时是普通的 
   const js = await html('/assets/app.js');
   assert.equal(js.status, 200);
   assert.match(js.body, /querySelector\('\.to-top'\)/, '脚本应接管按钮的显隐');
+  assert.ok(!/form\.submit\(\)/.test(js.body), '检索条件改变不应自动提交：只有点“检索”按钮才跳转');
 });
 
 test('检索命中指导性案例时，结果链接走 /case/:id（而不是 /d/:docId/:number 的条文路由）', async () => {

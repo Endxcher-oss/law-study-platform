@@ -57,19 +57,6 @@
     }
   });
 
-  document.querySelectorAll('.search-filters select').forEach(function (sel) {
-    sel.addEventListener('change', function () {
-      var form = sel.closest('form');
-      if (form) form.submit();
-    });
-  });
-  document.querySelectorAll('.search-filters input[type=checkbox]').forEach(function (box) {
-    box.addEventListener('change', function () {
-      var form = box.closest('form');
-      if (form) form.submit();
-    });
-  });
-
   document.addEventListener('keydown', function (e) {
     if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
       var box = document.querySelector('.header-search input[type=search], .search-row input[type=search]');
