@@ -339,7 +339,7 @@ export function docPage(db, docId, query = {}) {
     rows.push(`<li class="toc-article" id="a${a.slug}" data-idx="${from - 1 + i}">
     <a class="toc-article-link" href="${articleUrl(doc.id, a.slug)}">
       <span class="toc-num">${esc(a.displayNumber)}</span>
-      ${db.rubricByArticle.has(a.id) ? `<span class="toc-rubric">【${esc(db.rubricByArticle.get(a.id))}】</span>` : ''}
+      ${db.rubricByArticle.has(a.id) ? `<span class="toc-rubric" title="${esc(db.rubricByArticle.get(a.id))}">【${esc(db.rubricByArticle.get(a.id))}】</span>` : ''}
       <span class="toc-text">${esc((a.text || '').replace(/\n/g, ' ').slice(0, 70))}${a.text.length > 70 ? '…' : ''}</span>
     </a>
     <span class="toc-tags">${note ? levelBadge(note.level) : ''}${interpCount ? `<span class="badge conf-mid">${interpCount} 件司法解释</span>` : ''}</span>

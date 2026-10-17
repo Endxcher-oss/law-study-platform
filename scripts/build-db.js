@@ -797,11 +797,11 @@ function buildRubrics({ docById, articlesById, articleBySlug, warningList }) {
       continue;
     }
     if (/[【】]/.test(text)) warningList.push({ level: 'warn', where, message: `条旨里不要写【】：${text}` });
-    const badChars = [...new Set(text.replace(/[\u4e00-\u9fa5A-Za-z0-9 、]/g, '').split(''))];
+    const badChars = [...new Set(text.replace(/[\u4e00-\u9fa5A-Za-z0-9 、（）]/g, '').split(''))];
     if (badChars.length) {
       warningList.push({ level: 'error', where, message: `条旨不得含标点/特殊符号“${badChars.join('')}”：${text}` });
     }
-    if (text.length > 16) warningList.push({ level: 'warn', where, message: `条旨偏长（${text.length} 字）：${text}` });
+    if (text.length > (/、/.test(text) ? 90 : 20)) warningList.push({ level: 'warn', where, message: `条旨偏长（${text.length} 字）：${text}` });
     if (seen.has(articleId)) warningList.push({ level: 'warn', where, message: `同一条文重复撰写条旨：${articleId}` });
     seen.add(articleId);
 

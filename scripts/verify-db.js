@@ -317,7 +317,7 @@ note(`注解：人工 ${curated.length} 条（重点 ${curated.filter((a) => a.l
       if (seenRubric.has(r.articleId)) err(`条旨重复：${key}`);
       seenRubric.add(r.articleId);
       if (!String(r.text || '').trim()) err(`条旨 ${key} 为空`);
-      const badChars = [...new Set(String(r.text || '').replace(/[\u4e00-\u9fa5A-Za-z0-9 、]/g, '').split(''))];
+      const badChars = [...new Set(String(r.text || '').replace(/[\u4e00-\u9fa5A-Za-z0-9 、（）]/g, '').split(''))];
       if (badChars.length) err(`条旨 ${key} 含标点/特殊符号“${badChars.join('')}”：${r.text}`);
     }
     let bracketed = 0;

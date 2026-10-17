@@ -250,15 +250,18 @@ test('条旨（db/rubrics.json）：人工编辑层，逐条指向真实条文�
     assert.equal(art.id, r.articleId, `${r.docId}#${r.slug} 的 articleId 不一致`);
     assert.equal(art.displayNumber, r.displayNumber, `${r.docId}#${r.slug} 的条号不一致`);
     assert.ok(r.text && r.text.trim(), '条旨不能为空');
-    assert.match(r.text, /^[\u4e00-\u9fa5A-Za-z0-9 、]+$/, `条旨只能由汉字/字母/数字/顿号组成，不要括号等其他标点：${r.text}`);
+    assert.match(r.text, /^[\u4e00-\u9fa5A-Za-z0-9 、（）]+$/, `条旨只能用汉字/字母/数字/顿号，官方罪名里的全角括号除外：${r.text}`);
     assert.ok(!seen.has(r.articleId), `同一条文重复撰写条旨：${r.articleId}`);
     seen.add(r.articleId);
   }
   const doc = db.getDoc('criminal-law');
-  const general = doc.articles.filter((a) => (a.path || [])[0] === '第一编总则');
+  const rubricable = doc.articles.filter((a) => !(a.text || '').trim().startsWith('（删去）'));
+  const general = rubricable.filter((a) => (a.path || [])[0] === '第一编总则');
+  const specific = rubricable.filter((a) => (a.path || [])[0] === '第二编分则');
   assert.ok(general.length >= 101, `刑法总则条文数偏少：${general.length}`);
-  assert.ok(raw.rubrics.length >= general.length, '总则每一条都应已撰写条旨');
-  for (const art of general) {
+  assert.ok(specific.length >= 400, `刑法分则条文数偏少：${specific.length}`);
+  assert.ok(raw.rubrics.length >= rubricable.length, `另有条文未撰写条旨：${rubricable.length - raw.rubrics.length} 条`);
+  for (const art of [...general, ...specific]) {
     assert.ok(db.rubricByArticle.get(art.id), `刑法 ${art.displayNumber} 缺条旨`);
   }
   for (const a of db.articles.values()) {
