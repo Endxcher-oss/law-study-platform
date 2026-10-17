@@ -13,7 +13,7 @@ import { rebaseHtml } from '../public/static-url.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.resolve(ROOT, process.env.OUT_DIR || 'dist');
-const BASE = normBase(process.env.BASE_PATH ?? '/laws');
+const BASE = normBase(process.env.BASE_PATH ?? '/law-study-platform');
 const SAMPLE = Number(process.env.EXPORT_SAMPLE || 0);
 const ONLY_DOCS = (process.env.EXPORT_DOCS || '')
   .split(',')

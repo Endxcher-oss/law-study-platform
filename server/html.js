@@ -87,7 +87,7 @@ export function layout({ title, body, meta = {}, searchBar = null, breadcrumbs =
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title)} · 法条学习平台</title>
+<title>${esc(title)} · 法律学习平台</title>
 <link rel="stylesheet" href="/assets/style.css">
 <link rel="icon" href="data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#8a1f1f"/><text x="16" y="23" font-size="18" text-anchor="middle" fill="#fff" font-family="serif">法</text></svg>')}">
 </head>
@@ -96,7 +96,7 @@ export function layout({ title, body, meta = {}, searchBar = null, breadcrumbs =
   <div class="wrap header-inner">
     <a class="brand" href="/">
       <span class="brand-mark">法</span>
-      <span class="brand-text"><strong>法条学习平台</strong></span>
+      <span class="brand-text"><strong>法律学习平台</strong></span>
     </a>
     <nav class="site-nav">${nav}</nav>
     ${searchBar === null ? defaultSearchBar(meta) : searchBar}

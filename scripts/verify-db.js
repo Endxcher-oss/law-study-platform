@@ -404,7 +404,7 @@ function printList(label, list, mark) {
 function report() {
   const line = '─'.repeat(66);
   console.log(line);
-  console.log('法条学习平台 · 数据库校验报告   db/');
+  console.log('法律学习平台 · 数据库校验报告   db/');
   console.log(line);
   if (!QUIET) for (const n of notes) console.log(`  · ${n}`);
   printList('警告', warnings, '⚠');

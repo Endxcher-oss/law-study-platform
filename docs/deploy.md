@@ -1,13 +1,13 @@
 # 静态部署（GitHub Pages）
 
-线上站点：<https://endxcher-oss.github.io/laws/>（仓库 `Endxcher-oss/laws`，推送 `main` 自动发布）。
+线上站点：<https://endxcher-oss.github.io/law-study-platform/>（仓库 `Endxcher-oss/law-study-platform`，推送 `main` 自动发布）。
 
 GitHub Pages 只发静态文件，而本项目的正文页、目录页都是服务端渲染的。**静态导出**把每个服务端页面渲染成一份 HTML 落盘，链接改写成静态路径，检索则在浏览器里用同一套打分代码跑一遍——这样整站不依赖 Node 运行时也能用。
 
 ## 命令
 
 ```bash
-npm run export:static          # 导出到 dist/（默认部署前缀 /laws）
+npm run export:static          # 导出到 dist/（默认部署前缀 /law-study-platform）
 BASE_PATH= npm run export:static   # 前缀为空：本地根路径预览时用
 BASE_PATH=/other npm run export:static
 EXPORT_SAMPLE=3 npm run export:static      # 只渲染前 3 部文档（自检、测试用，跳过链接自检）
@@ -18,9 +18,9 @@ OUT_DIR=/tmp/site npm run export:static
 本地预览（`BASE_PATH` 与访问路径必须一致）：
 
 ```bash
-BASE_PATH=/laws npm run export:static
-mkdir -p /tmp/preview && ln -sfn "$PWD/dist" /tmp/preview/laws
-python3 -m http.server 8777 --directory /tmp/preview   # http://127.0.0.1:8777/laws/
+BASE_PATH=/law-study-platform npm run export:static
+mkdir -p /tmp/preview && ln -sfn "$PWD/dist" /tmp/preview/law-study-platform
+python3 -m http.server 8777 --directory /tmp/preview   # http://127.0.0.1:8777/law-study-platform/
 ```
 
 `dist/` 是构建产物，不入库（见 `.gitignore`）；线上由 GitHub Actions 现搭现发。

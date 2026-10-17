@@ -2,7 +2,7 @@
   "name": "law-study-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "法条数字化学习平台 —— 法条/司法解释结构化数据库、全局检索、司法解释关联注解与网页 GUI",
+  "description": "法律学习平台 —— 法条/司法解释结构化数据库、全局检索、司法解释关联注解与网页 GUI",
   "type": "module",
   "engines": {
     "node": ">=20"

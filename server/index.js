@@ -123,7 +123,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const server = createServer();
   server.listen(PORT, HOST, () => {
     const c = db.meta.counts;
-    console.log(`法条学习平台已启动：http://${HOST}:${PORT}`);
+    console.log(`法律学习平台已启动：http://${HOST}:${PORT}`);
     console.log(`  数据：${c.documents} 部文件 / ${c.articles} 条条文 / ${c.links} 条关联 / ${c.annotations} 条注解 / ${c.cases} 件案例`);
   });
 }

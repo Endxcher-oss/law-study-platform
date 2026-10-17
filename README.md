@@ -1,8 +1,8 @@
-# 法条数字化学习平台
+# 法律学习平台
 
 用 **Node.js（零运行时依赖）** 搭的 B/S 学习平台：把法律条文与最高人民法院司法解释整理成结构化数据库（`db/`），在它们之间建立**条文级关联**，对疑难条文给出**注解 + 依据**，并提供**全局检索**与一套纯 HTML 的网页 GUI。
 
-> 在线站点：<https://endxcher-oss.github.io/laws/>（GitHub Pages 静态导出，检索在浏览器内完成，详见[静态部署](docs/deploy.md)）
+> 在线站点：<https://endxcher-oss.github.io/law-study-platform/>（GitHub Pages 静态导出，检索在浏览器内完成，详见[静态部署](docs/deploy.md)）
 
 ## 快速开始
 
@@ -47,7 +47,7 @@ npm run export:static   # 导出可上传 GitHub Pages 的 dist/（见文档：�
 ## 仓库一览
 
 ```
-laws/
+law-study-platform/
 ├── data/      只读语料 data/raw/ + 人工撰写的注解 data/annotations/curated.mjs
 ├── scripts/   离线数据流水线（build-db / verify-db / stats / export-static + lib/）
 ├── db/        构建产物：结构化数据库（只读，随时可重建）

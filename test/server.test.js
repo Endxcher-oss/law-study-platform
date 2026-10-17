@@ -56,7 +56,7 @@ test('首页与导航页可访问', async () => {
     const r = await html(p);
     assert.equal(r.status, 200, `${p} 返回 ${r.status}`);
     assert.match(r.type, /text\/html/);
-    assert.match(r.body, /法条数字化学习平台|法条学习/, `${p} 缺少站名`);
+    assert.match(r.body, /法律学习平台/, `${p} 缺少站名`);
   }
 });
 

@@ -52,29 +52,29 @@ test('条文 id 能还原成真实存在的条文页地址', () => {
 
 test('链接改写只加前缀，外链 / 锚点 / 协议相对地址不动', () => {
   const html = '<body><a href="/d/x/1">a</a><a href="https://e.com/">b</a><a href="#top">c</a><a href="//cdn.example.com/x.js">d</a><link rel="stylesheet" href="/assets/style.css"></body>';
-  const out = rebaseHtml(html, '/laws');
-  assert.ok(out.includes('href="/laws/d/x/1"'), out);
-  assert.ok(out.includes('href="/laws/assets/style.css"'), out);
+  const out = rebaseHtml(html, '/law-study-platform');
+  assert.ok(out.includes('href="/law-study-platform/d/x/1"'), out);
+  assert.ok(out.includes('href="/law-study-platform/assets/style.css"'), out);
   assert.ok(out.includes('href="https://e.com/"'), out);
   assert.ok(out.includes('href="#top"'), out);
   assert.ok(out.includes('href="//cdn.example.com/x.js"'), out);
-  assert.ok(out.startsWith('<body data-base="/laws">'), out);
+  assert.ok(out.startsWith('<body data-base="/law-study-platform">'), out);
   assert.equal(rebaseHtml(html, ''), html);
-  assert.equal(rebaseHtml('<body data-base="/laws">x</body>', '/laws'), '<body data-base="/laws">x</body>');
-  assert.equal(rebaseUrl('/x', '/laws'), '/laws/x');
-  assert.equal(rebaseUrl('https://e.com/x', '/laws'), 'https://e.com/x');
+  assert.equal(rebaseHtml('<body data-base="/law-study-platform">x</body>', '/law-study-platform'), '<body data-base="/law-study-platform">x</body>');
+  assert.equal(rebaseUrl('/x', '/law-study-platform'), '/law-study-platform/x');
+  assert.equal(rebaseUrl('https://e.com/x', '/law-study-platform'), 'https://e.com/x');
 });
 
 test('超过 100 条的文件的跨窗口目录项，落到包含该锚点的窗口页', () => {
-  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'laws-export-doc-'));
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'law-study-platform-export-doc-'));
   execFileSync(process.execPath, ['scripts/export-static.js'], {
     cwd: ROOT,
-    env: { ...process.env, OUT_DIR: out, EXPORT_DOCS: 'civil-code,criminal-law', BASE_PATH: '/laws' },
+    env: { ...process.env, OUT_DIR: out, EXPORT_DOCS: 'civil-code,criminal-law', BASE_PATH: '/law-study-platform' },
     stdio: 'pipe',
   });
 
   const tree = fs.readFileSync(path.join(out, 'd/criminal-law/index.html'), 'utf8');
-  const links = [...tree.matchAll(/href="\/laws\/d\/criminal-law\/from\/(\d+)#(a[\w-]+)"/g)].map((m) => ({ from: Number(m[1]), anchor: m[2] }));
+  const links = [...tree.matchAll(/href="\/law-study-platform\/d\/criminal-law\/from\/(\d+)#(a[\w-]+)"/g)].map((m) => ({ from: Number(m[1]), anchor: m[2] }));
   assert.ok(links.length > 5, `跨窗口目录项太少：${links.length}`);
   assert.ok(links.every((l) => l.from > 1 && l.from % 100 === 1), '窗口页的 from 必须是 100 的整数倍加一');
 
@@ -86,10 +86,10 @@ test('超过 100 条的文件的跨窗口目录项，落到包含该锚点的窗
 });
 
 test('样本导出：目录结构、部署前缀、查询参数改写与浏览器模块可达', () => {
-  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'laws-export-'));
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'law-study-platform-export-'));
   execFileSync(process.execPath, ['scripts/export-static.js'], {
     cwd: ROOT,
-    env: { ...process.env, OUT_DIR: out, EXPORT_SAMPLE: '1', BASE_PATH: '/laws' },
+    env: { ...process.env, OUT_DIR: out, EXPORT_SAMPLE: '1', BASE_PATH: '/law-study-platform' },
     stdio: 'pipe',
   });
 
@@ -115,32 +115,32 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   assert.deepEqual(missing, [], `导出物缺少文件：${missing.join(', ')}`);
 
   const home = fs.readFileSync(path.join(out, 'index.html'), 'utf8');
-  assert.ok(home.includes('<body data-base="/laws">'), '首页缺 data-base');
-  assert.ok(home.includes('href="/laws/assets/style.css"'), '首页样式表未加前缀');
-  assert.ok(!/href="\/(?!\/|laws\/)/.test(home), '首页仍有未加前缀的站内链接');
+  assert.ok(home.includes('<body data-base="/law-study-platform">'), '首页缺 data-base');
+  assert.ok(home.includes('href="/law-study-platform/assets/style.css"'), '首页样式表未加前缀');
+  assert.ok(!/href="\/(?!\/|law-study-platform\/)/.test(home), '首页仍有未加前缀的站内链接');
 
   const search = fs.readFileSync(path.join(out, 'search/index.html'), 'utf8');
-  assert.ok(search.includes('src="/laws/assets/public/static.js"'), '检索页未加载静态检索脚本');
+  assert.ok(search.includes('src="/law-study-platform/assets/public/static.js"'), '检索页未加载静态检索脚本');
   assert.ok(search.includes('class="results"'), '检索页缺少首屏兜底结果');
 
   const notFound = fs.readFileSync(path.join(out, '404.html'), 'utf8');
   assert.ok(notFound.startsWith('<!DOCTYPE html>'), `404.html 不是完整页面：${notFound.slice(0, 40)}`);
-  assert.ok(notFound.includes('href="/laws/assets/style.css"'), '404.html 未加部署前缀');
+  assert.ok(notFound.includes('href="/law-study-platform/assets/style.css"'), '404.html 未加部署前缀');
 
   const cases = fs.readFileSync(path.join(out, 'cases/index.html'), 'utf8');
-  assert.ok(cases.includes('action="/laws/search"'), '案例页检索表单未改接到全局检索');
+  assert.ok(cases.includes('action="/law-study-platform/search"'), '案例页检索表单未改接到全局检索');
   assert.ok(cases.includes('name="type" value="指导性案例"'), '案例页检索未限定类型');
-  assert.ok(cases.includes('href="/laws/cases/page/2"'), '案例分页未改写成静态路径');
+  assert.ok(cases.includes('href="/law-study-platform/cases/page/2"'), '案例分页未改写成静态路径');
 
   const notes = fs.readFileSync(path.join(out, 'notes/index.html'), 'utf8');
-  assert.ok(notes.includes('href="/laws/notes/d/civil"'), '注解筛选未改写成静态路径');
-  assert.ok(notes.includes('href="/laws/notes/l/key"'), '注解等级筛选未改写成静态路径');
+  assert.ok(notes.includes('href="/law-study-platform/notes/d/civil"'), '注解筛选未改写成静态路径');
+  assert.ok(notes.includes('href="/law-study-platform/notes/l/key"'), '注解等级筛选未改写成静态路径');
 
   const leftovers = [];
   for (const file of walk(out).filter((f) => f.endsWith('.html'))) {
     const html = fs.readFileSync(file, 'utf8');
     for (const m of html.matchAll(/\b(?:href|action)="([^"]*\?[^"]*)"/g)) {
-      if (/^\/laws\/search\?|^\/search\?/.test(m[1])) continue;
+      if (/^\/law-study-platform\/search\?|^\/search\?/.test(m[1])) continue;
       leftovers.push(`${path.relative(out, file)} → ${m[1]}`);
     }
   }

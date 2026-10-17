@@ -79,7 +79,7 @@ export function homePage(db) {
 
   const body = `
 <section class="hero">
-  <h1>法条数字化学习平台</h1>
+  <h1>法律学习平台</h1>
   <p class="hero-sub">条文、司法解释、疑难注解与指导性案例的关联检索</p>
   ${searchForm(db, { big: true })}
   <div class="hero-stats">

@@ -3,7 +3,7 @@
 代码约定与注释规范见 [conventions.md](conventions.md)；各文件头部只保留一段概括说明，细节都在 `docs/`。
 
 ```
-laws/
+law-study-platform/
 ├── package.json              # 脚本入口：build / verify / stats / start / test / export:static
 ├── .github/workflows/        #   pages.yml：构建 + 测试 + 静态导出 + 发布 GitHub Pages
 ├── docs/                     # 详细文档（数据模型 / 流水线 / 关联 / 检索 / API / 部署…）

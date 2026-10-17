@@ -159,7 +159,7 @@ if (ONLY_JSON) {
   const line = '═'.repeat(78);
   const sub = '─'.repeat(78);
   console.log(line);
-  console.log('法条数字化学习平台 · 数据库统计');
+  console.log('法律学习平台 · 数据库统计');
   console.log(`构建时间 ${db.meta.builtAt}   语料来源 ${db.meta.source?.name || '—'}`);
   console.log(line);
   console.log(
