@@ -126,6 +126,8 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   const notFound = fs.readFileSync(path.join(out, '404.html'), 'utf8');
   assert.ok(notFound.startsWith('<!DOCTYPE html>'), `404.html 不是完整页面：${notFound.slice(0, 40)}`);
   assert.ok(notFound.includes('href="/law-study-platform/assets/style.css"'), '404.html 未加部署前缀');
+  assert.ok(home.includes('href="https://github.com/Endxcher-oss/law-study-platform"'), '页脚的本项目仓库链接是外链，不应被前缀改写');
+  assert.ok(home.includes('href="https://github.com/lttxzmj/chinese-law-corpus"'), '页脚的语料仓库链接是外链，不应被前缀改写');
 
   const cases = fs.readFileSync(path.join(out, 'cases/index.html'), 'utf8');
   assert.ok(cases.includes('action="/law-study-platform/search"'), '案例页检索表单未改接到全局检索');

@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "法律学习平台 —— 法条/司法解释结构化数据库、全局检索、司法解释关联注解与网页 GUI",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Endxcher-oss/law-study-platform.git"
+  },
+  "homepage": "https://endxcher-oss.github.io/law-study-platform/",
   "type": "module",
   "engines": {
     "node": ">=20"

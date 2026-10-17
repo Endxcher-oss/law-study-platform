@@ -108,14 +108,38 @@ ${body}
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>数据来源</strong>：${esc(meta.sourceName || '')}（${esc(meta.license || '')}）· 条文来自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 公开文本，司法解释、指导性案例来自最高人民法院公开发布。本平台为学习工具，内容不作裁判依据，以官方发布文本为准。</p>
-    <p class="muted">数据库构建于 ${esc((meta.builtAt || '').slice(0, 10))} · 收录 ${esc(meta.counts?.documents ?? '')} 部文件 / ${esc(meta.counts?.articles ?? '')} 条条文 / ${esc(meta.counts?.links ?? '')} 条关联 / ${esc(meta.counts?.annotations ?? '')} 条注解</p>
+    <p><strong>数据来源</strong>：${sourceCredit(meta)}（${esc(meta.license || '')}）· 条文来自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 公开文本，司法解释、指导性案例来自最高人民法院公开发布。本平台为学习工具，内容不作裁判依据，以官方发布文本为准。</p>
+    <p class="muted">数据库构建于 ${esc((meta.builtAt || '').slice(0, 10))} · 收录 ${esc(meta.counts?.documents ?? '')} 部文件 / ${esc(meta.counts?.articles ?? '')} 条条文 / ${esc(meta.counts?.links ?? '')} 条关联 / ${esc(meta.counts?.annotations ?? '')} 条注解${projectCredit(meta)}</p>
   </div>
 </footer>
 <script src="/assets/app.js" defer></script>
 <a class="to-top" href="#top" title="回到顶部" aria-label="回到顶部"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19.5V6.2M5.7 12.5 12 6l6.3 6.5"/></svg></a>
 </body>
 </html>`;
+}
+
+function sourceCredit(meta) {
+  const name = esc(meta.sourceName || '');
+  const title = meta.sourceTitle ? `（${esc(meta.sourceTitle)}）` : '';
+  const link = meta.sourceUrl ? `<a href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener">${name}</a>` : name;
+  return `${link}${title}`;
+}
+
+function projectCredit(meta) {
+  const p = meta.project || {};
+  const parts = [];
+  if (p.repository) {
+    const slug = p.repository.replace(/^https?:\/\//, '').replace(/^github\.com\//, '');
+    parts.push(`本项目源码 <a href="${esc(p.repository)}" target="_blank" rel="noopener" title="${esc(p.repository)}">${esc(slug)}</a>${p.license ? `（${esc(p.license)}）` : ''}`);
+    if (p.commit) {
+      const href = `${p.repository}/commit/${p.commit}`;
+      const title = p.committedAt ? ` title="提交时间 ${esc(p.committedAt)}"` : '';
+      parts.push(`构建提交 <a href="${esc(href)}" target="_blank" rel="noopener"${title}><code>${esc(p.commit)}</code></a>${p.dirty ? '（构建时工作区有未提交改动）' : ''}`);
+    }
+  } else if (p.commit) {
+    parts.push(`构建提交 ${esc(p.commit)}`);
+  }
+  return parts.length ? ` · ${parts.join(' · ')}` : '';
 }
 
 function defaultSearchBar(meta) {
@@ -125,7 +149,8 @@ function defaultSearchBar(meta) {
   </form>`;
 }
 
-export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc = true } = {}) {  const path = (rec.path || []).filter(Boolean);
+export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc = true } = {}) {
+  const path = (rec.path || []).filter(Boolean);
   const docTitle = esc(rec.docShortTitle || rec.docTitle);
   const num = esc(rec.displayNumber || '');
   if (rec.kind === 'case') {

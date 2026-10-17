@@ -28,7 +28,9 @@ export function textToHtml(text) {
 function metaFromDb(db) {
   return {
     ...db.meta,
-    sourceName: db.meta.source?.name,
+    sourceName: db.meta.source?.repo?.name,
+    sourceTitle: db.meta.source?.title,
+    sourceUrl: db.meta.source?.repo?.url,
     license: db.meta.source?.license,
   };
 }

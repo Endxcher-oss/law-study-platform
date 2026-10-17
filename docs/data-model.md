@@ -1,5 +1,12 @@
 # 数据模型（`db/`）
 
+## `meta.json` — 元信息
+
+- `builtAt` / `generator`：构建时间与构建脚本；页脚的“数据库构建于”取 `builtAt`。
+- `source.repo`：上游语料仓库（`{name, url}`，页脚把语料名链到它）；`source.title` 是语料的中文名，`source.legalSource` 是条文原始出处，`source.license` 为语料许可。
+- `project`：本项目自身信息，`repository` / `homepage` / `license` 来自 `package.json`，`commit` / `committedAt` / `dirty` 在构建时用 git 读取（工作区有未提交改动时页脚会注明）——页脚的“本项目源码”与“构建提交”都取这里。
+- `counts`：页脚那一行的文件 / 条文 / 关联 / 注解计数；`coverage` 的口径见下文。
+
 ## `catalog.json` — 文档目录（数组）
 
 ```json

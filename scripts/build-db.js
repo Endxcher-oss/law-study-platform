@@ -6,6 +6,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { cleanArticleText, isHeadingLine, normalizeText } from './lib/clean.js';
@@ -15,6 +16,7 @@ import { intToCn, parseDisplayNumber, suffixSeq, slugOf } from './lib/cn-num.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
+const PKG = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const RAW_LAWS = path.join(ROOT, 'data/raw/laws');
 const RAW_CASES = path.join(ROOT, 'data/raw/guiding-cases');
 const DB = path.join(ROOT, 'db');
@@ -28,6 +30,23 @@ function writeJson(file, data, { pretty = false } = {}) {
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+function gitInfo() {
+  const run = (args) => {
+    try {
+      return execFileSync('git', args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    } catch {
+      return '';
+    }
+  };
+  const commit = run(['rev-parse', '--short=7', 'HEAD']);
+  if (!commit) return { commit: null, committedAt: null, dirty: false };
+  return {
+    commit,
+    committedAt: run(['show', '-s', '--format=%cI', 'HEAD']) || null,
+    dirty: run(['status', '--porcelain']).length > 0,
+  };
 }
 
 function shortTitleOf(title) {
@@ -392,11 +411,18 @@ function main() {
     builtAt: new Date().toISOString(),
     generator: 'scripts/build-db.js',
     source: {
-      name: 'chinese-law-corpus（中国法律法规与案例结构化语料库）',
-      upstream: 'https://github.com/lttxzmj/chinese-law-corpus',
+      repo: { name: 'chinese-law-corpus', url: 'https://github.com/lttxzmj/chinese-law-corpus' },
+      title: '中国法律法规与案例结构化语料库',
       legalSource: '国家法律法规数据库 https://flk.npc.gov.cn/（正文经 Word 原文抽取，未经模型改写）',
       license: 'CC0-1.0',
       syncedAt: '2026-10-15',
+    },
+    project: {
+      name: PKG.name,
+      repository: String(PKG.repository?.url || '').replace(/\.git$/, '') || null,
+      homepage: PKG.homepage || null,
+      license: PKG.license || null,
+      ...gitInfo(),
     },
     counts: {
       documents: catalog.length,

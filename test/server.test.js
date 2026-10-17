@@ -429,3 +429,18 @@ test('相关指导性案例列表不重复条号；案例页的关联法条用�
   assert.ok(aside.includes('>第十一条</a>'), '关联法条的链接文字应使用条文正式条号');
   assert.ok(!/第11条/.test(aside), '不应照抄案例原文里的阿拉伯条号');
 });
+
+test('页脚：语料仓库、本项目仓库与构建提交都给出链接', async () => {
+  const r = await html('/');
+  assert.equal(r.status, 200);
+  const foot = r.body.slice(r.body.indexOf('site-footer'), r.body.indexOf('</footer>'));
+  assert.ok(
+    foot.includes('<a href="https://github.com/lttxzmj/chinese-law-corpus"') && foot.includes('>chinese-law-corpus</a>'),
+    '语料名应链接到上游仓库',
+  );
+  assert.ok(foot.includes('（中国法律法规与案例结构化语料库）'), '中文语料名应保留在链接之外');
+  assert.ok(foot.includes('href="https://github.com/Endxcher-oss/law-study-platform"'), '页脚应有本项目仓库链接');
+  const commit = foot.match(/href="https:\/\/github\.com\/Endxcher-oss\/law-study-platform\/commit\/([0-9a-f]{7,40})"/);
+  assert.ok(commit, '页脚应把构建提交链到对应 commit（需要构建时有 git 信息）');
+  assert.ok(foot.includes('（MIT）'), '页脚应标明本项目代码许可');
+});
