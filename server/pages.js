@@ -390,14 +390,16 @@ ${crumbs(breadcrumbTrail(db, doc))}
 
 <div class="doc-body" id="toc">
   <aside class="toc-panel">
-    <h3>目录</h3>
-    ${jumpNav}
-    ${toc}
-    ${
-      keyword
-        ? `<p class="muted small toc-filter-hint">筛选“${esc(keyword)}”后，目录只列出命中条文所在的章节，其余章节已隐藏（共命中 ${matched.length} 条）。</p>`
-        : ''
-    }
+    <details class="toc-fold" open>
+      <summary class="toc-fold-head"><h3>目录</h3></summary>
+      ${jumpNav}
+      ${toc}
+      ${
+        keyword
+          ? `<p class="muted small toc-filter-hint">筛选“${esc(keyword)}”后，目录只列出命中条文所在的章节，其余章节已隐藏（共命中 ${matched.length} 条）。</p>`
+          : ''
+      }
+    </details>
   </aside>
   <section class="article-window">
     <h3>条文（${matched.length ? `${from} – ${Math.min(from + step - 1, matched.length)} / ${matched.length}` : '0'}）${

@@ -87,6 +87,23 @@
   var panel = document.querySelector('.toc-panel');
   var tree = document.querySelector('.section-tree');
 
+  var narrow = window.matchMedia && window.matchMedia('(max-width: 960px)').matches;
+
+  document.querySelectorAll('.toc-fold').forEach(function (fold) {
+    if (narrow) fold.open = false;
+  });
+
+  (function () {
+    var nav = document.querySelector('.site-nav');
+    if (!nav) return;
+    var active = nav.querySelector('.nav-link.is-active');
+    if (!active) return;
+    var box = nav.getBoundingClientRect();
+    var item = active.getBoundingClientRect();
+    if (item.right > box.right - 4) nav.scrollLeft += item.right - box.right + 4;
+    else if (item.left < box.left + 4) nav.scrollLeft -= box.left - item.left + 4;
+  })();
+
   function nodeByIndex(idx) {
     if (!tree) return null;
     var nodes = tree.querySelectorAll('li[data-idx][data-count]');

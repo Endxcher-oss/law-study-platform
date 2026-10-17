@@ -9,7 +9,7 @@
 ```bash
 npm run build     # 由 data/raw 构建 db/（约 2.3 秒）
 npm start         # http://127.0.0.1:3000
-npm test          # 81 项测试
+npm test          # 82 项测试
 npm run verify    # 数据完整性与引文可核性校验
 npm run stats     # 生成数据统计报表
 npm run export:static   # 导出可上传 GitHub Pages 的 dist/（见文档：静态部署）
@@ -25,7 +25,7 @@ npm run export:static   # 导出可上传 GitHub Pages 的 dist/（见文档：�
 - **疑难注解**：1,018 条（20 条人工撰写 + 998 条自动派生），每条附「依据的司法解释 + 逐字引文」，构建时逐字校验。
 - **全局检索**：一次检索覆盖条文正文/条号/法名/注解/关键词/案例六类内容，可按编、文件类别、单部法律、是否带注解限定范围，支持 6 种排序、分面收窄与命中快照高亮；勾选“只搜索裁判文书”则只在《最高人民法院公报》裁判文书里检索。
 - **裁判文书**：《最高人民法院公报》裁判文书 445 件（2003–2026 年，判决书/裁定书等，含裁判摘要与文书全文）独立成栏：只收文书正文与客观元数据，**不与法条建立条文级关联**，也不参与默认检索。
-- **网页 GUI**：14 个服务端渲染页面 + 14 个 JSON API，纯 HTML/CSS，禁用 JavaScript 也能完整使用。
+- **网页 GUI**：14 个服务端渲染页面 + 14 个 JSON API，纯 HTML/CSS，禁用 JavaScript 也能完整使用；手机/平板上页头收成两行、侧栏折成单列、法律总览的目录树可一键收起。
 
 ## 文档
 
@@ -54,7 +54,7 @@ law-study-platform/
 ├── db/        构建产物：结构化数据库（只读，随时可重建）
 ├── server/    原生 http 服务端：路由、索引、检索、页面渲染、JSON API
 ├── public/    前端增强（style.css / app.js / static.js；禁用 JS 也能用）
-├── test/      node:test 测试（81 项）
+├── test/      node:test 测试（82 项）
 ├── dist/      静态导出产物（不入库，由 GitHub Actions 构建并发布）
 └── docs/      详细文档
 ```

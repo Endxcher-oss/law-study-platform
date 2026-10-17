@@ -397,6 +397,24 @@ test('每页右下角有“回到顶部”悬浮按钮（无 JS 时是普通的 
   assert.ok(!/form\.submit\(\)/.test(js.body), '检索条件改变不应自动提交：只有点“检索”按钮才跳转');
 });
 
+test('移动端：窄屏折叠页头与目录树、案例页侧栏折成一列', async () => {
+  const css = await html('/assets/style.css');
+  const mobile = css.body.slice(css.body.indexOf('@media (max-width: 760px)'));
+  const singleColumn = css.body.slice(css.body.indexOf('@media (max-width: 960px)'), css.body.indexOf('@media (max-width: 760px)'));
+  assert.ok(mobile.length > 0 && singleColumn.length > 0, '缺少窄屏断点');
+  assert.match(singleColumn, /\.site-nav \{[^}]*overflow-x: auto/, '窄屏导航应改成一行横向滚动，而不是堆成多行粘在页顶');
+  assert.match(mobile, /input\[type="search"\] \{[^}]*font-size: 16px/, '输入框 16px，避免 iOS 聚焦时自动放大');
+  assert.match(singleColumn, /\.toc-panel \{ position: static/, '目录面板在单列布局下不应吸顶');
+  assert.match(singleColumn, /\.toc-fold > summary \{[^}]*cursor: pointer/, '窄屏目录树应可收起');
+  const caseGridBase = css.body.indexOf('.case-grid { grid-template-columns: 1fr 320px; }');
+  const caseGridMobile = css.body.lastIndexOf('.case-grid { grid-template-columns: 1fr; }');
+  assert.ok(caseGridBase > 0 && caseGridMobile > caseGridBase, '.case-grid 的窄屏覆盖必须晚于 320px 侧栏声明，否则窄屏仍排两列');
+  const doc = await html('/d/civil-code');
+  assert.match(doc.body, /<details class="toc-fold" open>\s*<summary class="toc-fold-head"><h3>目录<\/h3><\/summary>/, '目录树应包在可收起的 details 里，且默认展开（无 JS 也能看）');
+  const js = await html('/assets/app.js');
+  assert.match(js.body, /matchMedia\('\(max-width: 960px\)'\)/, '窄屏应默认收起目录树');
+});
+
 test('检索命中指导性案例时，结果链接走 /case/:id（而不是 /d/:docId/:number 的条文路由）', async () => {
   const page = await html('/search?q=b');
   assert.equal(page.status, 200);
