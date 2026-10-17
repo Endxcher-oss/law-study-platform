@@ -29,7 +29,8 @@
 - 服务端渲染为准：禁用 JS 也能完整使用（目录树用原生 `<details>`、回到顶部是普通 `#top` 锚点、检索是表单 GET）。
 - JS 只做增强，并且都要有兜底：滚动类监听走 `requestAnimationFrame` 节流 + `{ passive: true }`；尊重 `prefers-reduced-motion`。
 - 交互改动要同时检查：窄屏（≤960px 页头变两行、≤760px 手机字号、≤420px 极窄屏）、打印（`@media print` 隐藏导航/悬浮件）、键盘（`/` 聚焦搜索、Esc 失焦）。
-- 窄屏适配都在 `public/style.css` 末尾的 `@media` 区块里，响应式覆盖若与后面的单条规则同权重，必须排在它之后（`@media` 不会自动提权）。页面元素本身只做一处适配：法律总览的目录树包在 `<details class="toc-fold">` 里，桌面靠 CSS 隐去展开标记，窄屏才露出“展开 / 收起”。
+- 窄屏适配都在 `public/style.css` 的 `@media` 区块里，响应式覆盖若与后面的单条规则同权重，必须排在它之后（`@media` 不会自动提权）。页面元素本身只做一处适配：法律总览的目录树包在 `<details class="toc-fold">` 里，桌面靠 CSS 隐去展开标记，窄屏才露出“展开 / 收起”。
+- 颜色只走 `:root` 变量：新增颜色要在 `:root` 与 `@media screen and (prefers-color-scheme: dark)` 里各定义一次，规则里不写死色值（`npm test` 会比对两边的颜色变量集合）。暗色跟随系统设置，没有手动开关。
 
 ## 数据与文案口径
 
@@ -60,7 +61,7 @@
 ```bash
 npm run build      # 重建 db/（含告警统计）
 npm run verify     # 结构、引文逐字、条旨与 mentions 等不变式
-npm test           # 81 项：引用抽取 / 数据库 / 检索 / HTTP 端到端 / 静态导出 / 文档
+npm test           # 83 项：引用抽取 / 数据库 / 检索 / HTTP 端到端 / 静态导出 / 文档
 ```
 
 数据库或渲染层改动，建议再跑一次全库渲染扫描（每部文档的目录树与条文窗不变式）。

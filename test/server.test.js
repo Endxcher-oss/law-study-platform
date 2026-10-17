@@ -415,6 +415,21 @@ test('移动端：窄屏折叠页头与目录树、案例页侧栏折成一列',
   assert.match(js.body, /matchMedia\('\(max-width: 960px\)'\)/, '窄屏应默认收起目录树');
 });
 
+test('暗色模式：跟随系统，且每个颜色变量都有暗色值', async () => {
+  const css = (await html('/assets/style.css')).body;
+  assert.match(css, /:root \{\s*color-scheme: light;/, '浅色是默认主题');
+  assert.match(css, /@media screen and \(prefers-color-scheme: dark\) \{\s*:root \{\s*color-scheme: dark;/, '暗色跟随系统，且只对屏幕生效');
+  const tokens = (block) =>
+    new Set([...block.matchAll(/^\s*(--[\w-]+):\s*(#[0-9a-fA-F]{3,6}|rgba\([^)]*\))/gm)].map((m) => m[1]));
+  const start = css.indexOf('@media screen and (prefers-color-scheme: dark)');
+  const light = tokens(css.slice(css.indexOf(':root {'), start));
+  const dark = tokens(css.slice(start, css.indexOf('* { box-sizing')));
+  assert.ok(light.size >= 20, '颜色变量应集中在 :root');
+  const missing = [...light].filter((t) => !dark.has(t));
+  assert.deepEqual(missing, [], `暗色主题缺少这些颜色变量：${missing.join(', ')}`);
+  assert.match(css, /mark \{ background: var\(--mark\); color: var\(--ink\)/, '高亮文字颜色要跟主题走，否则暗色下是黑字压深底');
+});
+
 test('检索命中指导性案例时，结果链接走 /case/:id（而不是 /d/:docId/:number 的条文路由）', async () => {
   const page = await html('/search?q=b');
   assert.equal(page.status, 200);
