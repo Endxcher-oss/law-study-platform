@@ -40,6 +40,8 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 | `/notes?division=civil&level=warning` | `/notes/d/civil/l/warning` |
 | `/cases?page=3` | `/cases/page/3` |
 | `/cases?q=居间合同` | `/search?q=居间合同&type=指导性案例` |
+| `/gazettes?page=3` | `/gazettes/page/3` |
+| `/gazettes?q=专利` | `/search?gazette=1&q=专利`（裁判文书列表页的检索框自带 `gazette=1`） |
 | `/d/civil-code?from=101` | `/d/civil-code/from/101` |
 | `/d/civil-code?from=585` | `/d/civil-code/from/501`（落到**包含**该条的窗口页，锚点依旧可达） |
 | `/search?q=违约金&scope=civil` | 保持查询串，交给浏览器检索 |
@@ -60,11 +62,13 @@ dist/
 ├── divisions/ about/ search/                     # 静态页面（每页一个目录 + index.html）
 ├── notes/ notes/d/<编>/ notes/l/<等级>/
 ├── cases/ cases/page/<n>/ case/<案例 id>/
+├── gazettes/ gazettes/page/<n>/ gazette/<文书 id>/
 ├── division/<编>/ domain/<领域>/
 ├── d/<文件 id>/[from/<n>/] d/<文件 id>/<条号>/
 └── assets/
     ├── style.css app.js                          # 与服务端渲染页面里引用的路径一致
-    ├── index.json catalog.json taxonomy.json     # 静态检索数据
+    ├── index.json catalog.json taxonomy.json      # 静态检索数据（条文 + 指导性案例）
+    ├── gazette-index.json                         # 裁判文书索引，仅勾选“只搜索裁判文书”时下载
     ├── public/static.js public/static-url.js      # 检索增强、链接改写
     ├── server/{search,html,constants}.js          # 原样复制，浏览器直接复用
     └── scripts/lib/cn-num.js

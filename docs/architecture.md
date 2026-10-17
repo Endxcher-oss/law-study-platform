@@ -53,7 +53,7 @@ law-study-platform/
 │   ├── app.js                #   搜索建议、目录跳转、复制条文、快捷键
 │   ├── static.js             #   静态站点检索增强（只在 dist/ 里加载）
 │   └── static-url.js         #   静态站点链接前缀改写（导出脚本与浏览器共用）
-└── test/                     # node:test 测试（70 项）
+└── test/                     # node:test 测试（81 项）
     ├── refs.test.js          #   引用抽取引擎
     ├── db.test.js            #   数据库结构与不变式
     ├── search.test.js        #   检索、排序、分页、高亮
