@@ -139,16 +139,18 @@ function searchForm(db, { big = false, opts = {} } = {}) {
 
   const sortOpts = SORTS.map(([v, l]) => `<option value="${v}"${opts.sort === v ? ' selected' : ''}>${l}</option>`).join('');
 
+  const off = opts.gazetteOnly ? ' disabled' : '';
+
   return `<form class="search-form${big ? ' is-big' : ''}" action="/search" method="get" role="search">
   <div class="search-row">
     <input type="search" name="q" value="${esc(opts.q || '')}" placeholder="输入关键词，或“民法典 585”“违约金 调整”" autocomplete="off" aria-label="检索关键词">
     <button type="submit">检索</button>
   </div>
   <div class="search-filters">
-    <label>范围 <select name="scope">${scopeOpts}</select></label>
-    <label>类型 <select name="type">${typeOpts}</select></label>
+    <label>范围 <select name="scope"${off}>${scopeOpts}</select></label>
+    <label>类型 <select name="type"${off}>${typeOpts}</select></label>
     <label>排序 <select name="sort">${sortOpts}</select></label>
-    <label class="check"><input type="checkbox" name="annotated" value="1"${opts.onlyAnnotated ? ' checked' : ''}> 只看有注解的条文</label>
+    <label class="check"><input type="checkbox" name="annotated" value="1"${opts.onlyAnnotated ? ' checked' : ''}${off}> 只看有注解的条文</label>
     <label class="check"><input type="checkbox" name="gazette" value="1"${opts.gazetteOnly ? ' checked' : ''}> 只搜索裁判文书</label>
     ${opts.docId ? `<input type="hidden" name="doc" value="${esc(opts.docId)}">` : ''}
   </div>

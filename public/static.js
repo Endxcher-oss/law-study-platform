@@ -21,7 +21,32 @@ let gazetteCache = null;
 function init() {
   const sp = new URLSearchParams(location.search);
   if (!SCOPES.some((k) => sp.has(k))) return;
-  run(readParams());
+  const p = readParams();
+  syncForm(p);
+  run(p);
+}
+
+function syncForm(p) {
+  for (const box of document.querySelectorAll('input[name=q]')) box.value = p.q;
+  const set = (name, value) => {
+    const el = document.querySelector(`.search-form [name=${name}]`);
+    if (el) el.value = value;
+  };
+  set('scope', p.scope);
+  set('type', p.type);
+  set('sort', p.sort);
+  const check = (name, on) => {
+    const el = document.querySelector(`.search-form input[name=${name}]`);
+    if (el) el.checked = on;
+  };
+  check('annotated', p.annotated);
+  check('gazette', p.gazette);
+  if (p.gazette) {
+    for (const name of ['scope', 'type', 'annotated']) {
+      const el = document.querySelector(`.search-form [name=${name}]`);
+      if (el) el.disabled = true;
+    }
+  }
 }
 
 function readParams() {

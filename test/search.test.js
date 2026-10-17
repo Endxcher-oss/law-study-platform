@@ -196,3 +196,11 @@ test('裁判文书检索：默认不含，勾选“只搜索裁判文书”后�
     '裁判文书没有注解，“只看有注解”在裁判文书模式下不生效',
   );
 });
+
+test('裁判文书模式忽略“编 / 类型 / 注解”筛选（它们对裁判文书不适用）', () => {
+  const base = search(db, { q: '专利', gazetteOnly: true, pageSize: 1 }).total;
+  assert.ok(base > 0);
+  assert.equal(search(db, { q: '专利', gazetteOnly: true, scope: 'civil', pageSize: 1 }).total, base);
+  assert.equal(search(db, { q: '专利', gazetteOnly: true, type: '法律', pageSize: 1 }).total, base);
+  assert.equal(search(db, { q: '专利', gazetteOnly: true, onlyAnnotated: true, pageSize: 1 }).total, base);
+});

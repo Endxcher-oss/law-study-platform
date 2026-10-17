@@ -147,9 +147,11 @@ export function search(db, opts = {}) {
 
   let pool = gazetteOnly ? db.corpus.filter((r) => r.kind === 'gazette') : db.corpus.filter((r) => r.kind !== 'gazette');
   if (docId) pool = pool.filter((r) => r.docId === docId);
-  if (scope && scope !== 'all') pool = pool.filter((r) => r.division === scope);
-  if (type && type !== 'all') pool = pool.filter((r) => r.category === type);
-  if (onlyAnnotated && !gazetteOnly) pool = pool.filter((r) => r.hasAnnotation);
+  if (!gazetteOnly) {
+    if (scope && scope !== 'all') pool = pool.filter((r) => r.division === scope);
+    if (type && type !== 'all') pool = pool.filter((r) => r.category === type);
+    if (onlyAnnotated) pool = pool.filter((r) => r.hasAnnotation);
+  }
 
   const results = [];
   let scanned = 0;
