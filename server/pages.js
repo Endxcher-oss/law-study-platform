@@ -1119,6 +1119,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
   <h2>1. 数据来源</h2>
   <p>条文正文取自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 的公开文本，经 <code>chinese-law-corpus</code>（CC0-1.0）项目整理为逐条结构化语料；司法解释与指导性案例来自最高人民法院公开发布。本平台不修改条文正文，仅做结构化、分类与关联。</p>
   <p>收录情况：${c.documents} 部文件（法律 ${c.codes} 部、行政法规 ${c.regulations} 部、司法解释 ${c.interpretations} 部），共 ${c.articles} 条条文；构建 ${c.links} 条条文级关联、${c.annotations} 条注解、${c.cases} 件指导性案例${c.rubrics ? `，另有 ${c.rubrics} 条人工撰写的条文主旨` : ''}。</p>
+  <p>本平台源码以 MIT 许可发布（见页脚“源码”链接），静态站点由 GitHub Actions 构建并发布到 Pages。</p>
 
   <h2>2. 编与门类的划分</h2>
   <p>七个编全部纳入正式建设：宪法编、刑法编、民法编、商法编、社会法编、行政法编、经济法编（均已定型门类，标记为“已建设”）；规则未覆盖的进入“其他编（待归类）”，保证不丢失数据（目前为空）。分类规则见 <code>scripts/lib/taxonomy.js</code>：先匹配人工核定表（按文档 id），再按法规名称关键词规则，最后按类型兜底。</p>

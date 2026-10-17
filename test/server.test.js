@@ -440,7 +440,12 @@ test('页脚：语料仓库、本项目仓库与构建提交都给出链接', as
   );
   assert.ok(foot.includes('（中国法律法规与案例结构化语料库）'), '中文语料名应保留在链接之外');
   assert.ok(foot.includes('href="https://github.com/Endxcher-oss/law-study-platform"'), '页脚应有本项目仓库链接');
+  assert.ok(foot.includes('>源码</a>'), '本项目仓库的链接文字就是“源码”两个字（不露出长地址）');
   const commit = foot.match(/href="https:\/\/github\.com\/Endxcher-oss\/law-study-platform\/commit\/([0-9a-f]{7,40})"/);
   assert.ok(commit, '页脚应把构建提交链到对应 commit（需要构建时有 git 信息）');
-  assert.ok(foot.includes('（MIT）'), '页脚应标明本项目代码许可');
+  assert.ok(!foot.includes('部文件'), '页脚不再重复收录计数（收录情况放在“关于数据”页）');
+
+  const about = await html('/about');
+  assert.equal(about.status, 200);
+  assert.ok(/本平台源码以 MIT 许可发布/.test(about.body), '“关于数据”页应说明源码许可');
 });
