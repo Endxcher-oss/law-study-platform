@@ -911,18 +911,25 @@ export function searchPage(db, query) {
 
   const facetChips = (() => {
     if (!q) return '';
-    const cat = FACET_ORDER.filter((c) => res.facets.category[c]).map(
-      (c) =>
-        `<a class="chip${opts.type === c ? ' is-active' : ''}" href="${searchUrl({ ...params, page: 1, type: opts.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`,
-    );
-    const divs = db.taxonomy.divisions
+    const catChips = FACET_ORDER.filter((c) => res.facets.category[c])
+      .map(
+        (c) =>
+          `<a class="chip${opts.type === c ? ' is-active' : ''}" href="${searchUrl({ ...params, page: 1, type: opts.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`,
+      )
+      .join('');
+    const divChips = db.taxonomy.divisions
       .filter((d) => res.facets.division[d.id])
       .map(
         (d) =>
           `<a class="chip${opts.scope === d.id ? ' is-active' : ''}" href="${searchUrl({ ...params, page: 1, scope: opts.scope === d.id ? 'all' : d.id })}">${esc(d.name)} <em>${res.facets.division[d.id]}</em></a>`,
-      );
-    return `<div class="facet-row"><span class="facet-label">类型</span>${cat.join('')}</div>
-      <div class="facet-row"><span class="facet-label">编</span>${divs.join('')}</div>`;
+      )
+      .join('');
+    return [
+      catChips && `<div class="facet-row"><span class="facet-label">类型</span>${catChips}</div>`,
+      divChips && `<div class="facet-row"><span class="facet-label">编</span>${divChips}</div>`,
+    ]
+      .filter(Boolean)
+      .join('');
   })();
 
   const body = `

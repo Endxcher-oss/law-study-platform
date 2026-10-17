@@ -9,7 +9,7 @@
 ```bash
 npm run build     # 由 data/raw 构建 db/（约 2.3 秒）
 npm start         # http://127.0.0.1:3000
-npm test          # 83 项测试
+npm test          # 84 项测试
 npm run verify    # 数据完整性与引文可核性校验
 npm run stats     # 生成数据统计报表
 npm run export:static   # 导出可上传 GitHub Pages 的 dist/（见文档：静态部署）
@@ -54,7 +54,7 @@ law-study-platform/
 ├── db/        构建产物：结构化数据库（只读，随时可重建）
 ├── server/    原生 http 服务端：路由、索引、检索、页面渲染、JSON API
 ├── public/    前端增强（style.css / app.js / static.js；禁用 JS 也能用）
-├── test/      node:test 测试（83 项）
+├── test/      node:test 测试（84 项）
 ├── dist/      静态导出产物（不入库，由 GitHub Actions 构建并发布）
 └── docs/      详细文档
 ```

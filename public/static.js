@@ -173,15 +173,19 @@ async function run(p) {
 
   const params = { q: p.q, scope: p.scope, type: p.type, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
   const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
-  const chips = p.q
-    ? `<div class="facet-row"><span class="facet-label">类型</span>${FACET_ORDER.filter((c) => res.facets.category[c])
-        .map((c) => `<a class="chip${p.type === c ? ' is-active' : ''}" href="${url({ type: p.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`)
-        .join('')}</div>
-      <div class="facet-row"><span class="facet-label">编</span>${db.taxonomy.divisions
-        .filter((d) => res.facets.division[d.id])
-        .map((d) => `<a class="chip${p.scope === d.id ? ' is-active' : ''}" href="${url({ scope: p.scope === d.id ? 'all' : d.id })}">${esc(d.name)} <em>${res.facets.division[d.id]}</em></a>`)
-        .join('')}</div>`
-    : '';
+  const catChips = FACET_ORDER.filter((c) => res.facets.category[c])
+    .map((c) => `<a class="chip${p.type === c ? ' is-active' : ''}" href="${url({ type: p.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`)
+    .join('');
+  const divChips = db.taxonomy.divisions
+    .filter((d) => res.facets.division[d.id])
+    .map((d) => `<a class="chip${p.scope === d.id ? ' is-active' : ''}" href="${url({ scope: p.scope === d.id ? 'all' : d.id })}">${esc(d.name)} <em>${res.facets.division[d.id]}</em></a>`)
+    .join('');
+  const chips = [
+    catChips && `<div class="facet-row"><span class="facet-label">类型</span>${catChips}</div>`,
+    divChips && `<div class="facet-row"><span class="facet-label">编</span>${divChips}</div>`,
+  ]
+    .filter(Boolean)
+    .join('');
 
   const html = `
 ${direct}

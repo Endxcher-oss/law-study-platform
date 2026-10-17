@@ -415,6 +415,25 @@ test('移动端：窄屏折叠页头与目录树、案例页侧栏折成一列',
   assert.match(js.body, /matchMedia\('\(max-width: 960px\)'\)/, '窄屏应默认收起目录树');
 });
 
+test('检索分面：零命中或只有案例命中时不留下空的“类型 / 编”标签', async () => {
+  const none = await html('/search?q=zzzzzz');
+  assert.equal(none.status, 200);
+  assert.match(none.body, /命中 <strong>0<\/strong>/, '该查询应无命中');
+  assert.ok(!none.body.includes('facet-label'), '零命中时不应输出分面行');
+
+  const casesOnly = await html('/search?q=' + encodeURIComponent('居间合同'));
+  assert.match(casesOnly.body, /facet-label">类型/, '只有案例命中时仍要显示类型分面');
+  assert.ok(!casesOnly.body.includes('facet-label">编'), '案例不带编，不应留下空的“编”标签');
+
+  const mixed = await html('/search?q=' + encodeURIComponent('违约金'));
+  assert.match(mixed.body, /facet-label">编/, '普通命中时“编”分面照旧');
+
+  const js = await html('/assets/static.js');
+  assert.equal(js.status, 200);
+  assert.match(js.body, /catChips && `<div class="facet-row">/, '静态检索的“类型”行要按有没有分面决定');
+  assert.match(js.body, /divChips && `<div class="facet-row">/, '静态检索的“编”行同理');
+});
+
 test('暗色模式：跟随系统，且每个颜色变量都有暗色值', async () => {
   const css = (await html('/assets/style.css')).body;
   assert.match(css, /:root \{\s*color-scheme: light;/, '浅色是默认主题');
