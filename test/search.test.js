@@ -224,3 +224,9 @@ test('条旨在检索范围内：只写在条旨里的词能定位到该条', ()
   assert.equal(res.items[0].snippet.field, 'rubric', '快照应取条旨字段');
   assert.equal(search(db, { q: '立法目的与根据' }).items[0].id, 'criminal-law-0001');
 });
+
+test('摘要优先取正文：命中词同时在标题行与正文里时，不把目录行当摘要', () => {
+  const res = search(db, { q: '管辖', pageSize: 8 });
+  assert.ok(res.items.length >= 5);
+  assert.ok(res.items.every((i) => i.snippet.field !== 'title'), '“管辖”也出现在章节标题里，但正文有命中时摘要应取正文');
+});

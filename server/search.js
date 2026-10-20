@@ -268,7 +268,7 @@ export function search(db, opts = {}) {
 function buildSnippet(rec, terms, matched) {
   const candidates = [
     { field: 'text', hay: rec.text, weight: 2.5, label: null },
-    { field: 'title', hay: rec.titleText, weight: 6, label: '标题' },
+    { field: 'title', hay: rec.titleText, weight: 1.5, label: '标题' },
     { field: 'rubric', hay: rec.rubricText, weight: 5, label: '条旨' },
     { field: 'annot', hay: rec.annotText, weight: 4, label: '注解' },
   ].filter((c) => c.hay);
