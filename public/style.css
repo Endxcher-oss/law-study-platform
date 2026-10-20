@@ -298,7 +298,6 @@ h3 { font-size: 17px; }
 .direct-hit { font-size: 15px; }
 .doc-hits ul { margin: 6px 0 0; padding: 0; list-style: none; }
 .doc-hits li { margin: 3px 0; font-size: 14px; }
-.snippet-field { margin-right: 6px; }
 
 .coverage .interp-list { margin-top: 8px; }
 .coverage summary { cursor: pointer; color: var(--accent); font-size: 14px; }

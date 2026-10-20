@@ -193,7 +193,7 @@ export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc 
     </h3>
     ${path.length ? `<span class="result-path">${path.map((p) => esc(sectionTitle(p))).join(' · ')}</span>` : ''}
   </div>
-  ${snippet ? `<p class="result-snippet">${snippet.label ? `<span class="meta snippet-field">命中${esc(snippet.label)}</span>` : ''}${snippet.html}</p>` : `<p class="result-text">${esc((rec.text || '').slice(0, 220))}${(rec.text || '').length > 220 ? '…' : ''}</p>`}
+  ${snippet ? `<p class="result-snippet">${snippet.html}</p>` : `<p class="result-text">${esc((rec.text || '').slice(0, 220))}${(rec.text || '').length > 220 ? '…' : ''}</p>`}
   <div class="result-foot">
     ${rec.promulgationDate ? `<span class="meta">颁布 ${esc(rec.promulgationDate)}</span>` : ''}
     ${rec.kind === 'case' ? `<span class="meta">指导性案例</span>` : ''}
