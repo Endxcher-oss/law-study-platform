@@ -204,3 +204,23 @@ test('裁判文书模式忽略“编 / 类型 / 注解”筛选（它们对裁�
   assert.equal(search(db, { q: '专利', gazetteOnly: true, type: '法律', pageSize: 1 }).total, base);
   assert.equal(search(db, { q: '专利', gazetteOnly: true, onlyAnnotated: true, pageSize: 1 }).total, base);
 });
+
+test('文件标题全名命中：书名号两种写法等价，且该文件的条文排在前面', () => {
+  const q = '最高人民法院关于适用〈中华人民共和国民事诉讼法〉的解释';
+  assert.equal(nameMatches(db, q)[0].id, 'sfjs-minsusong', '查询侧应同样去掉《》〈〉再比对');
+
+  const res = search(db, { q, pageSize: 10 });
+  assert.deepEqual(res.docHits.map((h) => h.id), ['sfjs-minsusong']);
+  assert.equal(res.docHits[0].level, 0, '全名应算精确命中');
+  assert.ok(res.items.every((i) => i.docId === 'sfjs-minsusong'), '标题全名命中时该文件的条文应占据前排');
+
+  assert.equal(search(db, { q: '违约金' }).docHits.length, 0, '普通关键词不应给出文件命中');
+  assert.deepEqual(search(db, { q: '违约金', gazetteOnly: true }).docHits, [], '裁判文书模式没有文件命中');
+});
+
+test('条旨在检索范围内：只写在条旨里的词能定位到该条', () => {
+  const res = search(db, { q: '罪刑法定原则', pageSize: 5 });
+  assert.equal(res.items[0].id, 'criminal-law-0003');
+  assert.equal(res.items[0].snippet.field, 'rubric', '快照应取条旨字段');
+  assert.equal(search(db, { q: '立法目的与根据' }).items[0].id, 'criminal-law-0001');
+});

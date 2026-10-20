@@ -193,13 +193,21 @@ export function articleCard(rec, { highlightTerms = [], snippet = null, showDoc 
     </h3>
     ${path.length ? `<span class="result-path">${path.map((p) => esc(sectionTitle(p))).join(' · ')}</span>` : ''}
   </div>
-  ${snippet ? `<p class="result-snippet">${snippet.html}</p>` : `<p class="result-text">${esc((rec.text || '').slice(0, 220))}${(rec.text || '').length > 220 ? '…' : ''}</p>`}
+  ${snippet ? `<p class="result-snippet">${snippet.label ? `<span class="meta snippet-field">命中${esc(snippet.label)}</span>` : ''}${snippet.html}</p>` : `<p class="result-text">${esc((rec.text || '').slice(0, 220))}${(rec.text || '').length > 220 ? '…' : ''}</p>`}
   <div class="result-foot">
     ${rec.promulgationDate ? `<span class="meta">颁布 ${esc(rec.promulgationDate)}</span>` : ''}
     ${rec.kind === 'case' ? `<span class="meta">指导性案例</span>` : ''}
     ${rec.hasAnnotation ? `<span class="meta meta-note">已有疑难注解</span>` : ''}
   </div>
 </article>`;
+}
+
+export function docHitList(docs) {
+  if (!docs || !docs.length) return '';
+  const items = docs
+    .map((d) => `<li><a href="${docUrl(d.id)}">${esc(d.title)}</a> <span class="muted small">${esc(d.category)} · ${d.articleCount} 条</span></li>`)
+    .join('');
+  return `<div class="callout doc-hits"><span class="muted">直接命中文件</span><ul>${items}</ul></div>`;
 }
 
 export function pagination({ page, pageSize, total, makeUrl }) {

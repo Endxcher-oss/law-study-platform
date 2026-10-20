@@ -3,7 +3,7 @@
  * 打分与摘要复用 server/search.js，条文语料来自 assets/index.json；只在导出物里加载。见 docs/deploy.md。
  */
 
-import { esc, articleCard, pagination, emptyState, searchUrl, articleUrl } from '../server/html.js';
+import { esc, articleCard, pagination, emptyState, searchUrl, articleUrl, docHitList } from '../server/html.js';
 import { search as runSearch, directHit } from '../server/search.js';
 import { rebaseHtml } from './static-url.js';
 
@@ -78,6 +78,7 @@ function lowerize(records) {
     rec.textLower = (rec.text || '').toLowerCase();
     rec.titleTextLower = (rec.titleText || '').toLowerCase();
     rec.annotTextLower = (rec.annotText || '').toLowerCase();
+    rec.rubricTextLower = (rec.rubricText || '').toLowerCase();
   }
   return records;
 }
@@ -189,6 +190,7 @@ async function run(p) {
 
   const html = `
 ${direct}
+${docHitList(res.docHits)}
 <div class="result-meta">${
     p.q
       ? `“${esc(p.q)}” 命中 <strong>${res.total}</strong> ${p.gazette ? '篇裁判文书' : '条结果'}（浏览器内检索，索引 ${res.scanned} 条）${p.gazette ? ' · 仅裁判文书' : p.annotated ? ' · 仅看有注解条文' : ''}`

@@ -6,7 +6,7 @@
 import { getDb, CONFIDENCE } from './db.js';
 import {
   esc, layout, categoryBadge, levelBadge, confBadge, crumbs, articleUrl, docUrl, caseUrl, gazetteUrl,
-  divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle,
+  divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle, docHitList,
 } from './html.js';
 import { search as runSearch, directHit, nameMatches } from './search.js';
 
@@ -941,6 +941,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '检索' }])}
   ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${searchUrl({ ...params, doc: '' })}">取消限定</a></p>` : ''}
 </section>
 ${direct}
+${docHitList(res.docHits)}
 ${
   q
     ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条结果'}（扫描耗时 ${res.ms} ms）${opts.gazetteOnly ? ' · 仅裁判文书' : opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>${facetChips}`

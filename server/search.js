@@ -73,8 +73,12 @@ export function directHit(db, query) {
   return { docId: doc.id, number, seq, slug, suffix: m[3] || null, ambiguous: hits.length > 1 ? hits.map((d) => d.id) : null };
 }
 
-export function nameMatches(db, name) {
-  const n = normalizeQuery(name).replace(/[（(].*?[)）]/g, '').replace(/\s/g, '');
+function compactName(s) {
+  return normalizeQuery(s).replace(/[（(].*?[)）]/g, '').replace(/[《》〈〉\s]/g, '');
+}
+
+export function documentMatches(db, name, limit = Infinity) {
+  const n = compactName(name);
   if (!n) return [];
   const score = new Map();
   const note = (id, s) => {
@@ -83,20 +87,23 @@ export function nameMatches(db, name) {
   };
   for (const id of db.aliasIndex?.get(n) || []) note(id, 0);
   for (const d of db.catalog) {
-    const t = d.title.replace(/[〈《]([^》〉]*)[〉〉]/g, '$1');
-    const short = d.shortTitle.replace(/\s/g, '');
-    const compact = t.replace(/\s/g, '');
-    const aliases = (d.aliases || []).map((a) => a.replace(/\s/g, ''));
+    const compact = compactName(d.title);
+    const short = compactName(d.shortTitle);
+    const aliases = (d.aliases || []).map(compactName);
     if (short === n || compact === n || aliases.includes(n)) note(d.id, 0);
     else if (short.startsWith(n) || compact.startsWith(n) || aliases.some((a) => a.startsWith(n))) note(d.id, 1);
-    else if (compact.includes(n) || n.includes(short) || aliases.some((a) => n.includes(a))) note(d.id, 2);
+    else if (compact.includes(n) || (short.length >= 2 && n.includes(short)) || aliases.some((a) => n.includes(a))) note(d.id, 2);
   }
   const catRank = (x) => (x.category === '宪法' ? 0 : x.category === '法律' ? 1 : x.category === '行政法规' ? 2 : 3);
   return [...score.entries()]
-    .map(([id, s]) => ({ d: db.catalogById.get(id), s }))
-    .filter((x) => x.d)
-    .sort((a, b) => a.s - b.s || catRank(a.d) - catRank(b.d) || a.d.shortTitle.length - b.d.shortTitle.length)
-    .map((x) => x.d);
+    .map(([id, s]) => ({ doc: db.catalogById.get(id), level: s }))
+    .filter((x) => x.doc)
+    .sort((a, b) => a.level - b.level || catRank(a.doc) - catRank(b.doc) || a.doc.shortTitle.length - b.doc.shortTitle.length)
+    .slice(0, limit);
+}
+
+export function nameMatches(db, name) {
+  return documentMatches(db, name).map((x) => x.doc);
 }
 
 function escapeHtml(s) {
@@ -125,7 +132,7 @@ export function highlight(text, terms) {
   return html.replace(/\u0001/g, '<mark>').replace(/\u0002/g, '</mark>');
 }
 
-const FIELD_WEIGHT = { title: 6, annot: 4, text: 2.5 };
+const FIELD_WEIGHT = { title: 6, rubric: 5, annot: 4, text: 2.5 };
 
 function countOccurrences(hay, term, cap = 6) {
   if (!hay) return 0;
@@ -144,6 +151,9 @@ export function search(db, opts = {}) {
   const { q, scope = 'all', type = 'all', docId = null, sort = 'relevance', page = 1, pageSize = 20, onlyAnnotated = false, gazetteOnly = false } = opts;
   const { terms, phrases, raw } = tokenize(q);
   const hasQuery = terms.length > 0;
+
+  const namedDocs = hasQuery && !gazetteOnly ? documentMatches(db, raw) : [];
+  const exactDocs = new Set(namedDocs.filter((x) => x.level === 0).map((x) => x.doc.id));
 
   let pool = gazetteOnly ? db.corpus.filter((r) => r.kind === 'gazette') : db.corpus.filter((r) => r.kind !== 'gazette');
   if (docId) pool = pool.filter((r) => r.docId === docId);
@@ -165,6 +175,7 @@ export function search(db, opts = {}) {
     }
     const fields = [
       { name: 'title', weight: FIELD_WEIGHT.title, hay: rec.titleTextLower ?? rec.titleText ?? '' },
+      { name: 'rubric', weight: FIELD_WEIGHT.rubric, hay: rec.rubricTextLower ?? (rec.rubricText || '').toLowerCase() },
       { name: 'text', weight: FIELD_WEIGHT.text, hay: rec.textLower ?? rec.text ?? '' },
       { name: 'annot', weight: FIELD_WEIGHT.annot, hay: rec.annotTextLower ?? rec.annotText ?? '' },
     ];
@@ -202,12 +213,12 @@ export function search(db, opts = {}) {
     const numHit = raw.match(/第?\s*(\d+)\s*条/);
     if (numHit && rec.displayNumber && rec.displayNumber.includes(`第${numHit[1]}条`)) score += 30;
 
-    results.push({ rec, score, hits: [...matched] });
+    results.push({ rec, score, hits: [...matched], tier: exactDocs.has(rec.docId) ? 0 : 1 });
   }
   const ms = Math.round((performance.now() - scanStart) * 10) / 10;
 
   const cmp = {
-    relevance: (a, b) => b.score - a.score || (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || ''),
+    relevance: (a, b) => a.tier - b.tier || b.score - a.score || (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || ''),
     date_desc: (a, b) => (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || '') || b.score - a.score,
     date_asc: (a, b) => (a.rec.promulgationDate || 'zzz').localeCompare(b.rec.promulgationDate || 'zzz') || b.score - a.score,
     hierarchy: (a, b) => (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (a.rec.docShortTitle || '').localeCompare(b.rec.docShortTitle || '') || (a.rec.number - b.rec.number) || ((a.rec.seq || 0) - (b.rec.seq || 0)),
@@ -235,22 +246,44 @@ export function search(db, opts = {}) {
     facets.division[r.rec.division] = (facets.division[r.rec.division] || 0) + 1;
   }
 
-  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, sort, scope, type, docId, onlyAnnotated, gazetteOnly };
+  const docHits = docId
+    ? []
+    : namedDocs
+        .filter((x) => x.level <= 1)
+        .slice(0, 5)
+        .map(({ doc, level }) => ({
+          id: doc.id,
+          title: doc.title,
+          shortTitle: doc.shortTitle,
+          category: doc.category,
+          division: doc.division,
+          articleCount: doc.articleCount,
+          promulgationDate: doc.promulgationDate,
+          level,
+        }));
+
+  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, docHits, sort, scope, type, docId, onlyAnnotated, gazetteOnly };
 }
 
 function buildSnippet(rec, terms, matched) {
   const candidates = [
     { field: 'text', hay: rec.text, weight: 2.5, label: null },
     { field: 'title', hay: rec.titleText, weight: 6, label: '标题' },
+    { field: 'rubric', hay: rec.rubricText, weight: 5, label: '条旨' },
     { field: 'annot', hay: rec.annotText, weight: 4, label: '注解' },
   ].filter((c) => c.hay);
 
   let best = null;
   for (const c of candidates) {
     let occ = 0;
-    for (const t of terms) occ += countOccurrences(c.hay, t, 4);
+    let covered = 0;
+    for (const t of terms) {
+      const n = countOccurrences(c.hay, t, 4);
+      if (n) covered += 1;
+      occ += n;
+    }
     if (!occ) continue;
-    const score = occ * c.weight;
+    const score = covered * c.weight + Math.min(occ, 4) * 0.5;
     if (!best || score > best.score) best = { ...c, score, occ };
   }
   if (!best) return { field: null, html: escapeHtml((rec.text || '').slice(0, 160)), truncated: (rec.text || '').length > 160 };

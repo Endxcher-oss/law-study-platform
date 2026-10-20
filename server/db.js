@@ -304,6 +304,7 @@ class Database {
       const searchDocTitle = `${doc.title} ${doc.shortTitle}`;
       for (const a of doc.articles) {
         const annotation = this.curatedByArticle.get(a.id);
+        const rubric = this.rubricByArticle.get(a.id) || '';
         corpus.push({
           kind: 'article',
           id: a.id,
@@ -324,9 +325,11 @@ class Database {
           text: a.text,
           titleText: `${searchDocTitle} ${a.displayNumber} ${(a.path || []).join(' ')}`,
           annotText: annotation ? annotationText(annotation) : '',
+          rubricText: rubric,
           textLower: (a.text || '').toLowerCase(),
           titleTextLower: `${searchDocTitle} ${a.displayNumber} ${(a.path || []).join(' ')}`.toLowerCase(),
           annotTextLower: (annotation ? annotationText(annotation) : '').toLowerCase(),
+          rubricTextLower: rubric.toLowerCase(),
           hasAnnotation: Boolean(annotation),
           annotLevel: annotation ? annotation.level : null,
         });

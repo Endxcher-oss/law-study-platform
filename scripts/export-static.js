@@ -24,7 +24,7 @@ const DOC_STEP = 100;
 const CASE_PAGE_SIZE = 20;
 const GAZETTE_PAGE_SIZE = 20;
 const LEVELS = ['all', 'key', 'warning'];
-const SEARCH_FIELDS = ['kind', 'id', 'docId', 'docTitle', 'docShortTitle', 'category', 'division', 'domain', 'promulgationDate', 'effectiveDate', 'status', 'number', 'seq', 'slug', 'displayNumber', 'path', 'text', 'titleText', 'annotText', 'hasAnnotation', 'annotLevel', 'caseTitle', 'caseNumber'];
+const SEARCH_FIELDS = ['kind', 'id', 'docId', 'docTitle', 'docShortTitle', 'category', 'division', 'domain', 'promulgationDate', 'effectiveDate', 'status', 'number', 'seq', 'slug', 'displayNumber', 'path', 'text', 'titleText', 'annotText', 'rubricText', 'hasAnnotation', 'annotLevel', 'caseTitle', 'caseNumber'];
 const COPY = [
   ['public/style.css', 'assets/style.css'],
   ['public/app.js', 'assets/app.js'],

@@ -138,6 +138,7 @@ export function handleApi(db, pathname, query) {
         facets: res.facets,
         direct: res.query ? directHit(db, res.query) : null,
         gazetteOnly: res.gazetteOnly,
+        docHits: res.docHits,
         items: res.items.map((r) => ({ ...r, snippet: r.snippet ? { ...r.snippet, html: undefined, text: r.snippet.html } : null })),
       },
     };

@@ -172,6 +172,10 @@ test('API：search 支持范围/类型/排序/分页，并返回分面', async (
   const page2 = await json(`/api/search?q=${q}&size=5&page=2`);
   const ids1 = new Set(all.body.items.map((i) => i.id));
   assert.ok(page2.body.items.every((i) => !ids1.has(i.id)));
+
+  const byTitle = await json(`/api/search?q=${encodeURIComponent('中华人民共和国刑法')}&size=3`);
+  assert.equal(byTitle.body.docHits[0].id, 'criminal-law');
+  assert.ok(byTitle.body.items.every((i) => i.docId === 'criminal-law'));
 });
 
 test('API：annotations / cases / suggest / hot', async () => {
