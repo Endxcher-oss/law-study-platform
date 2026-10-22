@@ -274,3 +274,13 @@ test('布尔运算符必须大写且独立成词；中文“或”仍按普通�
   assert.equal(tokenize('违约金OR定金').boolean, false, '运算符两侧必须留空格');
   assert.equal(search(db, { q: '违约金 或 定金' }).total, search(db, { q: '违约金 定金' }).total, '中文“或”不是运算符');
 });
+
+test('多词检索是 AND：空格分隔的每个词都必须命中', () => {
+  const res = search(db, { q: '学术 教育 处罚', pageSize: 50 });
+  assert.ok(res.total > 0, '应至少有一条同时命中三个词的记录');
+  for (const item of res.items) {
+    const rec = db.corpus.find((r) => r.id === item.id);
+    const hay = [rec.textLower, rec.titleTextLower, rec.rubricTextLower, rec.annotTextLower].join('\n');
+    for (const word of ['学术', '教育', '处罚']) assert.ok(hay.includes(word), `${item.id} 缺少“${word}”`);
+  }
+});

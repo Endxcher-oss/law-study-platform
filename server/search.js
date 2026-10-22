@@ -276,26 +276,30 @@ export function search(db, opts = {}) {
         clauseMatched = true;
         continue;
       }
-      let coverage = 0;
-      let clauseScore = 0;
-      const clauseHits = [];
-      for (const t of clause.terms) {
-        let termScore = 0;
-        for (const f of fields) {
-          const n = countOccurrences(f.hay, t.term);
-          if (n) termScore += (1 + Math.log2(n)) * f.weight * t.weight;
+      const termScores = new Map();
+      const unitsOk = clause.positive.every((unit) => {
+        let hit = 0;
+        for (const t of unit.terms) {
+          if (!termScores.has(t.term)) {
+            let s = 0;
+            for (const f of fields) {
+              const n = countOccurrences(f.hay, t.term);
+              if (n) s += (1 + Math.log2(n)) * f.weight * t.weight;
+            }
+            termScores.set(t.term, s);
+          }
+          if (termScores.get(t.term) > 0) hit += 1;
         }
-        if (termScore > 0) {
-          coverage += 1;
-          clauseScore += termScore;
-          clauseHits.push(t.term);
-        }
-      }
-      const need = clause.terms.length <= 2 ? clause.terms.length : Math.ceil(clause.terms.length * 0.6);
-      if (coverage < need) continue;
+        const need = unit.terms.length <= 2 ? unit.terms.length : Math.ceil(unit.terms.length * 0.6);
+        return hit >= need;
+      });
+      if (!unitsOk) continue;
+
+      const clauseHits = [...termScores].filter(([, s]) => s > 0).map(([term]) => term);
       for (const h of clauseHits) matched.add(h);
 
-      clauseScore *= 0.6 + 0.4 * (coverage / clause.terms.length);
+      let clauseScore = [...termScores.values()].reduce((sum, s) => sum + s, 0);
+      clauseScore *= 0.6 + 0.4 * (clauseHits.length / termScores.size);
 
       const lowerText = fields[2].hay;
       const lowerTitle = fields[0].hay;
