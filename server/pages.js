@@ -945,7 +945,6 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '检索' }])}
 <section class="page-head search-head">
   <h1>全库检索</h1>
   <p class="muted">可指定检索范围（编）、文件类型、排序方式；输入“民法典 585”可直接定位条文。勾选“只搜索裁判文书”则只在《最高人民法院公报》裁判文书里检索。</p>
-  <p class="muted">多个关键词默认“或”；大写 AND 表示“与”，大写 NOT 表示排除（如“离婚 财产分割”“离婚 AND 财产分割”“离婚 NOT 子女”），运算符两侧留空格。</p>
   ${searchForm(db, { opts })}
   ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${searchUrl({ ...params, doc: '' })}">取消限定</a></p>` : ''}
 </section>
