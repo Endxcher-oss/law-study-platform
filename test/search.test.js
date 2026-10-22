@@ -230,3 +230,47 @@ test('摘要优先取正文：命中词同时在标题行与正文里时，不�
   assert.ok(res.items.length >= 5);
   assert.ok(res.items.every((i) => i.snippet.field !== 'title'), '“管辖”也出现在章节标题里，但正文有命中时摘要应取正文');
 });
+
+function allHits(q, opts = {}) {
+  const first = search(db, { q, pageSize: 100, ...opts });
+  const ids = first.items.map((x) => x.id);
+  for (let page = 2; page <= Math.ceil(first.total / first.pageSize); page += 1) {
+    ids.push(...search(db, { q, page, pageSize: 100, ...opts }).items.map((x) => x.id));
+  }
+  return { ids, total: first.total };
+}
+
+test('布尔检索：OR 取并集，NOT 排除，空格 AND 优先', () => {
+  const a = allHits('违约金');
+  const b = allHits('定金');
+  const or = allHits('违约金 OR 定金');
+  assert.ok(a.total > 0 && b.total > 0);
+  assert.equal(tokenize('违约金 OR 定金').boolean, true);
+  assert.equal(tokenize('违约金 OR 定金').clauses.length, 2);
+  assert.deepEqual(new Set(or.ids), new Set([...a.ids, ...b.ids]), 'OR 应是两侧结果的并集');
+  assert.equal(or.total, new Set([...a.ids, ...b.ids]).size);
+
+  const not = allHits('违约金 NOT 定金');
+  assert.deepEqual(new Set(not.ids), new Set(a.ids.filter((id) => !b.ids.includes(id))), 'NOT 应排除命中右侧词的结果');
+  assert.deepEqual(search(db, { q: '违约金 NOT 定金' }).terms, ['违约', '约金'], '排除词不进入高亮词表');
+
+  const and = allHits('违约金 定金');
+  const both = allHits('违约金 定金 OR 专利');
+  assert.equal(tokenize('违约金 定金 OR 专利').clauses.length, 2);
+  assert.deepEqual(new Set(both.ids), new Set([...and.ids, ...allHits('专利').ids]), '空格（AND）应比 OR 先结合');
+
+  const onlyNot = search(db, { q: 'NOT 定金', pageSize: 1 });
+  assert.equal(onlyNot.total, search(db, { q: '', pageSize: 1 }).total - b.total, '单独的 NOT 相当于浏览不含该词的全部条文');
+
+  assert.ok(search(db, { q: '违约金 OR 定金', docId: 'civil-code' }).items.every((i) => i.docId === 'civil-code'));
+  assert.deepEqual(search(db, { q: '违约金 OR 定金' }).docHits, [], '布尔查询不做文件标题精确命中');
+});
+
+test('布尔运算符必须大写且独立成词；中文“或”仍按普通停用字忽略', () => {
+  assert.equal(tokenize('违约金 or 定金').boolean, false, '小写 or 不是运算符');
+  assert.ok(tokenize('违约金 or 定金').terms.some((t) => t.term === 'or'));
+  assert.equal(tokenize('"OR"').boolean, false, '引号内的 OR 是普通短语');
+  assert.ok(tokenize('"OR"').terms.some((t) => t.term === 'or'));
+  assert.equal(tokenize('违约金OR定金').boolean, false, '运算符两侧必须留空格');
+  assert.equal(search(db, { q: '违约金 或 定金' }).total, search(db, { q: '违约金 定金' }).total, '中文“或”不是运算符');
+});

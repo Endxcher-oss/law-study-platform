@@ -15,26 +15,19 @@ export function normalizeQuery(input) {
 }
 
 const CJK = /[\u3400-\u4dbf\u4e00-\u9fff]/;
+const QUOTES = '"“”\'‘’';
+const QUOTED = /^["“”'‘’]([^"“”'‘’]{2,})["“”'‘’]/;
 
-export function tokenize(query) {
-  const phrases = [];
-  let q = normalizeQuery(query);
-  const quoted = [];
-  q = q.replace(/["“”'‘’]([^"“”'‘’]{2,})["“”'‘’]/g, (_, p) => {
-    quoted.push(p);
-    return ` ${p} `;
-  });
-
+function unitTerms(text) {
   const terms = new Map();
   const addTerm = (t, weight = 1) => {
-    if (!t) return;
-    if (t.length < 1) return;
+    if (!t || t.length < 1) return;
     if (/^[\s的了吗呢和与及或是在有为之了]+$/.test(t)) return;
     const prev = terms.get(t);
     if (!prev || prev.weight < weight) terms.set(t, { term: t, weight });
   };
 
-  const tokens = q.match(/[A-Za-z0-9_.\-+#]+|[\u3400-\u4dbf\u4e00-\u9fff]+|[\s\S]/g) || [];
+  const tokens = text.match(/[A-Za-z0-9_.\-+#]+|[\u3400-\u4dbf\u4e00-\u9fff]+|[\s\S]/g) || [];
   for (const tk of tokens) {
     if (/^[A-Za-z0-9_.\-+#]+$/.test(tk)) {
       addTerm(tk.toLowerCase(), 1.4);
@@ -43,8 +36,99 @@ export function tokenize(query) {
       else for (let i = 0; i < tk.length - 1; i++) addTerm(tk.slice(i, i + 2), 1);
     }
   }
-  for (const p of quoted) phrases.push(p.toLowerCase());
-  return { terms: [...terms.values()], phrases, raw: normalizeQuery(query) };
+  return [...terms.values()];
+}
+
+function splitUnits(q) {
+  const units = [];
+  const isQuote = (c) => QUOTES.includes(c);
+  for (let i = 0; i < q.length; ) {
+    const c = q[i];
+    if (/\s/.test(c)) {
+      i += 1;
+      continue;
+    }
+    if (isQuote(c)) {
+      const m = QUOTED.exec(q.slice(i));
+      if (m) {
+        units.push({ text: m[1], phrase: m[1].toLowerCase(), quoted: true });
+        i += m[0].length;
+        continue;
+      }
+      i += 1;
+      continue;
+    }
+    let j = i;
+    while (j < q.length && !/\s/.test(q[j]) && !isQuote(q[j])) j += 1;
+    units.push({ text: q.slice(i, j) });
+    i = j;
+  }
+  return units;
+}
+
+function mergeTerms(list) {
+  const merged = new Map();
+  for (const t of list) {
+    const prev = merged.get(t.term);
+    if (!prev || prev.weight < t.weight) merged.set(t.term, t);
+  }
+  return [...merged.values()];
+}
+
+function parseQuery(input) {
+  const raw = normalizeQuery(input);
+  const clauses = [];
+  let cur = null;
+  let pendingNot = false;
+  let boolean = false;
+
+  const open = () => {
+    cur = { positive: [], negative: [], terms: [], phrases: [], raw: '' };
+  };
+  const close = () => {
+    if (!cur) return;
+    if (cur.positive.length || cur.negative.length) {
+      cur.terms = mergeTerms(cur.positive.flatMap((u) => u.terms));
+      cur.phrases = cur.positive.flatMap((u) => (u.phrase ? [u.phrase] : []));
+      cur.raw = cur.positive.map((u) => u.text).join(' ').trim();
+      clauses.push(cur);
+    }
+    cur = null;
+  };
+
+  for (const u of splitUnits(raw)) {
+    if (!u.quoted && u.text === 'OR') {
+      boolean = true;
+      close();
+      pendingNot = false;
+      continue;
+    }
+    if (!u.quoted && u.text === 'NOT') {
+      boolean = true;
+      pendingNot = true;
+      continue;
+    }
+    if (!cur) open();
+    const unit = { text: u.text, terms: unitTerms(u.text), phrase: u.phrase || null };
+    if (unit.terms.length || unit.phrase) {
+      if (pendingNot) cur.negative.push(unit);
+      else cur.positive.push(unit);
+    }
+    pendingNot = false;
+  }
+  close();
+  return { raw, clauses, boolean };
+}
+
+export function tokenize(query) {
+  const { raw, clauses, boolean } = parseQuery(query);
+  return {
+    terms: mergeTerms(clauses.flatMap((c) => c.terms)),
+    phrases: [...new Set(clauses.flatMap((c) => c.phrases))],
+    raw,
+    clauses,
+    boolean,
+  };
 }
 
 export function directHit(db, query) {
@@ -149,10 +233,10 @@ const CATEGORY_RANK = { 宪法: 0, 法律: 1, 行政法规: 2, 司法解释: 3, 
 
 export function search(db, opts = {}) {
   const { q, scope = 'all', type = 'all', docId = null, sort = 'relevance', page = 1, pageSize = 20, onlyAnnotated = false, gazetteOnly = false } = opts;
-  const { terms, phrases, raw } = tokenize(q);
-  const hasQuery = terms.length > 0;
+  const { terms, raw, clauses, boolean } = tokenize(q);
+  const hasQuery = clauses.length > 0;
 
-  const namedDocs = hasQuery && !gazetteOnly ? documentMatches(db, raw) : [];
+  const namedDocs = hasQuery && !gazetteOnly && !boolean ? documentMatches(db, raw) : [];
   const exactDocs = new Set(namedDocs.filter((x) => x.level === 0).map((x) => x.doc.id));
 
   let pool = gazetteOnly ? db.corpus.filter((r) => r.kind === 'gazette') : db.corpus.filter((r) => r.kind !== 'gazette');
@@ -180,38 +264,53 @@ export function search(db, opts = {}) {
       { name: 'annot', weight: FIELD_WEIGHT.annot, hay: rec.annotTextLower ?? rec.annotText ?? '' },
     ];
     let score = 0;
-    let coverage = 0;
     const matched = new Set();
-    for (const t of terms) {
-      let termScore = 0;
-      for (const f of fields) {
-        const n = countOccurrences(f.hay, t.term);
-        if (n) {
-          matched.add(t.term);
-          termScore += (1 + Math.log2(n)) * f.weight * t.weight;
+    let clauseMatched = false;
+
+    for (const clause of clauses) {
+      const negated = clause.negative.some(
+        (unit) => unit.terms.length > 0 && unit.terms.every((t) => fields.some((f) => countOccurrences(f.hay, t.term) > 0)),
+      );
+      if (negated) continue;
+      if (!clause.terms.length) {
+        clauseMatched = true;
+        continue;
+      }
+      let coverage = 0;
+      let clauseScore = 0;
+      const clauseHits = [];
+      for (const t of clause.terms) {
+        let termScore = 0;
+        for (const f of fields) {
+          const n = countOccurrences(f.hay, t.term);
+          if (n) termScore += (1 + Math.log2(n)) * f.weight * t.weight;
+        }
+        if (termScore > 0) {
+          coverage += 1;
+          clauseScore += termScore;
+          clauseHits.push(t.term);
         }
       }
-      if (termScore > 0) {
-        coverage += 1;
-        score += termScore;
+      const need = clause.terms.length <= 2 ? clause.terms.length : Math.ceil(clause.terms.length * 0.6);
+      if (coverage < need) continue;
+      for (const h of clauseHits) matched.add(h);
+
+      clauseScore *= 0.6 + 0.4 * (coverage / clause.terms.length);
+
+      const lowerText = fields[2].hay;
+      const lowerTitle = fields[0].hay;
+      for (const p of [...clause.phrases, clause.raw.toLowerCase()].filter((x) => x && x.length >= 3)) {
+        if (lowerText.includes(p)) clauseScore += 12;
+        else if (lowerTitle.includes(p)) clauseScore += 20;
       }
+
+      const numHit = clause.raw.match(/第?\s*(\d+)\s*条/);
+      if (numHit && rec.displayNumber && rec.displayNumber.includes(`第${numHit[1]}条`)) clauseScore += 30;
+
+      clauseMatched = true;
+      score += clauseScore;
     }
-    if (!score) continue;
-
-    const need = terms.length <= 2 ? terms.length : Math.ceil(terms.length * 0.6);
-    if (coverage < need) continue;
-
-    score *= 0.6 + 0.4 * (coverage / terms.length);
-
-    const lowerText = rec.textLower ?? (rec.text || '').toLowerCase();
-    const lowerTitle = rec.titleTextLower ?? (rec.titleText || '').toLowerCase();
-    for (const p of [...phrases, raw.toLowerCase()].filter((x) => x && x.length >= 3)) {
-      if (lowerText.includes(p)) score += 12;
-      else if (lowerTitle.includes(p)) score += 20;
-    }
-
-    const numHit = raw.match(/第?\s*(\d+)\s*条/);
-    if (numHit && rec.displayNumber && rec.displayNumber.includes(`第${numHit[1]}条`)) score += 30;
+    if (!clauseMatched) continue;
 
     results.push({ rec, score, hits: [...matched], tier: exactDocs.has(rec.docId) ? 0 : 1 });
   }
