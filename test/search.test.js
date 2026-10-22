@@ -240,24 +240,29 @@ function allHits(q, opts = {}) {
   return { ids, total: first.total };
 }
 
-test('布尔检索：OR 取并集，NOT 排除，空格 AND 优先', () => {
+test('布尔检索：空格默认 OR，AND 取交集，NOT 排除', () => {
   const a = allHits('违约金');
   const b = allHits('定金');
-  const or = allHits('违约金 OR 定金');
-  assert.ok(a.total > 0 && b.total > 0);
+  const c = allHits('专利');
+  assert.ok(a.total > 0 && b.total > 0 && c.total > 0);
+
+  const union = new Set([...a.ids, ...b.ids]);
+  assert.deepEqual(new Set(allHits('违约金 定金').ids), union, '空格默认是 OR');
+  assert.deepEqual(new Set(allHits('违约金 OR 定金').ids), union, '显式 OR 与空格等价');
   assert.equal(tokenize('违约金 OR 定金').boolean, true);
-  assert.equal(tokenize('违约金 OR 定金').clauses.length, 2);
-  assert.deepEqual(new Set(or.ids), new Set([...a.ids, ...b.ids]), 'OR 应是两侧结果的并集');
-  assert.equal(or.total, new Set([...a.ids, ...b.ids]).size);
+
+  const both = new Set(a.ids.filter((id) => b.ids.includes(id)));
+  assert.deepEqual(new Set(allHits('违约金 AND 定金').ids), both, 'AND 应取交集');
+  assert.ok(both.size < union.size, '交集应少于并集');
+  assert.equal(tokenize('违约金 AND 定金').clauses.length, 1);
 
   const not = allHits('违约金 NOT 定金');
   assert.deepEqual(new Set(not.ids), new Set(a.ids.filter((id) => !b.ids.includes(id))), 'NOT 应排除命中右侧词的结果');
   assert.deepEqual(search(db, { q: '违约金 NOT 定金' }).terms, ['违约', '约金'], '排除词不进入高亮词表');
 
-  const and = allHits('违约金 定金');
-  const both = allHits('违约金 定金 OR 专利');
-  assert.equal(tokenize('违约金 定金 OR 专利').clauses.length, 2);
-  assert.deepEqual(new Set(both.ids), new Set([...and.ids, ...allHits('专利').ids]), '空格（AND）应比 OR 先结合');
+  const mix = allHits('违约金 AND 定金 OR 专利');
+  assert.deepEqual(new Set(mix.ids), new Set([...both, ...c.ids]), 'AND 应比空格 / OR 先结合');
+  assert.equal(tokenize('违约金 AND 定金 OR 专利').clauses.length, 2);
 
   const onlyNot = search(db, { q: 'NOT 定金', pageSize: 1 });
   assert.equal(onlyNot.total, search(db, { q: '', pageSize: 1 }).total - b.total, '单独的 NOT 相当于浏览不含该词的全部条文');
@@ -275,12 +280,21 @@ test('布尔运算符必须大写且独立成词；中文“或”仍按普通�
   assert.equal(search(db, { q: '违约金 或 定金' }).total, search(db, { q: '违约金 定金' }).total, '中文“或”不是运算符');
 });
 
-test('多词检索是 AND：空格分隔的每个词都必须命中', () => {
-  const res = search(db, { q: '学术 教育 处罚', pageSize: 50 });
-  assert.ok(res.total > 0, '应至少有一条同时命中三个词的记录');
-  for (const item of res.items) {
-    const rec = db.corpus.find((r) => r.id === item.id);
-    const hay = [rec.textLower, rec.titleTextLower, rec.rubricTextLower, rec.annotTextLower].join('\n');
-    for (const word of ['学术', '教育', '处罚']) assert.ok(hay.includes(word), `${item.id} 缺少“${word}”`);
+test('多词查询默认 OR，AND 要求每个词都命中，命中词多的排前面', () => {
+  const or = search(db, { q: '学术 教育 处罚', pageSize: 100 });
+  assert.ok(or.total > search(db, { q: '学术', pageSize: 1 }).total, 'OR 结果应多于单词结果');
+  const hayOf = (id) => {
+    const rec = db.corpus.find((r) => r.id === id);
+    return [rec.textLower, rec.titleTextLower, rec.rubricTextLower, rec.annotTextLower].join('\n');
+  };
+  for (const item of or.items) {
+    assert.ok(['学术', '教育', '处罚'].some((w) => hayOf(item.id).includes(w)), `${item.id} 一个词都没命中`);
+  }
+  assert.ok(['学术', '教育', '处罚'].every((w) => hayOf(or.items[0].id).includes(w)), '命中词更多的条文应排在前面');
+
+  const and = search(db, { q: '学术 AND 教育 AND 处罚', pageSize: 50 });
+  assert.ok(and.total > 0 && and.total < or.total, 'AND 应比 OR 收窄');
+  for (const item of and.items) {
+    for (const word of ['学术', '教育', '处罚']) assert.ok(hayOf(item.id).includes(word), `${item.id} 缺少“${word}”`);
   }
 });

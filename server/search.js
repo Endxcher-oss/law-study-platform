@@ -78,29 +78,39 @@ function mergeTerms(list) {
 function parseQuery(input) {
   const raw = normalizeQuery(input);
   const clauses = [];
-  let cur = null;
+  let group = null;
+  let joinNext = false;
   let pendingNot = false;
   let boolean = false;
 
-  const open = () => {
-    cur = { positive: [], negative: [], terms: [], phrases: [], raw: '' };
-  };
   const close = () => {
-    if (!cur) return;
-    if (cur.positive.length || cur.negative.length) {
-      cur.terms = mergeTerms(cur.positive.flatMap((u) => u.terms));
-      cur.phrases = cur.positive.flatMap((u) => (u.phrase ? [u.phrase] : []));
-      cur.raw = cur.positive.map((u) => u.text).join(' ').trim();
-      clauses.push(cur);
+    if (!group || !group.length) {
+      group = null;
+      return;
     }
-    cur = null;
+    const positive = group.filter((a) => !a.negated).map((a) => a.unit);
+    const negative = group.filter((a) => a.negated).map((a) => a.unit);
+    clauses.push({
+      positive,
+      negative,
+      terms: mergeTerms(positive.flatMap((u) => u.terms)),
+      phrases: positive.flatMap((u) => (u.phrase ? [u.phrase] : [])),
+      raw: positive.map((u) => u.text).join(' ').trim(),
+    });
+    group = null;
   };
 
   for (const u of splitUnits(raw)) {
     if (!u.quoted && u.text === 'OR') {
       boolean = true;
       close();
+      joinNext = false;
       pendingNot = false;
+      continue;
+    }
+    if (!u.quoted && u.text === 'AND') {
+      boolean = true;
+      joinNext = !!group;
       continue;
     }
     if (!u.quoted && u.text === 'NOT') {
@@ -108,12 +118,19 @@ function parseQuery(input) {
       pendingNot = true;
       continue;
     }
-    if (!cur) open();
     const unit = { text: u.text, terms: unitTerms(u.text), phrase: u.phrase || null };
-    if (unit.terms.length || unit.phrase) {
-      if (pendingNot) cur.negative.push(unit);
-      else cur.positive.push(unit);
+    if (!unit.terms.length && !unit.phrase) {
+      pendingNot = false;
+      continue;
     }
+    if (!group) {
+      group = [];
+    } else if (!joinNext && !pendingNot) {
+      close();
+      group = [];
+    }
+    group.push({ unit, negated: pendingNot });
+    joinNext = false;
     pendingNot = false;
   }
   close();
@@ -254,7 +271,7 @@ export function search(db, opts = {}) {
   for (const rec of pool) {
     scanned += 1;
     if (!hasQuery) {
-      results.push({ rec, score: 0, hits: [] });
+      results.push({ rec, score: 0, hits: [], groups: 0 });
       continue;
     }
     const fields = [
@@ -266,6 +283,7 @@ export function search(db, opts = {}) {
     let score = 0;
     const matched = new Set();
     let clauseMatched = false;
+    let groupHits = 0;
 
     for (const clause of clauses) {
       const negated = clause.negative.some(
@@ -312,16 +330,17 @@ export function search(db, opts = {}) {
       if (numHit && rec.displayNumber && rec.displayNumber.includes(`第${numHit[1]}条`)) clauseScore += 30;
 
       clauseMatched = true;
+      groupHits += 1;
       score += clauseScore;
     }
     if (!clauseMatched) continue;
 
-    results.push({ rec, score, hits: [...matched], tier: exactDocs.has(rec.docId) ? 0 : 1 });
+    results.push({ rec, score, hits: [...matched], groups: groupHits, tier: exactDocs.has(rec.docId) ? 0 : 1 });
   }
   const ms = Math.round((performance.now() - scanStart) * 10) / 10;
 
   const cmp = {
-    relevance: (a, b) => a.tier - b.tier || b.score - a.score || (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || ''),
+    relevance: (a, b) => a.tier - b.tier || b.groups - a.groups || b.score - a.score || (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || ''),
     date_desc: (a, b) => (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || '') || b.score - a.score,
     date_asc: (a, b) => (a.rec.promulgationDate || 'zzz').localeCompare(b.rec.promulgationDate || 'zzz') || b.score - a.score,
     hierarchy: (a, b) => (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (a.rec.docShortTitle || '').localeCompare(b.rec.docShortTitle || '') || (a.rec.number - b.rec.number) || ((a.rec.seq || 0) - (b.rec.seq || 0)),
