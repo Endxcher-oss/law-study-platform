@@ -127,7 +127,7 @@ function searchForm(db, { big = false, opts = {} } = {}) {
   const types = splitList(opts.type);
   const divisionName = new Map(db.taxonomy.divisions.map((d) => [d.id, d.name]));
   const joined = (ids, nameOf, empty) => (ids.length ? ids.map(nameOf).join('、') : empty);
-  const dropdown = (summary, options) => `<details class="multi-select">
+  const dropdown = (summary, options) => `<details class="multi-select" name="search-filter">
     <summary>${esc(summary)}</summary>
     <div class="multi-panel">${options}</div>
   </details>`;

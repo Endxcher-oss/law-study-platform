@@ -65,6 +65,18 @@
     if (e.key === 'Escape' && document.activeElement.tagName === 'INPUT') document.activeElement.blur();
   });
 
+  var multis = document.querySelectorAll('.multi-select');
+  if (multis.length) {
+    multis.forEach(function (det) {
+      det.addEventListener('toggle', function () {
+        if (!det.open) return;
+        multis.forEach(function (other) {
+          if (other !== det && other.open) other.open = false;
+        });
+      });
+    });
+  }
+
   document.querySelectorAll('.header-search').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       var box = form.querySelector('input[name=q]');
