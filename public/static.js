@@ -9,9 +9,7 @@ import { rebaseHtml } from './static-url.js';
 
 const BASE = document.body.dataset.base || '';
 const PAGE_SIZE = 20;
-const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
 const SCOPES = ['q', 'page', 'scope', 'type', 'sort', 'doc', 'annotated', 'gazette'];
-const FACET_ORDER = [...CATEGORY_ORDER, '裁判文书'];
 
 const metaEl = document.querySelector('.result-meta');
 const resultsEl = document.querySelector('.results');
@@ -180,21 +178,6 @@ async function run(p) {
 
   const params = { q: p.q, scope: scopes, type: types, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
   const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
-  const toggle = (list, value) => (list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
-  const catChips = FACET_ORDER.filter((c) => res.facets.category[c] || types.includes(c))
-    .map((c) => `<a class="chip${types.includes(c) ? ' is-active' : ''}" href="${url({ type: toggle(types, c) })}">${esc(c)} <em>${res.facets.category[c] || 0}</em></a>`)
-    .join('');
-  const divChips = db.taxonomy.divisions
-    .filter((d) => res.facets.division[d.id] || scopes.includes(d.id))
-    .map((d) => `<a class="chip${scopes.includes(d.id) ? ' is-active' : ''}" href="${url({ scope: toggle(scopes, d.id) })}">${esc(d.name)} <em>${res.facets.division[d.id] || 0}</em></a>`)
-    .join('');
-  const chips = [
-    catChips && `<div class="facet-row"><span class="facet-label">类型</span><a class="chip${types.length ? '' : ' is-active'}" href="${url({ type: [] })}">全部</a>${catChips}</div>`,
-    divChips && `<div class="facet-row"><span class="facet-label">编</span><a class="chip${scopes.length ? '' : ' is-active'}" href="${url({ scope: [] })}">全部</a>${divChips}</div>`,
-  ]
-    .filter(Boolean)
-    .join('');
-
   const html = `
 ${direct}
 ${docHitList(res.docHits)}
@@ -204,7 +187,6 @@ ${docHitList(res.docHits)}
       : `按当前范围浏览：<strong>${res.total}</strong> ${p.gazette ? '篇裁判文书' : '条'}`
   }</div>
 ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${url({ doc: '' })}">取消限定</a></p>` : ''}
-${chips}
 <section class="results">
   ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}
 </section>

@@ -120,9 +120,6 @@ test('检索页：指定范围/排序/类型', async () => {
   const app = await html('/assets/app.js');
   assert.match(app.body, /querySelectorAll\('\.multi-select'\)/, '脚本应在打开一个下拉时收起另一个');
   assert.match(app.body, /!det\.contains\(e\.target\)/, '点下拉以外（含排序控件）应收起');
-  assert.match(multi.body, /class="chip is-active" href="[^"]*">民法编/, '已选范围应高亮');
-  assert.match(multi.body, /class="chip is-active" href="[^"]*">社会法编/, '第二个已选范围也应高亮');
-  assert.match(multi.body, /class="chip is-active" href="[^"]*">司法解释/, '已选类型应高亮');
   const r2 = await html('/search?q=%E6%B0%91%E6%B3%95%E5%85%B8585%E6%9D%A1');
   assert.equal(r2.status, 200);
   assert.match(r2.body, /直接定位/, '“法名+条号”应给出直接定位');
@@ -433,23 +430,15 @@ test('移动端：窄屏折叠页头与目录树、案例页侧栏折成一列',
   assert.match(js.body, /matchMedia\('\(max-width: 960px\)'\)/, '窄屏应默认收起目录树');
 });
 
-test('检索分面：零命中或只有案例命中时不留下空的“类型 / 编”标签', async () => {
-  const none = await html('/search?q=zzzzzz');
-  assert.equal(none.status, 200);
-  assert.match(none.body, /命中 <strong>0<\/strong>/, '该查询应无命中');
-  assert.ok(!none.body.includes('facet-label'), '零命中时不应输出分面行');
-
-  const casesOnly = await html('/search?q=' + encodeURIComponent('居间合同'));
-  assert.match(casesOnly.body, /facet-label">类型/, '只有案例命中时仍要显示类型分面');
-  assert.ok(!casesOnly.body.includes('facet-label">编'), '案例不带编，不应留下空的“编”标签');
-
-  const mixed = await html('/search?q=' + encodeURIComponent('违约金'));
-  assert.match(mixed.body, /facet-label">编/, '普通命中时“编”分面照旧');
+test('检索页不再输出分面标签行（筛选走表单下拉）', async () => {
+  const r = await html('/search?q=' + encodeURIComponent('违约金') + '&scope=civil&type=%E6%B3%95%E5%BE%8B');
+  assert.equal(r.status, 200);
+  assert.ok(!r.body.includes('facet-row'), '页面不应再渲染分面行');
+  assert.ok(!r.body.includes('facet-label'), '页面不应再渲染分面标签');
 
   const js = await html('/assets/static.js');
   assert.equal(js.status, 200);
-  assert.match(js.body, /catChips && `<div class="facet-row">/, '静态检索的“类型”行要按有没有分面决定');
-  assert.match(js.body, /divChips && `<div class="facet-row">/, '静态检索的“编”行同理');
+  assert.ok(!js.body.includes('facet-row'), '静态检索也不再渲染分面行');
 });
 
 test('暗色模式：跟随系统，且每个颜色变量都有暗色值', async () => {

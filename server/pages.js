@@ -11,7 +11,6 @@ import {
 import { search as runSearch, directHit, nameMatches, splitList } from './search.js';
 
 const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
-const FACET_ORDER = [...CATEGORY_ORDER, '裁判文书'];
 const SORTS = [
   ['relevance', '相关度'],
   ['date_desc', '颁布时间：新 → 旧'],
@@ -915,30 +914,6 @@ export function searchPage(db, query) {
         }</div>`
       : '';
 
-  const facetChips = (() => {
-    const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
-    const toggle = (list, value) => (list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
-    const catChips = FACET_ORDER.filter((c) => res.facets.category[c] || opts.type.includes(c))
-      .map((c) => {
-        const active = opts.type.includes(c);
-        return `<a class="chip${active ? ' is-active' : ''}" href="${url({ type: toggle(opts.type, c) })}">${esc(c)} <em>${res.facets.category[c] || 0}</em></a>`;
-      })
-      .join('');
-    const divChips = db.taxonomy.divisions
-      .filter((d) => res.facets.division[d.id] || opts.scope.includes(d.id))
-      .map((d) => {
-        const active = opts.scope.includes(d.id);
-        return `<a class="chip${active ? ' is-active' : ''}" href="${url({ scope: toggle(opts.scope, d.id) })}">${esc(d.name)} <em>${res.facets.division[d.id] || 0}</em></a>`;
-      })
-      .join('');
-    const all = (list, key) => `<a class="chip${list.length ? '' : ' is-active'}" href="${url({ [key]: [] })}">全部</a>`;
-    return [
-      catChips && `<div class="facet-row"><span class="facet-label">类型</span>${all(opts.type, 'type')}${catChips}</div>`,
-      divChips && `<div class="facet-row"><span class="facet-label">编</span>${all(opts.scope, 'scope')}${divChips}</div>`,
-    ]
-      .filter(Boolean)
-      .join('');
-  })();
 
   const body = `
 ${crumbs([{ label: '首页', href: '/' }, { label: '检索' }])}
@@ -952,8 +927,8 @@ ${direct}
 ${docHitList(res.docHits)}
 ${
   q
-    ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条结果'}（扫描耗时 ${res.ms} ms）${opts.gazetteOnly ? ' · 仅裁判文书' : opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>${facetChips}`
-    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条'}</div>${facetChips}`
+    ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条结果'}（扫描耗时 ${res.ms} ms）${opts.gazetteOnly ? ' · 仅裁判文书' : opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>`
+    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条'}</div>`
 }
 <section class="results">
   ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', opts.gazetteOnly ? '裁判文书里没有命中，换个更短的关键词试试。' : '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}

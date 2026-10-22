@@ -475,8 +475,6 @@ h3 { font-size: 17px; }
 .case-law ul li { padding: 2px 0; }
 
 .result-meta { font-size: 13.5px; color: var(--ink-soft); margin: 14px 0 8px; }
-.facet-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
-.facet-label { font-size: 12px; color: var(--ink-muted); min-width: 28px; }
 .results { margin-top: 12px; }
 .result {
   background: var(--bg-alt); border: 1px solid var(--line); border-left: 3px solid var(--line-strong);
@@ -668,9 +666,6 @@ code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
   .result { padding: 11px 12px; }
   .result-head h3 { font-size: 15px; }
   .result-snippet, .result-text { font-size: 13.5px; }
-  .facet-row { gap: 6px; }
-  .facet-label { min-width: 24px; }
-
   .pager { gap: 5px; }
   .pager-btn { min-width: 32px; padding: 5px 9px; }
 
