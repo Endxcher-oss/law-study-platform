@@ -214,7 +214,6 @@ h3 { font-size: 17px; }
   font-size: 13px; font-family: var(--sans); color: var(--ink);
 }
 .search-filters .check { cursor: pointer; }
-.search-filters .filter-hint { color: var(--ink-muted); font-size: 12px; }
 .search-filters .multi-select { position: relative; }
 .multi-select > summary {
   list-style: none; cursor: pointer; padding: 5px 10px; border: 1px solid var(--line-strong);
