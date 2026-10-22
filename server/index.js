@@ -69,6 +69,10 @@ export function createServer() {
     }
     const pathname = decodeURIComponent(url.pathname);
     const query = Object.fromEntries(url.searchParams.entries());
+    for (const key of ['scope', 'type']) {
+      const values = url.searchParams.getAll(key);
+      if (values.length) query[key] = values;
+    }
 
     if (pathname === '/search' && url.search === '?q=') {
       res.writeHead(302, { Location: '/search' });

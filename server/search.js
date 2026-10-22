@@ -149,8 +149,8 @@ export function tokenize(query) {
 }
 
 export function splitList(value) {
-  const list = Array.isArray(value) ? value : String(value ?? '').split(',');
-  return [...new Set(list.map((v) => String(v).trim()).filter((v) => v && v !== 'all'))];
+  const list = (Array.isArray(value) ? value : [value]).flatMap((v) => String(v ?? '').split(','));
+  return [...new Set(list.map((v) => v.trim()).filter((v) => v && v !== 'all'))];
 }
 
 export function directHit(db, query) {

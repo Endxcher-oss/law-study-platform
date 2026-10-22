@@ -28,18 +28,10 @@ function init() {
 
 function syncForm(p) {
   for (const box of document.querySelectorAll('input[name=q]')) box.value = p.q;
-  const form = document.querySelector('.search-form');
-  if (form) {
-    for (const name of p.gazette ? [] : ['scope', 'type']) {
-      for (const el of form.querySelectorAll(`input[type=hidden][name=${name}]`)) el.remove();
-      if (!p[name].length) continue;
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = p[name].join(',');
-      form.append(input);
-    }
-  }
+  const scopes = p.gazette ? [] : p.scope;
+  const types = p.gazette ? [] : p.type;
+  for (const el of document.querySelectorAll('.search-form input[name=scope]')) el.checked = scopes.includes(el.value);
+  for (const el of document.querySelectorAll('.search-form input[name=type]')) el.checked = types.includes(el.value);
   const set = (name, value) => {
     const el = document.querySelector(`.search-form [name=${name}]`);
     if (el) el.value = value;
@@ -52,16 +44,15 @@ function syncForm(p) {
   check('annotated', p.annotated);
   check('gazette', p.gazette);
   if (p.gazette) {
-    const el = document.querySelector('.search-form input[name=annotated]');
-    if (el) el.disabled = true;
+    for (const el of document.querySelectorAll('.search-form input[name=scope], .search-form input[name=type], .search-form input[name=annotated]')) el.disabled = true;
   }
 }
 
 function readParams() {
   const sp = new URLSearchParams(location.search);
   const list = (name) =>
-    (sp.get(name) || '')
-      .split(',')
+    sp.getAll(name)
+      .flatMap((v) => v.split(','))
       .map((v) => v.trim())
       .filter((v) => v && v !== 'all');
   return {

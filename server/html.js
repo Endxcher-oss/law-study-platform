@@ -37,7 +37,8 @@ export const searchUrl = (params) => {
   const skip = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length);
   for (const [k, v] of Object.entries(params)) {
     if (skip(v)) continue;
-    sp.set(k, Array.isArray(v) ? v.join(',') : v);
+    if (Array.isArray(v)) for (const x of v) sp.append(k, x);
+    else sp.set(k, v);
   }
   return `/search?${sp.toString()}`;
 };

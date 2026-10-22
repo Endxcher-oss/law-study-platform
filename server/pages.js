@@ -84,7 +84,7 @@ export function homePage(db) {
 <section class="hero">
   <h1>法律学习平台</h1>
   <p class="hero-sub">条文、司法解释、疑难注解与指导性案例的关联检索，另有《最高人民法院公报》裁判文书全文</p>
-  ${searchForm({ big: true })}
+  ${searchForm(db, { big: true })}
   <div class="hero-stats">
     ${statCard('收录文件', c.documents, '法律 / 行政法规 / 司法解释')}
     ${statCard('法条条文', c.articles, '逐条结构化')}
@@ -120,16 +120,28 @@ export function homePage(db) {
   return layout({ title: '首页', body, meta, activeNav: 'home' });
 }
 
-function searchForm({ big = false, opts = {} } = {}) {
+function searchForm(db, { big = false, opts = {} } = {}) {
   const sortOpts = SORTS.map(([v, l]) => `<option value="${v}"${opts.sort === v ? ' selected' : ''}>${l}</option>`).join('');
   const off = opts.gazetteOnly ? ' disabled' : '';
   const scopes = splitList(opts.scope);
   const types = splitList(opts.type);
-  const hidden = [
-    scopes.length ? `<input type="hidden" name="scope" value="${esc(scopes.join(','))}">` : '',
-    types.length ? `<input type="hidden" name="type" value="${esc(types.join(','))}">` : '',
-    opts.docId ? `<input type="hidden" name="doc" value="${esc(opts.docId)}">` : '',
-  ].join('');
+  const divisionName = new Map(db.taxonomy.divisions.map((d) => [d.id, d.name]));
+  const joined = (ids, nameOf, empty) => (ids.length ? ids.map(nameOf).join('、') : empty);
+  const dropdown = (summary, options) => `<details class="multi-select">
+    <summary>${esc(summary)}</summary>
+    <div class="multi-panel">${options}</div>
+  </details>`;
+  const scopeBox = dropdown(
+    `范围：${joined(scopes, (id) => divisionName.get(id) || id, '全部')}`,
+    db.taxonomy.divisions
+      .filter((d) => (db.meta.divisions[d.id]?.documents || 0) > 0)
+      .map((d) => `<label class="check"><input type="checkbox" name="scope" value="${d.id}"${scopes.includes(d.id) ? ' checked' : ''}${off}> ${esc(d.name)}<em>${db.meta.divisions[d.id].articles} 条</em></label>`)
+      .join(''),
+  );
+  const typeBox = dropdown(
+    `类型：${joined(types, (t) => t, '全部')}`,
+    CATEGORY_ORDER.map((c) => `<label class="check"><input type="checkbox" name="type" value="${esc(c)}"${types.includes(c) ? ' checked' : ''}${off}> ${esc(c)}</label>`).join(''),
+  );
 
   return `<form class="search-form${big ? ' is-big' : ''}" action="/search" method="get" role="search">
   <div class="search-row">
@@ -137,11 +149,13 @@ function searchForm({ big = false, opts = {} } = {}) {
     <button type="submit">检索</button>
   </div>
   <div class="search-filters">
+    ${scopeBox}
+    ${typeBox}
     <label>排序 <select name="sort">${sortOpts}</select></label>
     <label class="check"><input type="checkbox" name="annotated" value="1"${opts.onlyAnnotated ? ' checked' : ''}${off}> 只看有注解的条文</label>
     <label class="check"><input type="checkbox" name="gazette" value="1"${opts.gazetteOnly ? ' checked' : ''}> 只搜索裁判文书</label>
-    ${hidden}
-    <span class="filter-hint">范围与类型可在结果上方多选</span>
+    <span class="filter-hint">可勾选多个：同一维度取并集，范围与类型之间取交集；结果上方的标签可继续叠加。</span>
+    ${opts.docId ? `<input type="hidden" name="doc" value="${esc(opts.docId)}">` : ''}
   </div>
 </form>`;
 }
@@ -933,8 +947,8 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '检索' }])}
   <h1>全库检索</h1>
   <p class="muted">可指定检索范围（编）、文件类型、排序方式；输入“民法典 585”可直接定位条文。勾选“只搜索裁判文书”则只在《最高人民法院公报》裁判文书里检索。</p>
   <p class="muted">多个关键词默认“或”；大写 AND 表示“与”，大写 NOT 表示排除（如“离婚 财产分割”“离婚 AND 财产分割”“离婚 NOT 子女”），运算符两侧留空格。</p>
-  <p class="muted">范围与类型都可多选：同一维度内取并集，范围与类型之间取交集，点“全部”清除该维度。</p>
-  ${searchForm({ opts })}
+  <p class="muted">范围与类型都可在下拉框中勾选多个：同一维度内取并集，范围与类型之间取交集；结果上方的标签可继续叠加，点“全部”清除该维度。</p>
+  ${searchForm(db, { opts })}
   ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${searchUrl({ ...params, doc: '' })}">取消限定</a></p>` : ''}
 </section>
 ${direct}
