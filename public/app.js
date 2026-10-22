@@ -75,6 +75,11 @@
         });
       });
     });
+    document.addEventListener('click', function (e) {
+      multis.forEach(function (det) {
+        if (det.open && !det.contains(e.target)) det.open = false;
+      });
+    });
   }
 
   document.querySelectorAll('.header-search').forEach(function (form) {

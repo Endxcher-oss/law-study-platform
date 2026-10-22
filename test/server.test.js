@@ -119,6 +119,7 @@ test('检索页：指定范围/排序/类型', async () => {
   assert.match(multi.body, /<details class="multi-select" name="search-filter">/, '两个下拉共用 name，浏览器原生互斥');
   const app = await html('/assets/app.js');
   assert.match(app.body, /querySelectorAll\('\.multi-select'\)/, '脚本应在打开一个下拉时收起另一个');
+  assert.match(app.body, /!det\.contains\(e\.target\)/, '点下拉以外（含排序控件）应收起');
   assert.match(multi.body, /class="chip is-active" href="[^"]*">民法编/, '已选范围应高亮');
   assert.match(multi.body, /class="chip is-active" href="[^"]*">社会法编/, '第二个已选范围也应高亮');
   assert.match(multi.body, /class="chip is-active" href="[^"]*">司法解释/, '已选类型应高亮');
