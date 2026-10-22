@@ -928,7 +928,7 @@ ${docHitList(res.docHits)}
 ${
   q
     ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条结果'}（扫描耗时 ${res.ms} ms）${opts.gazetteOnly ? ' · 仅裁判文书' : opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>`
-    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条'}</div>`
+    : ''
 }
 <section class="results">
   ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', opts.gazetteOnly ? '裁判文书里没有命中，换个更短的关键词试试。' : '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}

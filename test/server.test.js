@@ -77,6 +77,7 @@ test('顶部导航不再放“全文检索”；搜索框留空提交 = 进入 /
 
   const filtered = await html('/search?q=&scope=civil');
   assert.equal(filtered.status, 200);
+  assert.ok(!filtered.body.includes('按当前范围浏览'), '浏览态不显示结果计数行');
 });
 
 test('条文页：民法典第 585 条含注解、依据条文与关联案例', async () => {

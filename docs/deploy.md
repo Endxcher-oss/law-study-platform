@@ -52,7 +52,7 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 
 - 打分、摘要高亮、分面全部复用 `server/search.js`：导出时把该模块与 `server/html.js`、`server/constants.js`、`scripts/lib/cn-num.js` 原样复制进 `dist/assets/`，浏览器按原生 ES 模块加载，**没有打包器，也没有第二套实现**。为此 `server/html.js` 只依赖 `server/constants.js`，`server/search.js` 只依赖 `scripts/lib/cn-num.js`。
 - 条文语料导出成 `assets/index.json`（30,347 条、31 MB，gzip 后约 4.7 MB），只在检索页按需下载，之后走浏览器缓存；公报裁判文书另出 `assets/gazette-index.json`（445 篇、14 MB），**只在勾选“只搜索裁判文书”时才下载**（静态检索同样按 `gazette` 二分候选池）；`assets/catalog.json`、`assets/taxonomy.json` 供“法律名 + 条号”直达与筛选计数使用。
-- 检索页首屏仍是服务端渲染的“按当前范围浏览”第一页，禁用 JS 也能看到表单与内容；一旦 URL 带参数（`q` / `page` / `scope` / `type` / `sort` / `doc` / `annotated`），`public/static.js` 才会在浏览器里重算并替换结果区。搜索表单是普通 GET 表单，回车即跳转，不需要 JS 拦截。
+- 检索页首屏仍是服务端渲染的第一页（浏览态不显示结果计数），禁用 JS 也能看到表单与内容；一旦 URL 带参数（`q` / `page` / `scope` / `type` / `sort` / `doc` / `annotated`），`public/static.js` 才会在浏览器里重算并替换结果区。搜索表单是普通 GET 表单，回车即跳转，不需要 JS 拦截。
 
 ## 导出物结构
 
