@@ -8,7 +8,7 @@ import {
   esc, layout, categoryBadge, levelBadge, confBadge, crumbs, articleUrl, docUrl, caseUrl, gazetteUrl,
   divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle, docHitList,
 } from './html.js';
-import { search as runSearch, directHit, nameMatches } from './search.js';
+import { search as runSearch, directHit, nameMatches, splitList } from './search.js';
 
 const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
 const FACET_ORDER = [...CATEGORY_ORDER, '裁判文书'];
@@ -84,7 +84,7 @@ export function homePage(db) {
 <section class="hero">
   <h1>法律学习平台</h1>
   <p class="hero-sub">条文、司法解释、疑难注解与指导性案例的关联检索，另有《最高人民法院公报》裁判文书全文</p>
-  ${searchForm(db, { big: true })}
+  ${searchForm({ big: true })}
   <div class="hero-stats">
     ${statCard('收录文件', c.documents, '法律 / 行政法规 / 司法解释')}
     ${statCard('法条条文', c.articles, '逐条结构化')}
@@ -120,26 +120,16 @@ export function homePage(db) {
   return layout({ title: '首页', body, meta, activeNav: 'home' });
 }
 
-function searchForm(db, { big = false, opts = {} } = {}) {
-  const divisions = db.taxonomy.divisions;
-  const scopeOpts = [`<option value="all"${(opts.scope || 'all') === 'all' ? ' selected' : ''}>全部范围</option>`]
-    .concat(
-      divisions
-        .filter((d) => db.meta.divisions[d.id]?.documents > 0)
-        .map(
-          (d) =>
-            `<option value="${d.id}"${opts.scope === d.id ? ' selected' : ''}>${esc(d.name)}（${db.meta.divisions[d.id].articles} 条）</option>`,
-        ),
-    )
-    .join('');
-
-  const typeOpts = [`<option value="all">全部类型</option>`]
-    .concat(CATEGORY_ORDER.map((t) => `<option value="${t}"${opts.type === t ? ' selected' : ''}>${t}</option>`))
-    .join('');
-
+function searchForm({ big = false, opts = {} } = {}) {
   const sortOpts = SORTS.map(([v, l]) => `<option value="${v}"${opts.sort === v ? ' selected' : ''}>${l}</option>`).join('');
-
   const off = opts.gazetteOnly ? ' disabled' : '';
+  const scopes = splitList(opts.scope);
+  const types = splitList(opts.type);
+  const hidden = [
+    scopes.length ? `<input type="hidden" name="scope" value="${esc(scopes.join(','))}">` : '',
+    types.length ? `<input type="hidden" name="type" value="${esc(types.join(','))}">` : '',
+    opts.docId ? `<input type="hidden" name="doc" value="${esc(opts.docId)}">` : '',
+  ].join('');
 
   return `<form class="search-form${big ? ' is-big' : ''}" action="/search" method="get" role="search">
   <div class="search-row">
@@ -147,12 +137,11 @@ function searchForm(db, { big = false, opts = {} } = {}) {
     <button type="submit">检索</button>
   </div>
   <div class="search-filters">
-    <label>范围 <select name="scope"${off}>${scopeOpts}</select></label>
-    <label>类型 <select name="type"${off}>${typeOpts}</select></label>
     <label>排序 <select name="sort">${sortOpts}</select></label>
     <label class="check"><input type="checkbox" name="annotated" value="1"${opts.onlyAnnotated ? ' checked' : ''}${off}> 只看有注解的条文</label>
     <label class="check"><input type="checkbox" name="gazette" value="1"${opts.gazetteOnly ? ' checked' : ''}> 只搜索裁判文书</label>
-    ${opts.docId ? `<input type="hidden" name="doc" value="${esc(opts.docId)}">` : ''}
+    ${hidden}
+    <span class="filter-hint">范围与类型可在结果上方多选</span>
   </div>
 </form>`;
 }
@@ -881,8 +870,8 @@ export function searchPage(db, query) {
   const q = query.q || '';
   const opts = {
     q,
-    scope: query.scope || 'all',
-    type: query.type || 'all',
+    scope: splitList(query.scope),
+    type: splitList(query.type),
     sort: query.sort || 'relevance',
     docId: query.doc || null,
     page: Math.max(1, Number(query.page) || 1),
@@ -890,6 +879,10 @@ export function searchPage(db, query) {
     onlyAnnotated: query.annotated === '1',
     gazetteOnly: query.gazette === '1',
   };
+  if (opts.gazetteOnly) {
+    opts.scope = [];
+    opts.type = [];
+  }
   const res = runSearch(db, opts);
   const doc = opts.docId ? db.getDoc(opts.docId) : null;
   const params = { q, scope: opts.scope, type: opts.type, sort: opts.sort, doc: opts.docId, annotated: opts.onlyAnnotated ? 1 : '', gazette: opts.gazetteOnly ? 1 : '' };
@@ -910,23 +903,25 @@ export function searchPage(db, query) {
       : '';
 
   const facetChips = (() => {
-    if (!q) return '';
-    const catChips = FACET_ORDER.filter((c) => res.facets.category[c])
-      .map(
-        (c) =>
-          `<a class="chip${opts.type === c ? ' is-active' : ''}" href="${searchUrl({ ...params, page: 1, type: opts.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`,
-      )
+    const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
+    const toggle = (list, value) => (list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
+    const catChips = FACET_ORDER.filter((c) => res.facets.category[c] || opts.type.includes(c))
+      .map((c) => {
+        const active = opts.type.includes(c);
+        return `<a class="chip${active ? ' is-active' : ''}" href="${url({ type: toggle(opts.type, c) })}">${esc(c)} <em>${res.facets.category[c] || 0}</em></a>`;
+      })
       .join('');
     const divChips = db.taxonomy.divisions
-      .filter((d) => res.facets.division[d.id])
-      .map(
-        (d) =>
-          `<a class="chip${opts.scope === d.id ? ' is-active' : ''}" href="${searchUrl({ ...params, page: 1, scope: opts.scope === d.id ? 'all' : d.id })}">${esc(d.name)} <em>${res.facets.division[d.id]}</em></a>`,
-      )
+      .filter((d) => res.facets.division[d.id] || opts.scope.includes(d.id))
+      .map((d) => {
+        const active = opts.scope.includes(d.id);
+        return `<a class="chip${active ? ' is-active' : ''}" href="${url({ scope: toggle(opts.scope, d.id) })}">${esc(d.name)} <em>${res.facets.division[d.id] || 0}</em></a>`;
+      })
       .join('');
+    const all = (list, key) => `<a class="chip${list.length ? '' : ' is-active'}" href="${url({ [key]: [] })}">全部</a>`;
     return [
-      catChips && `<div class="facet-row"><span class="facet-label">类型</span>${catChips}</div>`,
-      divChips && `<div class="facet-row"><span class="facet-label">编</span>${divChips}</div>`,
+      catChips && `<div class="facet-row"><span class="facet-label">类型</span>${all(opts.type, 'type')}${catChips}</div>`,
+      divChips && `<div class="facet-row"><span class="facet-label">编</span>${all(opts.scope, 'scope')}${divChips}</div>`,
     ]
       .filter(Boolean)
       .join('');
@@ -938,7 +933,8 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '检索' }])}
   <h1>全库检索</h1>
   <p class="muted">可指定检索范围（编）、文件类型、排序方式；输入“民法典 585”可直接定位条文。勾选“只搜索裁判文书”则只在《最高人民法院公报》裁判文书里检索。</p>
   <p class="muted">多个关键词默认“或”；大写 AND 表示“与”，大写 NOT 表示排除（如“离婚 财产分割”“离婚 AND 财产分割”“离婚 NOT 子女”），运算符两侧留空格。</p>
-  ${searchForm(db, { opts })}
+  <p class="muted">范围与类型都可多选：同一维度内取并集，范围与类型之间取交集，点“全部”清除该维度。</p>
+  ${searchForm({ opts })}
   ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${searchUrl({ ...params, doc: '' })}">取消限定</a></p>` : ''}
 </section>
 ${direct}
@@ -946,7 +942,7 @@ ${docHitList(res.docHits)}
 ${
   q
     ? `<div class="result-meta">“${esc(q)}” 命中 <strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条结果'}（扫描耗时 ${res.ms} ms）${opts.gazetteOnly ? ' · 仅裁判文书' : opts.onlyAnnotated ? ' · 仅看有注解条文' : ''}</div>${facetChips}`
-    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条'}</div>`
+    : `<div class="result-meta">按当前范围浏览：<strong>${res.total}</strong> ${opts.gazetteOnly ? '篇裁判文书' : '条'}</div>${facetChips}`
 }
 <section class="results">
   ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', opts.gazetteOnly ? '裁判文书里没有命中，换个更短的关键词试试。' : '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}

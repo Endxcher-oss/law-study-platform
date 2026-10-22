@@ -34,7 +34,11 @@ export const divisionUrl = (id) => `/division/${encodeURIComponent(id)}`;
 export const domainUrl = (id) => `/domain/${encodeURIComponent(id)}`;
 export const searchUrl = (params) => {
   const sp = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== '') sp.set(k, v);
+  const skip = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length);
+  for (const [k, v] of Object.entries(params)) {
+    if (skip(v)) continue;
+    sp.set(k, Array.isArray(v) ? v.join(',') : v);
+  }
   return `/search?${sp.toString()}`;
 };
 

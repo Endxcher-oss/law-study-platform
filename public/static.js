@@ -28,12 +28,22 @@ function init() {
 
 function syncForm(p) {
   for (const box of document.querySelectorAll('input[name=q]')) box.value = p.q;
+  const form = document.querySelector('.search-form');
+  if (form) {
+    for (const name of p.gazette ? [] : ['scope', 'type']) {
+      for (const el of form.querySelectorAll(`input[type=hidden][name=${name}]`)) el.remove();
+      if (!p[name].length) continue;
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = p[name].join(',');
+      form.append(input);
+    }
+  }
   const set = (name, value) => {
     const el = document.querySelector(`.search-form [name=${name}]`);
     if (el) el.value = value;
   };
-  set('scope', p.scope);
-  set('type', p.type);
   set('sort', p.sort);
   const check = (name, on) => {
     const el = document.querySelector(`.search-form input[name=${name}]`);
@@ -42,19 +52,22 @@ function syncForm(p) {
   check('annotated', p.annotated);
   check('gazette', p.gazette);
   if (p.gazette) {
-    for (const name of ['scope', 'type', 'annotated']) {
-      const el = document.querySelector(`.search-form [name=${name}]`);
-      if (el) el.disabled = true;
-    }
+    const el = document.querySelector('.search-form input[name=annotated]');
+    if (el) el.disabled = true;
   }
 }
 
 function readParams() {
   const sp = new URLSearchParams(location.search);
+  const list = (name) =>
+    (sp.get(name) || '')
+      .split(',')
+      .map((v) => v.trim())
+      .filter((v) => v && v !== 'all');
   return {
     q: sp.get('q') || '',
-    scope: sp.get('scope') || 'all',
-    type: sp.get('type') || 'all',
+    scope: list('scope'),
+    type: list('type'),
     sort: sp.get('sort') || 'relevance',
     doc: sp.get('doc') || null,
     page: Math.max(1, Number(sp.get('page')) || 1),
@@ -144,10 +157,12 @@ async function run(p) {
     slot().innerHTML = `<div class="result-meta">${esc(err.message)}</div>`;
     return;
   }
+  const scopes = p.gazette ? [] : p.scope;
+  const types = p.gazette ? [] : p.type;
   const res = runSearch(db, {
     q: p.q,
-    scope: p.scope,
-    type: p.type,
+    scope: scopes,
+    type: types,
     sort: p.sort,
     docId: p.doc,
     page: p.page,
@@ -172,18 +187,19 @@ async function run(p) {
       }</div>`
     : '';
 
-  const params = { q: p.q, scope: p.scope, type: p.type, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
+  const params = { q: p.q, scope: scopes, type: types, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
   const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
-  const catChips = FACET_ORDER.filter((c) => res.facets.category[c])
-    .map((c) => `<a class="chip${p.type === c ? ' is-active' : ''}" href="${url({ type: p.type === c ? 'all' : c })}">${esc(c)} <em>${res.facets.category[c]}</em></a>`)
+  const toggle = (list, value) => (list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
+  const catChips = FACET_ORDER.filter((c) => res.facets.category[c] || types.includes(c))
+    .map((c) => `<a class="chip${types.includes(c) ? ' is-active' : ''}" href="${url({ type: toggle(types, c) })}">${esc(c)} <em>${res.facets.category[c] || 0}</em></a>`)
     .join('');
   const divChips = db.taxonomy.divisions
-    .filter((d) => res.facets.division[d.id])
-    .map((d) => `<a class="chip${p.scope === d.id ? ' is-active' : ''}" href="${url({ scope: p.scope === d.id ? 'all' : d.id })}">${esc(d.name)} <em>${res.facets.division[d.id]}</em></a>`)
+    .filter((d) => res.facets.division[d.id] || scopes.includes(d.id))
+    .map((d) => `<a class="chip${scopes.includes(d.id) ? ' is-active' : ''}" href="${url({ scope: toggle(scopes, d.id) })}">${esc(d.name)} <em>${res.facets.division[d.id] || 0}</em></a>`)
     .join('');
   const chips = [
-    catChips && `<div class="facet-row"><span class="facet-label">类型</span>${catChips}</div>`,
-    divChips && `<div class="facet-row"><span class="facet-label">编</span>${divChips}</div>`,
+    catChips && `<div class="facet-row"><span class="facet-label">类型</span><a class="chip${types.length ? '' : ' is-active'}" href="${url({ type: [] })}">全部</a>${catChips}</div>`,
+    divChips && `<div class="facet-row"><span class="facet-label">编</span><a class="chip${scopes.length ? '' : ' is-active'}" href="${url({ scope: [] })}">全部</a>${divChips}</div>`,
   ]
     .filter(Boolean)
     .join('');

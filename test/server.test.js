@@ -109,6 +109,13 @@ test('检索页：指定范围/排序/类型', async () => {
   const r = await html('/search?q=%E8%BF%9D%E7%BA%A6%E9%87%91&scope=civil&sort=date_desc');
   assert.equal(r.status, 200);
   assert.match(r.body, /违约金/);
+  const multi = await html('/search?q=%E8%BF%9D%E7%BA%A6%E9%87%91&scope=civil,social&type=%E5%8F%B8%E6%B3%95%E8%A7%A3%E9%87%8A');
+  assert.equal(multi.status, 200);
+  assert.match(multi.body, /name="scope" value="civil,social"/, '多选范围应带进表单');
+  assert.match(multi.body, /name="type" value="司法解释"/, '多选类型应带进表单');
+  assert.match(multi.body, /class="chip is-active" href="[^"]*">民法编/, '已选范围应高亮');
+  assert.match(multi.body, /class="chip is-active" href="[^"]*">社会法编/, '第二个已选范围也应高亮');
+  assert.match(multi.body, /class="chip is-active" href="[^"]*">司法解释/, '已选类型应高亮');
   const r2 = await html('/search?q=%E6%B0%91%E6%B3%95%E5%85%B8585%E6%9D%A1');
   assert.equal(r2.status, 200);
   assert.match(r2.body, /直接定位/, '“法名+条号”应给出直接定位');

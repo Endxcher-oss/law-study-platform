@@ -148,6 +148,11 @@ export function tokenize(query) {
   };
 }
 
+export function splitList(value) {
+  const list = Array.isArray(value) ? value : String(value ?? '').split(',');
+  return [...new Set(list.map((v) => String(v).trim()).filter((v) => v && v !== 'all'))];
+}
+
 export function directHit(db, query) {
   const q = normalizeQuery(query);
   if (!q) return null;
@@ -256,13 +261,12 @@ export function search(db, opts = {}) {
   const namedDocs = hasQuery && !gazetteOnly && !boolean ? documentMatches(db, raw) : [];
   const exactDocs = new Set(namedDocs.filter((x) => x.level === 0).map((x) => x.doc.id));
 
+  const scopes = gazetteOnly ? [] : splitList(scope);
+  const types = gazetteOnly ? [] : splitList(type);
+
   let pool = gazetteOnly ? db.corpus.filter((r) => r.kind === 'gazette') : db.corpus.filter((r) => r.kind !== 'gazette');
   if (docId) pool = pool.filter((r) => r.docId === docId);
-  if (!gazetteOnly) {
-    if (scope && scope !== 'all') pool = pool.filter((r) => r.division === scope);
-    if (type && type !== 'all') pool = pool.filter((r) => r.category === type);
-    if (onlyAnnotated) pool = pool.filter((r) => r.hasAnnotation);
-  }
+  if (!gazetteOnly && onlyAnnotated) pool = pool.filter((r) => r.hasAnnotation);
 
   const results = [];
   let scanned = 0;
@@ -339,6 +343,15 @@ export function search(db, opts = {}) {
   }
   const ms = Math.round((performance.now() - scanStart) * 10) / 10;
 
+  const byScope = scopes.length ? results.filter((r) => scopes.includes(r.rec.division)) : results;
+  const byType = types.length ? results.filter((r) => types.includes(r.rec.category)) : results;
+  const filtered =
+    scopes.length && types.length
+      ? results.filter((r) => scopes.includes(r.rec.division) && types.includes(r.rec.category))
+      : scopes.length
+        ? byScope
+        : byType;
+
   const cmp = {
     relevance: (a, b) => a.tier - b.tier || b.groups - a.groups || b.score - a.score || (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || ''),
     date_desc: (a, b) => (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || '') || b.score - a.score,
@@ -348,7 +361,7 @@ export function search(db, opts = {}) {
     annot: (a, b) => (b.rec.hasAnnotation ? 1 : 0) - (a.rec.hasAnnotation ? 1 : 0) || b.score - a.score,
   }[sort] || ((a, b) => b.score - a.score);
 
-  const sorted = hasQuery ? results.sort(cmp) : results;
+  const sorted = hasQuery ? filtered.sort(cmp) : filtered;
 
   const total = sorted.length;
   const start = (page - 1) * pageSize;
@@ -363,8 +376,10 @@ export function search(db, opts = {}) {
     category: {},
     division: {},
   };
-  for (const r of results) {
+  for (const r of byScope) {
     facets.category[r.rec.category] = (facets.category[r.rec.category] || 0) + 1;
+  }
+  for (const r of byType) {
     facets.division[r.rec.division] = (facets.division[r.rec.division] || 0) + 1;
   }
 
@@ -384,7 +399,7 @@ export function search(db, opts = {}) {
           level,
         }));
 
-  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, docHits, sort, scope, type, docId, onlyAnnotated, gazetteOnly };
+  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, docHits, sort, scope: scopes, type: types, docId, onlyAnnotated, gazetteOnly };
 }
 
 function buildSnippet(rec, terms, matched) {
