@@ -1,5 +1,5 @@
 /**
- * 单文件离线站点测试：hash 路由到页面函数的映射，以及导出产物的自包含性。
+ * 单文件离线站点测试：hash 路由到页面函数的映射、导出产物的自包含性，以及打包后站点的实际跳转行为。
  * 产物用法与边界见 docs/single-file.md。
  */
 
@@ -16,10 +16,22 @@ import { parseHash, queryOf, renderPage } from '../public/single-app.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 
+function exportSample() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'law-single-'));
+  const out = path.join(dir, 'index.html');
+  execFileSync(process.execPath, ['scripts/export-single.js'], {
+    cwd: ROOT,
+    env: { ...process.env, SINGLE_OUT: out, SINGLE_DOCS: 'civil-code', SINGLE_SKIP_CASES: '1' },
+    stdio: 'pipe',
+  });
+  return fs.readFileSync(out, 'utf8');
+}
+
 test('hash 路由覆盖首页、条文、检索与 404', () => {
   const db = getDb();
 
   assert.equal(parseHash('#/d/civil-code/585').pathname, '/d/civil-code/585');
+  assert.equal(parseHash('#/d/civil-code/585#toc').fragment, 'toc');
   assert.equal(parseHash('#/search?q=x').search, '?q=x');
   assert.deepEqual(queryOf('?scope=civil&scope=social&q=x'), { scope: ['civil', 'social'], q: 'x' });
 
@@ -30,15 +42,7 @@ test('hash 路由覆盖首页、条文、检索与 404', () => {
 });
 
 test('单文件导出内联全部资源并带上可解压的数据', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'law-single-'));
-  const out = path.join(dir, 'index.html');
-  execFileSync(process.execPath, ['scripts/export-single.js'], {
-    cwd: ROOT,
-    env: { ...process.env, SINGLE_OUT: out, SINGLE_DOCS: 'civil-code', SINGLE_SKIP_CASES: '1' },
-    stdio: 'pipe',
-  });
-
-  const html = fs.readFileSync(out, 'utf8');
+  const html = exportSample();
   const head = html.slice(0, html.indexOf('<body'));
   assert.match(html, /<style>/);
   assert.match(html, /id="db-data" type="application\/gzip-base64"/);
@@ -51,4 +55,73 @@ test('单文件导出内联全部资源并带上可解压的数据', () => {
   assert.deepEqual(sources.docs.map((doc) => doc.id), ['civil-code']);
   assert.equal(sources['cases/guiding.json'], null);
   assert.ok(sources['catalog.json'].length > 0);
+});
+
+test('打包后的站点在 hash 改变时重新渲染', async () => {
+  const html = exportSample();
+  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const bundle = scripts[scripts.length - 1];
+  const encoded = html.match(/id="db-data"[^>]*>([\s\S]*?)<\/script>/)[1].trim();
+
+  let body = '';
+  const docListeners = {};
+  const winListeners = {};
+  const location = { hash: '#/' };
+  const document = {
+    title: '',
+    location,
+    getElementById(id) {
+      return id === 'db-data' ? { textContent: encoded } : null;
+    },
+    addEventListener(type, fn) {
+      (docListeners[type] ||= []).push(fn);
+    },
+    querySelector() {
+      return null;
+    },
+    querySelectorAll() {
+      return [];
+    },
+    body: {
+      get innerHTML() {
+        return body;
+      },
+      set innerHTML(value) {
+        body = value;
+      },
+    },
+  };
+  const window = {
+    scrollTo() {},
+    matchMedia: () => ({ matches: false, addEventListener() {} }),
+    addEventListener(type, fn) {
+      (winListeners[type] ||= []).push(fn);
+    },
+  };
+  class DOMParserFake {
+    parseFromString(source) {
+      const title = /<title>([\s\S]*?)<\/title>/.exec(source);
+      const match = /<body[^>]*>([\s\S]*)<\/body>/.exec(source);
+      return { title: title ? title[1] : '', body: { innerHTML: match ? match[1] : '' } };
+    }
+  }
+
+  const run = new Function(
+    'document', 'DOMParser', 'atob', 'Blob', 'DecompressionStream', 'Response', 'window', 'location',
+    bundle,
+  );
+  run(document, DOMParserFake, atob, Blob, DecompressionStream, Response, window, location);
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  assert.match(body, /法律学习平台/, '首屏没有渲染');
+  assert.equal((docListeners.hashchange || []).length, 0, 'hashchange 应监听在 window 上');
+  assert.ok((winListeners.hashchange || []).length > 0, '没有监听 window 的 hashchange');
+
+  location.hash = '#/d/civil-code/585';
+  for (const listener of winListeners.hashchange) listener();
+  assert.match(body, /第五百八十五条/);
+
+  location.hash = '#/search?q=' + encodeURIComponent('违约金');
+  for (const listener of winListeners.hashchange) listener();
+  assert.match(body, /违约金/);
 });

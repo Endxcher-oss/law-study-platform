@@ -109,7 +109,7 @@ export async function boot() {
 
   const routeHash = () => (document.location.hash.startsWith('#/') ? document.location.hash : '#/');
 
-  document.addEventListener('hashchange', () => {
+  window.addEventListener('hashchange', () => {
     if (document.location.hash.startsWith('#/')) {
       try {
         draw(db, document.location.hash);
