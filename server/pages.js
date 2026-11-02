@@ -343,7 +343,6 @@ export function docPage(db, docId, query = {}) {
   if (!doc) return notFoundPage(db, `未收录该文件：${docId}`);
   const cov = db.coverageOf(docId);
   const interps = db.interpretationsOfLaw(docId);
-  const laws = db.lawsOfInterpretation(docId);
   const cases = db.casesOfLaw(docId);
   const curated = db.curatedAnnotations.filter((a) => a.lawId === docId);
 
@@ -365,6 +364,7 @@ export function docPage(db, docId, query = {}) {
   const isInterp = doc.category === '司法解释';
   const hasCoverage = !!(cov && (cov.interpCount || cov.annotations.curated || cov.cited?.links));
   const docTags = doc.category === '司法解释' || doc.category === '行政法规' ? db.tagsByDoc.get(doc.id) || [] : [];
+  const interpreted = isInterp && doc.interpretationOf ? db.getDoc(doc.interpretationOf) : null;
 
   const windowHasPath = windowArticles.some((a) => (a.path || []).length);
   const mapPath = (p) => (p.length || !windowHasPath ? p : [NO_SECTION_LABEL]);
@@ -409,7 +409,6 @@ export function docPage(db, docId, query = {}) {
 
   const jumpNav = (() => {
     const items = [
-      doc.category === '司法解释' && laws.length ? ['#sec-interp-of', '本解释针对的法律'] : null,
       docTags.length ? ['#sec-tags', `关联法条 ${docTags.length}`] : null,
       hasCoverage ? ['#sec-coverage', doc.category === '司法解释' ? '引用概览' : '关联概览'] : null,
       curated.length ? ['#sec-notes', `疑难注解 ${curated.length}`] : null,
@@ -438,7 +437,7 @@ ${crumbs(breadcrumbTrail(db, doc))}
   </div>
   <div class="doc-actions">
     <a class="btn" href="${searchUrl({ doc: doc.id, q: '', sort: 'hierarchy' })}">在本书内检索</a>
-    ${doc.category === '司法解释' && laws.length ? `<a class="btn" href="${docUrl(laws[0].docId)}">查看被解释法律</a>` : ''}
+    ${interpreted ? `<a class="btn" href="${docUrl(interpreted.id)}">查看《${esc(interpreted.shortTitle)}》</a>` : ''}
   </div>
 </section>
 
@@ -466,14 +465,6 @@ ${crumbs(breadcrumbTrail(db, doc))}
 </div>
 
 <div class="doc-assoc">
-${
-  doc.category === '司法解释' && laws.length
-    ? `<section class="block callout" id="sec-interp-of"><h3>本解释针对的法律</h3><ul class="doc-list">${laws
-        .map((l) => `<li><a href="${docUrl(l.docId)}">${esc(l.title)}</a><span class="muted">关联 ${l.articleCount} 条 / ${l.count} 处引用</span></li>`)
-        .join('')}</ul></section>`
-    : ''
-}
-
 ${
   docTags.length
     ? `<section class="block" id="sec-tags"><h3>关联法条</h3>${tagsBlock(db, docTags)}</section>`

@@ -246,16 +246,23 @@ test('法律总览页：关联信息在目录之后，侧栏顶部有区段跳�
   assert.match(r.body, /href="#sec-notes">疑难注解 \d+</);
 });
 
-test('司法解释页：本解释针对的法律 + 引用概览（反方向关联）', async () => {
+test('司法解释页：解释对象按钮 + 关联法条 + 引用概览（反方向关联）', async () => {
   const r = await html('/d/sfjs-mfd-hetong');
   assert.equal(r.status, 200);
-  assert.ok(r.body.includes('id="sec-interp-of"'));
+  assert.ok(!r.body.includes('sec-interp-of'), '不再单列“本解释针对的法律”区块');
+  assert.ok(!r.body.includes('href="#sec-interp-of"'), '跳转导航也不再有该项');
+  assert.ok(r.body.includes('>查看《民法典》</a>'), '标题能确定解释对象时，按钮直接指向该法');
+  assert.ok(r.body.includes('id="sec-tags"'), '关联法条标签区仍在');
   assert.ok(r.body.includes('id="sec-coverage"'));
-  assert.ok(r.body.includes('href="#sec-interp-of"'));
-  assert.ok(r.body.includes('中华人民共和国民法典'), '应列出被解释的法律');
   assert.ok(r.body.includes('引用概览'), '司法解释页的概览应叫“引用概览”');
   const at = (s) => r.body.indexOf(s);
-  assert.ok(at('class="article-window"') < at('id="sec-coverage"'), '概览应在目录之后');
+  assert.ok(at('class="article-window"') < at('id="sec-tags"'), '关联法条应在目录之后');
+  assert.ok(at('id="sec-tags"') < at('id="sec-coverage"'), '关联法条在前，概览在后');
+
+  const loose = await html('/d/sfjs-05609c5692');
+  assert.equal(loose.status, 200);
+  assert.ok(!loose.body.includes('查看《'), '标题推不出解释对象时不显示该按钮');
+  assert.ok(loose.body.includes('id="sec-tags"'), '仍有关联法条标签');
 });
 
 test('目录树：编 → 分编 → 章 → 节，层级可展开收起，并按当前位置自动展开高亮', async () => {
