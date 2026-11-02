@@ -39,6 +39,7 @@ npm run export:static   # 导出可上传 GitHub Pages 的 dist/（见文档：�
 | 全局检索：范围、排序、查询写法、实现要点 | [docs/search.md](docs/search.md) |
 | 网页 GUI：页面清单与条文页结构 | [docs/web-ui.md](docs/web-ui.md) |
 | 静态部署到 GitHub Pages：导出、前缀、静态检索 | [docs/deploy.md](docs/deploy.md) |
+| 单文件离线站点：一份 HTML 带走整站 | [docs/single-file.md](docs/single-file.md) |
 | HTTP JSON API | [docs/api.md](docs/api.md) |
 | 质量保障：`verify` 校验什么、测试覆盖 | [docs/quality.md](docs/quality.md) |
 | 如何扩展：加法条、加编、加注解、换存储 | [docs/extending.md](docs/extending.md) |

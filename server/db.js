@@ -28,17 +28,29 @@ function listJson(dir) {
 }
 
 class Database {
-  constructor() {
-    this.meta = readJson(path.join(DB, 'meta.json'));
-    this.taxonomy = readJson(path.join(DB, 'taxonomy.json'));
-    this.taxonomyMap = readJson(path.join(DB, 'taxonomy.map.json'));
-    this.catalog = readJson(path.join(DB, 'catalog.json'));
+  constructor(sources = null) {
+    this._read = sources ? (key) => sources[key] : (key) => readJson(path.join(DB, key));
+    this._readMaybe = sources
+      ? (key) => sources[key] ?? null
+      : (key) => {
+          const file = path.join(DB, key);
+          return fs.existsSync(file) ? readJson(file) : null;
+        };
+
+    this.meta = this._read('meta.json');
+    this.taxonomy = this._read('taxonomy.json');
+    this.taxonomyMap = this._read('taxonomy.map.json');
+    this.catalog = this._read('catalog.json');
 
     this.docs = new Map();
-    for (const dir of ['codes', 'interpretations', 'regulations']) {
-      for (const file of listJson(path.join(DB, dir))) {
-        const doc = readJson(file);
-        this.docs.set(doc.id, doc);
+    if (sources) {
+      for (const doc of sources.docs) this.docs.set(doc.id, doc);
+    } else {
+      for (const dir of ['codes', 'interpretations', 'regulations']) {
+        for (const file of listJson(path.join(DB, dir))) {
+          const doc = readJson(file);
+          this.docs.set(doc.id, doc);
+        }
       }
     }
 
@@ -78,7 +90,7 @@ class Database {
   }
 
   _loadLinks() {
-    const raw = readJson(path.join(DB, 'links.json'));
+    const raw = this._read('links.json');
     this.links = raw.links.filter((l) => l.td || l.t);
     this.looseLinks = raw.links.filter((l) => !l.t && !l.td);
     this.looseBySource = new Map();
@@ -220,8 +232,8 @@ class Database {
   }
 
   _loadAnnotations() {
-    const curated = readJson(path.join(DB, 'annotations', 'curated.json'));
-    const derived = readJson(path.join(DB, 'annotations', 'derived.json'));
+    const curated = this._read('annotations/curated.json');
+    const derived = this._read('annotations/derived.json');
     this.curatedAnnotations = curated.annotations;
     this.derivedAnnotations = derived.annotations;
     this.annotationById = new Map([...this.curatedAnnotations, ...this.derivedAnnotations].map((a) => [a.id, a]));
@@ -249,14 +261,14 @@ class Database {
   }
 
   _loadRubrics() {
-    const file = path.join(DB, 'rubrics.json');
-    this.rubrics = fs.existsSync(file) ? readJson(file).rubrics || [] : [];
+    const raw = this._readMaybe('rubrics.json');
+    this.rubrics = raw ? raw.rubrics || [] : [];
     this.rubricByArticle = new Map(this.rubrics.map((r) => [r.articleId, r.text]));
   }
 
   _loadGazettes() {
-    const file = path.join(DB, 'cases', 'gazette.json');
-    this.gazettes = fs.existsSync(file) ? readJson(file).cases : [];
+    const raw = this._readMaybe('cases/gazette.json');
+    this.gazettes = raw ? raw.cases : [];
     this.gazetteById = new Map(this.gazettes.map((g) => [g.id, g]));
     this.gazetteByYear = new Map();
     for (const g of this.gazettes) {
@@ -267,8 +279,8 @@ class Database {
   }
 
   _loadCases() {
-    const file = path.join(DB, 'cases', 'guiding.json');
-    this.cases = fs.existsSync(file) ? readJson(file).cases : [];
+    const raw = this._readMaybe('cases/guiding.json');
+    this.cases = raw ? raw.cases : [];
     this.caseById = new Map(this.cases.map((c) => [c.id, c]));
     this.casesByLaw = new Map();
     this.casesByArticle = new Map();
@@ -497,4 +509,4 @@ export function getDb() {
   if (!instance) instance = new Database();
   return instance;
 }
-export { annotationText };
+export { Database, annotationText };
