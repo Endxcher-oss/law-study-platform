@@ -286,6 +286,57 @@ function categoryThenTitle(a, b) {
   return (CATEGORY_RANK[a.category] ?? 9) - (CATEGORY_RANK[b.category] ?? 9) || a.shortTitle.localeCompare(b.shortTitle, 'zh');
 }
 
+const TAG_PREVIEW = 8;
+
+function tagChip(db, tag) {
+  const note = tag.note || '';
+  if (tag.kind === 'article') {
+    const law = db.getDoc(tag.lawId);
+    const article = db.getArticle(tag.articleId);
+    const label = article ? article.displayNumber : tag.number ? `第 ${tag.number} 条` : '';
+    if (!label) return '';
+    const title = [law?.shortTitle, label, tag.mentions > 1 ? `引用 ${tag.mentions} 处` : '', note].filter(Boolean).join(' · ');
+    return article
+      ? `<a class="chip" href="${articleUrl(tag.lawId, article.slug)}" title="${esc(title)}" aria-label="${esc(title)}">${esc(label)}</a>`
+      : `<span class="chip is-static" title="${esc(title)}">${esc(label)}</span>`;
+  }
+  const doc = tag.lawId ? db.getDoc(tag.lawId) : null;
+  const successor = tag.successorId ? db.getDoc(tag.successorId) : null;
+  const targetId = doc ? doc.id : successor ? successor.id : null;
+  const name = doc?.shortTitle || String(tag.lawName || '').replace(/^中华人民共和国/, '');
+  if (!name) return '';
+  const state = successor ? '<span class="chip-state">已废止</span>' : '';
+  const title = [name, successor ? '已废止' : '', note].filter(Boolean).join(' · ');
+  if (!targetId) return `<span class="chip is-law is-static" title="${esc(title)}">${esc(name)}</span>`;
+  return `<a class="chip is-law${successor ? ' is-superseded' : ''}" href="${docUrl(targetId)}" title="${esc(title)}" aria-label="${esc(title)}">${esc(name)}${state}</a>`;
+}
+
+function tagsBlock(db, tags) {
+  if (!tags || !tags.length) return '';
+  const groups = new Map();
+  for (const tag of tags) {
+    const key = tag.lawId || tag.lawName;
+    const group = groups.get(key) || { lawId: tag.lawId || null, lawName: tag.lawName, lawTag: null, articles: [], mentions: 0 };
+    if (tag.kind === 'article') group.articles.push(tag);
+    else group.lawTag = tag;
+    group.mentions = Math.max(group.mentions, tag.mentions || 0);
+    groups.set(key, group);
+  }
+  const list = [...groups.values()].sort((a, b) => b.mentions - a.mentions);
+  const rows = list.map((group) => {
+    const lawChip = tagChip(db, group.lawTag || { kind: 'law', lawId: group.lawId, lawName: group.lawName });
+    if (!group.articles.length) return `<div class="tag-group">${lawChip}</div>`;
+    const chips = [...group.articles]
+      .sort((a, b) => (b.mentions || 0) - (a.mentions || 0) || String(a.number).localeCompare(String(b.number), undefined, { numeric: true }))
+      .map((tag) => tagChip(db, tag))
+      .filter(Boolean);
+    const rest = chips.slice(TAG_PREVIEW);
+    const more = rest.length ? `<details class="tag-more"><summary>另 ${rest.length} 条</summary>${rest.join('')}</details>` : '';
+    return `<div class="tag-group">${lawChip}${chips.slice(0, TAG_PREVIEW).join('')}${more}</div>`;
+  });
+  return `<div class="tag-groups">${rows.join('')}</div>`;
+}
+
 export function docPage(db, docId, query = {}) {
   const meta = metaFromDb(db);
   const doc = db.getDoc(docId);
@@ -313,6 +364,7 @@ export function docPage(db, docId, query = {}) {
   const loose = db.looseBySource.get(doc.id) || [];
   const isInterp = doc.category === '司法解释';
   const hasCoverage = !!(cov && (cov.interpCount || cov.annotations.curated || cov.cited?.links));
+  const docTags = doc.category === '司法解释' || doc.category === '行政法规' ? db.tagsByDoc.get(doc.id) || [] : [];
 
   const windowHasPath = windowArticles.some((a) => (a.path || []).length);
   const mapPath = (p) => (p.length || !windowHasPath ? p : [NO_SECTION_LABEL]);
@@ -358,6 +410,7 @@ export function docPage(db, docId, query = {}) {
   const jumpNav = (() => {
     const items = [
       doc.category === '司法解释' && laws.length ? ['#sec-interp-of', '本解释针对的法律'] : null,
+      docTags.length ? ['#sec-tags', `关联法条 ${docTags.length}`] : null,
       hasCoverage ? ['#sec-coverage', doc.category === '司法解释' ? '引用概览' : '关联概览'] : null,
       curated.length ? ['#sec-notes', `疑难注解 ${curated.length}`] : null,
       cases.length ? ['#sec-cases', `指导性案例 ${cases.length}`] : null,
@@ -418,6 +471,12 @@ ${
     ? `<section class="block callout" id="sec-interp-of"><h3>本解释针对的法律</h3><ul class="doc-list">${laws
         .map((l) => `<li><a href="${docUrl(l.docId)}">${esc(l.title)}</a><span class="muted">关联 ${l.articleCount} 条 / ${l.count} 处引用</span></li>`)
         .join('')}</ul></section>`
+    : ''
+}
+
+${
+  docTags.length
+    ? `<section class="block" id="sec-tags"><h3>关联法条</h3>${tagsBlock(db, docTags)}</section>`
     : ''
 }
 
@@ -1043,13 +1102,6 @@ export function casePage(db, id) {
   const c = db.caseById.get(id);
   if (!c) return notFoundPage(db, `未收录该案例：${id}`);
 
-  const lawGroups = new Map();
-  for (const r of c.related) {
-    const key = r.lawId || 'unknown';
-    if (!lawGroups.has(key)) lawGroups.set(key, []);
-    lawGroups.get(key).push(r);
-  }
-
   const body = `
 ${crumbs([{ label: '首页', href: '/' }, { label: '指导性案例', href: '/cases' }, { label: `${c.number} 号` }])}
 <section class="page-head">
@@ -1070,29 +1122,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '指导性案例', href: '/ca
   </section>
   <aside class="block case-side">
     <h2>关联法条</h2>
-    <ul class="cite-list">
-      ${[...lawGroups.entries()]
-        .map(([lawId, rs]) => {
-          const doc = db.catalogById.get(lawId);
-          return `<li class="case-law">
-        ${doc ? `<a href="${docUrl(lawId)}">${esc(doc.title)}</a>` : `<span class="muted" title="本平台未收录该文件，故不建立链接">${esc(rs[0].lawName || '未识别')}</span>`}
-        <ul>${rs
-          .map(
-            (r) => {
-              const target = r.articleId && doc ? db.getArticle(lawId, r.articleSlug ?? r.articleNumber) : null;
-              return `<li>${
-                target
-                  ? `<a href="${articleUrl(lawId, r.articleSlug ?? r.articleNumber)}">${esc(target.displayNumber)}</a>`
-                  : `<span class="muted">${esc(r.raw)}</span>`
-              }
-          ${target && (db.linksByTarget.get(r.articleId) || []).length ? '<span class="badge conf-mid">有司法解释</span>' : ''}</li>`;
-            },
-          )
-          .join('')}</ul>
-      </li>`;
-        })
-        .join('')}
-    </ul>
+    ${tagsBlock(db, db.tagsByCase.get(c.id) || [])}
     ${c.sourceUrl ? `<p class="muted small">原始来源：<a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener">${esc(c.sourceUrl)}</a></p>` : ''}
   </aside>
 </div>

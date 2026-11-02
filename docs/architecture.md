@@ -37,6 +37,7 @@ law-study-platform/
 │   ├── annotations/          #   curated.json / derived.json / index.json
 │   ├── links.json            #   ★ 条文级关联表（2,717 条，合计 3,043 处提及）
 │   ├── rubrics.json          #   条文主旨（条旨，人工撰写的编辑层）
+│   ├── tags.json             #   关联法条索引（文书/案例 → 法名与条号标签）
 │   ├── taxonomy.json         #   编/领域树（含各编规模）
 │   ├── taxonomy.map.json     #   文档 → {division, domain}
 │   ├── meta.json             #   元信息、计数、覆盖度

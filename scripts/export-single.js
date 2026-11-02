@@ -178,6 +178,7 @@ function buildSources() {
     'annotations/curated.json': readJson('annotations/curated.json'),
     'annotations/derived.json': readJson('annotations/derived.json'),
     'rubrics.json': readJson('rubrics.json'),
+    'tags.json': fs.existsSync(path.join(DB, 'tags.json')) ? readJson('tags.json') : null,
     'cases/guiding.json': skipCases ? null : readJson('cases/guiding.json'),
     'cases/gazette.json': skipCases ? null : readJson('cases/gazette.json'),
     docs,

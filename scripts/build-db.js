@@ -10,7 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { cleanArticleText, isHeadingLine, normalizeText, RE_APPENDIX_HEADING } from './lib/clean.js';
-import { buildNameIndex, extractArticleRefs, extractQuotedRefs, lawIdFromTitle, SHORT_ALIASES } from './lib/refs.js';
+import { buildNameIndex, extractArticleRefs, extractQuotedRefs, findNameMentions, lawIdFromTitle, SHORT_ALIASES, SUPERSEDED } from './lib/refs.js';
 import { buildCuratedIndex, classify, taxonomyObject, DIVISIONS, DOMAINS } from './lib/taxonomy.js';
 import { intToCn, parseDisplayNumber, suffixSeq, slugOf } from './lib/cn-num.js';
 
@@ -519,6 +519,14 @@ function main() {
   meta.counts.annotations = curatedAnnotations.length + derivedAnnotations.length;
   meta.counts.rubrics = rubrics.length;
   const catalogById = new Map(catalog.map((d) => [d.id, d]));
+  const tagData = buildRelatedTags({ docById, catalogById, validLinks, cases, nameIndex });
+  writeJson(path.join(DB, 'tags.json'), {
+    schemaVersion: 1,
+    note: '文书到法条/法名的索引：mentions 为引用处数，已废止的法指向承接法（successorId）。',
+    docs: tagData.docs,
+    cases: tagData.cases,
+  });
+  log(`  法条标签 ${Object.keys(tagData.docs).length} 部文书 / ${Object.keys(tagData.cases).length} 件案例`);
   const lawArticleIds = new Set();
   for (const d of docById.values()) {
     if (d.category === '司法解释') continue;
@@ -676,6 +684,150 @@ function mergeLinkRecords(records) {
     else merged.set(key, { ...l, mentions: 1 });
   }
   return [...merged.values()];
+}
+
+function supersededOf(name) {
+  if (!name) return null;
+  return SUPERSEDED[name] || SUPERSEDED[String(name).replace(/^中华人民共和国/, '')] || null;
+}
+
+function tagSort(a, b) {
+  return (
+    (b.mentions || 0) - (a.mentions || 0)
+    || String(a.lawName || '').localeCompare(String(b.lawName || ''), 'zh')
+    || String(a.number || '').localeCompare(String(b.number || ''), undefined, { numeric: true })
+  );
+}
+
+function buildRelatedTags({ docById, catalogById, validLinks, cases, nameIndex }) {
+  const docTags = new Map();
+  const bucket = (docId) => {
+    if (!docTags.has(docId)) docTags.set(docId, new Map());
+    return docTags.get(docId);
+  };
+  const nameKey = (name) => String(name || '').replace(/^中华人民共和国/, '');
+
+  const addArticleTag = (docId, { lawId, articleId, number, note, mentions = 1 }) => {
+    const law = catalogById.get(lawId);
+    if (!law || !articleId) return;
+    const key = `a:${lawId}:${articleId}`;
+    const map = bucket(docId);
+    const tag = map.get(key) || {
+      kind: 'article',
+      lawId,
+      lawName: law.title,
+      articleId,
+      number: String(number || ''),
+      mentions: 0,
+      note: null,
+    };
+    tag.mentions += mentions;
+    if (!tag.note && note) tag.note = note;
+    map.set(key, tag);
+  };
+
+  const addLawTag = (docId, { lawId, lawName, note, mentions = 1 }) => {
+    if (!lawName) return;
+    const sup = supersededOf(lawName);
+    const key = `l:${lawId || nameKey(lawName)}`;
+    const map = bucket(docId);
+    const tag = map.get(key) || {
+      kind: 'law',
+      lawId: lawId || null,
+      lawName,
+      successorId: sup ? sup.successor : null,
+      note: sup ? sup.note : null,
+      mentions: 0,
+    };
+    tag.mentions += mentions;
+    if (!tag.note && note) tag.note = note;
+    map.set(key, tag);
+  };
+
+  for (const link of validLinks) {
+    const source = catalogById.get(link.sd);
+    if (!source) continue;
+    if (link.td && link.t) {
+      if (link.td === source.id) continue;
+      addArticleTag(source.id, { lawId: link.td, articleId: link.t, number: link.ts, note: link.note, mentions: link.mentions || 1 });
+    } else if (link.name) {
+      addLawTag(source.id, { lawName: link.name, note: link.note, mentions: link.mentions || 1 });
+    }
+  }
+
+  for (const doc of docById.values()) {
+    if (doc.category !== '司法解释' && doc.category !== '行政法规') continue;
+    const map = bucket(doc.id);
+    const known = new Set();
+    for (const tag of map.values()) {
+      if (tag.lawId) known.add(tag.lawId);
+      known.add(nameKey(tag.lawName));
+    }
+    const counts = new Map();
+    const text = doc.articles.map((a) => a.text || '').join('\n');
+    for (const mention of findNameMentions(text, nameIndex)) {
+      if (!mention.name || mention.docId === doc.id) continue;
+      const key = mention.docId || nameKey(mention.name);
+      if (known.has(key)) continue;
+      const hit = counts.get(key) || { ...mention, count: 0 };
+      hit.count += 1;
+      counts.set(key, hit);
+    }
+    const ranked = [...counts.values()].sort((a, b) => b.count - a.count).slice(0, 12);
+    for (const mention of ranked) {
+      addLawTag(doc.id, {
+        lawId: mention.docId || null,
+        lawName: mention.docId ? catalogById.get(mention.docId)?.title || mention.name : mention.name,
+        note: mention.note,
+        mentions: mention.count,
+      });
+    }
+  }
+
+  const docs = {};
+  for (const [docId, map] of docTags) {
+    const list = [...map.values()].sort(tagSort);
+    if (list.length) docs[docId] = list;
+  }
+
+  const caseTags = {};
+  for (const item of cases) {
+    const map = new Map();
+    for (const ref of item.related || []) {
+      if (ref.lawId && ref.articleId) {
+        const key = `a:${ref.lawId}:${ref.articleId}`;
+        const tag = map.get(key) || {
+          kind: 'article',
+          lawId: ref.lawId,
+          lawName: ref.lawName,
+          articleId: ref.articleId,
+          number: String(ref.articleNumber ?? ''),
+          mentions: 0,
+          note: null,
+        };
+        tag.mentions += 1;
+        if (!tag.note && ref.note) tag.note = ref.note;
+        map.set(key, tag);
+      } else if (ref.lawName) {
+        const sup = supersededOf(ref.lawName);
+        const key = `l:${ref.lawId || nameKey(ref.lawName)}`;
+        const tag = map.get(key) || {
+          kind: 'law',
+          lawId: ref.lawId || null,
+          lawName: ref.lawName,
+          successorId: sup ? sup.successor : null,
+          note: sup ? sup.note : ref.note || null,
+          mentions: 0,
+        };
+        tag.mentions += 1;
+        if (!tag.note && ref.note) tag.note = ref.note;
+        map.set(key, tag);
+      }
+    }
+    if (map.size) caseTags[item.id] = [...map.values()].sort(tagSort);
+  }
+
+  return { docs, cases: caseTags };
 }
 
 function buildDerivedAnnotations({ docById, articlesById, linkRecords, catalog }) {

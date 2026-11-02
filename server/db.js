@@ -86,6 +86,7 @@ class Database {
     this._loadRubrics();
     this._loadCases();
     this._loadGazettes();
+    this._loadTags();
     this._buildSearchCorpus();
   }
 
@@ -296,6 +297,15 @@ class Database {
         }
       }
     }
+  }
+
+  _loadTags() {
+    const raw = this._readMaybe('tags.json');
+    this.tagsByDoc = new Map();
+    this.tagsByCase = new Map();
+    if (!raw) return;
+    for (const [docId, tags] of Object.entries(raw.docs || {})) this.tagsByDoc.set(docId, tags);
+    for (const [caseId, tags] of Object.entries(raw.cases || {})) this.tagsByCase.set(caseId, tags);
   }
 
   casesOfArticle(articleId) {

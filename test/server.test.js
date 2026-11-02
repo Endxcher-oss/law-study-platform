@@ -578,3 +578,19 @@ test('API：/api/gazettes 列表与详情，/api/search 支持 gazette=1', async
   assert.equal(only.gazetteOnly, true);
   assert.ok(only.items.every((r) => r.kind === 'gazette'));
 });
+
+test('关联法条标签：条文可点，重复引用给次数，废止法指向承接法', async () => {
+  const doc = await html('/d/sfjs-minsusong');
+  assert.equal(doc.status, 200);
+  const section = doc.body.match(/<section class="block" id="sec-tags">[\s\S]*?<\/section>/);
+  assert.ok(section, '司法解释页应有“关联法条”标签区');
+  assert.ok(section[0].includes('href="/d/civil-procedure-law/207"'), '条文标签应链接到具体条文');
+  assert.match(section[0], /title="民事诉讼法 · 第二百零七条 · 引用 \d+ 处"/, '重复引用的条文应在悬停提示里给出次数');
+  assert.ok(section[0].includes('class="tag-more"'), '超过 8 条的应折叠');
+
+  const detail = await html('/case/guiding-1');
+  const aside = detail.body.slice(detail.body.indexOf('case-side'), detail.body.indexOf('</aside>'));
+  assert.ok(aside.includes('href="/d/civil-code"'), '已废止法律应链接到承接的民法典');
+  assert.ok(aside.includes('已废止'), '已废止法律应有标注');
+  assert.ok(aside.includes('该法已废止'), '悬停提示应说明承接关系');
+});

@@ -325,3 +325,23 @@ test('检索语料：条文 / 指导性案例 / 裁判文书三类齐备', () =>
   assert.equal(kinds.case, db.cases.length);
   assert.equal(kinds.gazette, db.gazettes.length);
 });
+
+test('法条标签：按引用次数排序，已废止法律指向承接法', () => {
+  const tags = db.tagsByDoc.get('sfjs-minsusong');
+  assert.ok(tags && tags.length >= 80, `民诉法解释应有大量法条标签，实际 ${tags?.length}`);
+  for (let i = 1; i < tags.length; i++) {
+    assert.ok(tags[i - 1].mentions >= tags[i].mentions, '标签应按引用次数降序');
+  }
+  for (const tag of tags) {
+    if (tag.kind === 'article') {
+      assert.ok(db.getArticle(tag.articleId), `${tag.articleId} 应对应已收录条文`);
+      assert.ok(tag.number, '条文标签应保留条号');
+    }
+  }
+  const repealed = [...db.tagsByCase.values()].flat().filter((tag) => tag.successorId);
+  assert.ok(repealed.length >= 50, `案例里的已废止法律标签偏少：${repealed.length}`);
+  for (const tag of repealed) {
+    assert.equal(tag.successorId, 'civil-code', '目前已废止法律都归民法典承接');
+    assert.equal(tag.lawId, null, '已废止法律不指向旧文档');
+  }
+});

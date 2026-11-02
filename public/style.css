@@ -474,6 +474,16 @@ h3 { font-size: 17px; }
 .case-law ul { list-style: none; margin: 4px 0 10px; padding-left: 14px; font-size: 13px; }
 .case-law ul li { padding: 2px 0; }
 
+.tag-groups { display: grid; gap: 8px; }
+.tag-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chip.is-law { font-family: var(--serif); font-weight: 600; }
+.chip.is-superseded { color: var(--ink-muted); }
+.chip-state { font-size: 10.5px; opacity: .7; margin-left: 2px; }
+.tag-more { flex-basis: 100%; }
+.tag-more summary { font-size: 12.5px; color: var(--accent); cursor: pointer; margin: 2px 0 6px; }
+.tag-more[open] { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-more[open] > summary { flex-basis: 100%; }
+
 .result-meta { font-size: 13.5px; color: var(--ink-soft); margin: 14px 0 8px; }
 .results { margin-top: 12px; }
 .result {
