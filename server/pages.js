@@ -426,7 +426,7 @@ ${
 
 ${
   curated.length
-    ? `<section class="block" id="sec-notes"><h3>本书的疑难注解</h3><ul class="note-list">${curated
+    ? `<section class="block" id="sec-notes"><h3>本书的疑难注解（${curated.length} 条）</h3><ul class="note-list">${curated
         .map(
           (a) => `<li>${levelBadge(a.level)} <a href="${articleIdUrl(a.articleId)}">${esc(a.displayNumber)} · ${esc(a.topic)}</a>
     <div class="muted">${esc((a.analysis[0] || '').slice(0, 120))}…</div></li>`,
@@ -469,7 +469,7 @@ ${
 
 ${
   cases.length
-    ? `<section class="block" id="sec-cases"><h3>关联指导性案例</h3><ul class="link-list">${cases
+    ? `<section class="block" id="sec-cases"><h3>关联指导性案例（${cases.length} 件）</h3><ul class="link-list">${cases
         .slice(0, 30)
         .map((c) => `<li><a href="${caseUrl(c.caseId)}">指导案例 ${c.caseNumber} 号 · ${esc(c.caseTitle)}</a></li>`)
         .join('')}</ul></section>`

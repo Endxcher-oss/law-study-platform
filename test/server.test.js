@@ -250,6 +250,8 @@ test('法律总览页：关联信息在目录之后，侧栏顶部有区段跳�
     assert.ok(r.body.includes(`href="${id}"`), `侧栏跳转缺少 ${id}`);
   }
   assert.match(r.body, /<h3>关联司法解释（\d+ 件）<\/h3>/);
+  assert.match(r.body, /<h3>本书的疑难注解（\d+ 条）<\/h3>/, '疑难注解标题应带条数');
+  assert.match(r.body, /<h3>关联指导性案例（\d+ 件）<\/h3>/, '指导性案例标题应带件数');
   assert.ok(r.body.includes('id="toc"'), '目录容器应有 #toc 锚点供回跳');
   assert.match(r.body, /href="#sec-notes">疑难注解 \d+</);
 });
