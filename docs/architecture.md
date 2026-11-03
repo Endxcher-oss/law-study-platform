@@ -54,6 +54,7 @@ law-study-platform/
 ├── public/                   # 前端增强（零依赖，禁用 JS 也能用）
 │   ├── style.css             #   印刷风格的排版与配色
 │   ├── app.js                #   搜索建议、目录跳转、复制条文、快捷键
+│   ├── tags.js               #   用户标签：条文侧栏与 /tags 集合页（localStorage）
 │   ├── portable-app.js         #   单文件站点入口：hash 路由 + 内嵌数据装载
 │   ├── static.js             #   静态站点检索增强（只在 dist/ 里加载）
 │   └── static-url.js         #   静态站点链接前缀改写（导出脚本与浏览器共用）

@@ -736,6 +736,11 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
   </article>
 
   <aside class="article-side">
+    <div class="side-block user-tags" id="user-tags" hidden data-article-id="${esc(article.id)}" data-doc-id="${esc(doc.id)}" data-law="${esc(doc.shortTitle)}" data-number="${esc(article.displayNumber)}" data-slug="${esc(article.slug)}" data-date="${esc(doc.promulgationDate || '')}">
+      <h3>标签</h3>
+      <div class="tag-chips" data-tag-chips></div>
+      <button type="button" class="tag-add" data-tag-add>＋ 添加标签</button>
+    </div>
     ${
       chapterIndex.length
         ? `<div class="side-block"><h3>邻近条文</h3><ul class="side-list">${chapterIndex
@@ -1158,6 +1163,34 @@ npm test        # 运行检索与关联的单元测试</pre>
 </section>
 `;
   return layout({ title: '关于数据', body, meta, activeNav: 'about' });
+}
+
+export function tagsPage(db) {
+  const meta = metaFromDb(db);
+  const body = `
+${crumbs([{ href: '/', label: '首页' }, { href: '/tags', label: '标签' }])}
+<section class="page-head">
+  <h1>标签</h1>
+</section>
+
+<section class="block tag-page" data-tags-page>
+  <div class="tag-cloud" data-tag-cloud></div>
+  <p class="empty" data-tag-empty hidden>还没有标签。在任一条文页右侧点“添加标签”即可创建。</p>
+  <div class="tag-list-head">
+    <span class="muted" data-tag-count></span>
+    <label class="sort-control">排序
+      <select data-tag-sort>
+        <option value="count" selected>标签数</option>
+        <option value="recent">最近添加</option>
+        <option value="date">颁布时间</option>
+        <option value="title">标题</option>
+      </select>
+    </label>
+  </div>
+  <ul class="tag-articles" data-tag-articles></ul>
+</section>
+`;
+  return layout({ title: '标签', body, meta, activeNav: 'tags' });
 }
 
 export function notFoundPage(db, message, links = []) {

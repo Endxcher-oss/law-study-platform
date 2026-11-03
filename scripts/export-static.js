@@ -28,6 +28,7 @@ const SEARCH_FIELDS = ['kind', 'id', 'docId', 'docTitle', 'docShortTitle', 'cate
 const COPY = [
   ['public/style.css', 'assets/style.css'],
   ['public/app.js', 'assets/app.js'],
+  ['public/tags.js', 'assets/tags.js'],
   ['public/static.js', 'assets/public/static.js'],
   ['public/static-url.js', 'assets/public/static-url.js'],
   ['server/html.js', 'assets/server/html.js'],
@@ -172,6 +173,7 @@ function collectRoutes(db) {
   };
 
   add('/', pages.homePage(db));
+  add('/tags', pages.tagsPage(db));
   add('/classifications', pages.classificationsPage(db));
   add('/about', pages.aboutPage(db));
   for (const category of db.taxonomy.categories.filter((c) => c.kind !== 'case')) add(`/classification/${category.id}`, pages.classificationPage(db, category.id));

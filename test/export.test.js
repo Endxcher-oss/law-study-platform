@@ -104,6 +104,8 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
     'cases/index.html',
     'cases/page/2/index.html',
     'classifications/index.html',
+    'tags/index.html',
+    'assets/tags.js',
     'about/index.html',
     'assets/style.css',
     'assets/app.js',

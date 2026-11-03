@@ -189,6 +189,7 @@ function main() {
   const data = zlib.gzipSync(Buffer.from(JSON.stringify(sources)), { level: 6 }).toString('base64');
   const css = fs.readFileSync(path.join(ROOT, 'public', 'style.css'), 'utf8');
   const app = fs.readFileSync(path.join(ROOT, 'public', 'app.js'), 'utf8');
+  const tags = fs.readFileSync(path.join(ROOT, 'public', 'tags.js'), 'utf8');
   const bundle = buildBundle('public/portable-app');
 
   const html = `<!DOCTYPE html>
@@ -215,7 +216,11 @@ ${css}
 @media (prefers-reduced-motion: reduce) { .boot-dots i, .boot-caret { animation: none; opacity: .6; } .boot-type { animation: none; width: auto; } }
 </style>
 <script>
+window.__DSH_PORTABLE = true;
 ${app.replace(/<\/script/gi, '<\\/script')}
+</script>
+<script>
+${tags.replace(/<\/script/gi, '<\\/script')}
 </script>
 </head>
 <body>

@@ -52,7 +52,7 @@ const json = async (p) => {
 };
 
 test('首页与导航页可访问', async () => {
-  for (const p of ['/', '/classifications', '/cases', '/notes', '/about']) {
+  for (const p of ['/', '/classifications', '/cases', '/notes', '/tags', '/about']) {
     const r = await html(p);
     assert.equal(r.status, 200, `${p} 返回 ${r.status}`);
     assert.match(r.type, /text\/html/);
@@ -556,11 +556,26 @@ test('页脚：语料仓库、本项目仓库与构建提交都给出链接', as
   assert.ok(/本平台源码以 MIT 许可发布/.test(about.body), '“关于数据”页应说明源码许可');
 });
 
+test('标签页：标签集合与排序控件就位，条文页右侧有标签区块', async () => {
+  const tags = await html('/tags');
+  assert.equal(tags.status, 200);
+  assert.ok(tags.body.includes('data-tags-page'), '标签页缺少客户端挂载点');
+  assert.match(tags.body, /<option value="count" selected>标签数<\/option>/, '默认按标签数排序');
+  assert.ok(tags.body.includes('data-tag-cloud') && tags.body.includes('data-tag-articles'), '标签页缺少标签云或列表容器');
+  assert.ok(tags.body.includes('src="/assets/tags.js"'), '标签页应加载标签脚本');
+
+  const article = await html('/d/civil-code/585');
+  assert.equal(article.status, 200);
+  assert.ok(article.body.includes('id="user-tags"'), '条文页缺少标签区块');
+  assert.match(article.body, /data-article-id="civil-code-\d+"/, '标签区块缺少条文快照');
+  assert.ok(article.body.includes('data-tag-add'), '标签区块缺少添加按钮');
+});
+
 test('裁判文书：导航位于“指导性案例”与“关于数据”之间，列表页与详情页可用且不链接条文', async () => {
   const home = await html('/');
   const nav = home.body.slice(home.body.indexOf('site-nav'), home.body.indexOf('</nav>'));
   const order = [...nav.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]);
-  assert.deepEqual(order, ['首页', '分类', '疑难注解', '指导性案例', '裁判文书', '关于数据'], '顶部导航顺序');
+  assert.deepEqual(order, ['首页', '分类', '疑难注解', '指导性案例', '裁判文书', '标签', '关于数据'], '顶部导航顺序');
 
   const list = await html('/gazettes');
   assert.equal(list.status, 200);

@@ -108,6 +108,7 @@ export function createServer() {
       if (pathname === '/gazettes') out = pages.gazettesPage(db, query);
       m = pathname.match(/^\/gazette\/([^/]+)$/);
       if (m) out = pages.gazettePage(db, m[1]);
+      if (pathname === '/tags') out = pages.tagsPage(db);
       if (pathname === '/about') out = pages.aboutPage(db);
       if (pathname === '/health') return sendJson(res, { status: 200, json: { ok: true, docs: db.docs.size, articles: db.articles.size } });
       if (!out) out = pages.notFoundPage(db, `找不到路径：${pathname}`);

@@ -683,3 +683,42 @@ code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
 .chip.is-static { cursor: default; color: var(--ink-muted); }
 .chip.is-static:hover { border-color: var(--line); color: var(--ink-muted); }
 .gazette-main { max-width: 900px; }
+
+/* 用户标签 */
+.tag-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.user-tags .tag-chips:not(:empty) { margin-bottom: 8px; }
+.tag-item { display: inline-flex; align-items: center; gap: 1px; }
+button.chip { font: inherit; font-size: 12.5px; cursor: pointer; }
+button.chip.user-tag { background: var(--bg-alt); }
+button.chip.user-tag:hover { border-color: var(--accent-soft); color: var(--accent); }
+.tag-del {
+  border: 0; background: transparent; color: var(--ink-muted); cursor: pointer;
+  font-size: 13px; line-height: 1; padding: 2px 4px; border-radius: 999px;
+}
+.tag-del:hover { color: var(--accent); background: var(--accent-bg); }
+.tag-add {
+  border: 1px dashed var(--line-strong); background: transparent; color: var(--ink-muted);
+  border-radius: 999px; padding: 4px 10px; font-size: 12.5px; cursor: pointer;
+}
+.tag-add:hover { border-color: var(--accent-soft); color: var(--accent); }
+.tag-input {
+  width: 9em; max-width: 100%; padding: 3px 9px; border-radius: 999px;
+  border: 1px solid var(--accent-soft); background: var(--field); color: var(--ink);
+  font: inherit; font-size: 12.5px;
+}
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.tag-list-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border-top: 1px solid var(--line); margin-top: 4px; padding-top: 12px;
+}
+.tag-articles { list-style: none; margin: 0; padding: 0; }
+.tag-article {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--line);
+}
+.tag-article-title { font-family: var(--serif); font-weight: 600; }
+.tag-article-date { color: var(--ink-muted); font-size: 12px; }
+.tag-article .tag-chips { margin-left: auto; }
+@media (max-width: 640px) {
+  .tag-article .tag-chips { margin-left: 0; }
+}
