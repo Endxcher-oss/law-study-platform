@@ -18,13 +18,17 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 
 function exportSample() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'law-portable-'));
-  const out = path.join(dir, 'index.html');
-  execFileSync(process.execPath, ['scripts/export-portable.js'], {
-    cwd: ROOT,
-    env: { ...process.env, PORTABLE_OUT: out, PORTABLE_DOCS: 'civil-code', PORTABLE_SKIP_CASES: '1' },
-    stdio: 'pipe',
-  });
-  return fs.readFileSync(out, 'utf8');
+  try {
+    const out = path.join(dir, 'index.html');
+    execFileSync(process.execPath, ['scripts/export-portable.js'], {
+      cwd: ROOT,
+      env: { ...process.env, PORTABLE_OUT: out, PORTABLE_DOCS: 'civil-code', PORTABLE_SKIP_CASES: '1' },
+      stdio: 'pipe',
+    });
+    return fs.readFileSync(out, 'utf8');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 test('hash 路由覆盖首页、条文、检索与 404', () => {

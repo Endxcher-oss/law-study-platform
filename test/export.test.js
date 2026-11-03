@@ -65,8 +65,9 @@ test('链接改写只加前缀，外链 / 锚点 / 协议相对地址不动', ()
   assert.equal(rebaseUrl('https://e.com/x', '/law-study-platform'), 'https://e.com/x');
 });
 
-test('超过 100 条的文件的跨窗口目录项，落到包含该锚点的窗口页', () => {
+test('超过 100 条的文件的跨窗口目录项，落到包含该锚点的窗口页', (t) => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'law-study-platform-export-doc-'));
+  t.after(() => fs.rmSync(out, { recursive: true, force: true }));
   execFileSync(process.execPath, ['scripts/export-static.js'], {
     cwd: ROOT,
     env: { ...process.env, OUT_DIR: out, EXPORT_DOCS: 'civil-code,criminal-law', BASE_PATH: '/law-study-platform' },
@@ -85,8 +86,9 @@ test('超过 100 条的文件的跨窗口目录项，落到包含该锚点的窗
   }
 });
 
-test('样本导出：目录结构、部署前缀、查询参数改写与浏览器模块可达', () => {
+test('样本导出：目录结构、部署前缀、查询参数改写与浏览器模块可达', (t) => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'law-study-platform-export-'));
+  t.after(() => fs.rmSync(out, { recursive: true, force: true }));
   execFileSync(process.execPath, ['scripts/export-static.js'], {
     cwd: ROOT,
     env: { ...process.env, OUT_DIR: out, EXPORT_SAMPLE: '1', BASE_PATH: '/law-study-platform' },
