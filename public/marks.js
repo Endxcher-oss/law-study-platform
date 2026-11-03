@@ -361,7 +361,9 @@
     });
     win.querySelector('.mark-close').addEventListener('click', closeEditor);
     win.querySelector('[data-mark-delete]').addEventListener('click', deleteCurrent);
-    editor.addEventListener('input', scheduleSave);
+    editor.addEventListener('input', function () { scheduleSave(); updateTools(); });
+    editor.addEventListener('keyup', updateTools);
+    editor.addEventListener('mouseup', updateTools);
     editor.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { e.preventDefault(); closeEditor(); }
     });
@@ -426,6 +428,39 @@
       if (url && /^https?:\/\//i.test(url)) doc.execCommand('createLink', false, url);
     }
     scheduleSave();
+    updateTools();
+  }
+
+  function toolFlags(node, commandState) {
+    var inPre = !!(node && node.closest && node.closest('pre'));
+    var closest = function (sel) { return !!(node && node.closest && node.closest(sel)); };
+    return {
+      bold: !!commandState('bold'),
+      italic: !!commandState('italic'),
+      ul: !!commandState('insertUnorderedList'),
+      ol: !!commandState('insertOrderedList'),
+      h2: closest('h2'),
+      quote: closest('blockquote'),
+      pre: inPre,
+      code: !inPre && closest('code'),
+      link: closest('a'),
+    };
+  }
+
+  function updateTools() {
+    if (!win || win.hidden || !editor) return;
+    var sel = root.getSelection && root.getSelection();
+    var node = sel && sel.rangeCount ? sel.getRangeAt(0).startContainer : null;
+    var host = node && node.nodeType === 3 ? node.parentNode : node;
+    var inside = !!(host && editor.contains(host));
+    var flags = inside ? toolFlags(host, function (cmd) {
+      try { return doc.queryCommandState(cmd); } catch (err) { return false; }
+    }) : {};
+    win.querySelectorAll('.mark-tool').forEach(function (btn) {
+      var active = !!flags[btn.getAttribute('data-cmd')];
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
   }
 
   function scheduleSave() {
@@ -488,6 +523,7 @@
     win.hidden = false;
     win.classList.add('is-focused');
     editor.focus();
+    updateTools();
   }
 
   function articleContext(el) {
@@ -650,6 +686,7 @@
   function boot() {
     if (!doc) return;
     pruneMarks(load());
+    doc.addEventListener('selectionchange', updateTools);
     initArticle();
     initMarksPage();
     root.addEventListener('dsh:rendered', function () {
@@ -671,6 +708,7 @@
     remove: remove,
     groupMarks: groupMarks,
     pruneMarks: pruneMarks,
+    toolFlags: toolFlags,
     sortMarks: sortMarks,
     uid: uid,
   };

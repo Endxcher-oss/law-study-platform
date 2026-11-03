@@ -756,6 +756,7 @@ button.chip.user-tag:hover { border-color: var(--accent-soft); color: var(--acce
 .mark-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; padding: 5px 8px; border-bottom: 1px solid var(--line); }
 .mark-tool { border: 1px solid transparent; border-radius: 4px; background: none; color: var(--ink); font-size: 13px; padding: 2px 7px; cursor: pointer; }
 .mark-tool:hover { background: var(--bg); border-color: var(--line); }
+.mark-tool.is-active { background: var(--accent-bg); border-color: var(--accent-line); color: var(--accent); }
 .mark-tool-sep { width: 1px; height: 16px; margin: 0 4px; background: var(--line); }
 .mark-editor { flex: 1; overflow: auto; padding: 10px 12px; outline: none; font-size: 14px; line-height: 1.65; }
 .mark-editor:empty:before { content: attr(data-placeholder); color: var(--ink-muted); }

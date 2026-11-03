@@ -95,3 +95,21 @@ test('标注汇总：残缺记录被清理，同一条文的标题从其他标�
   assert.equal(rows[0].law, '民法典');
   assert.equal(rows[0].count, 2);
 });
+
+test('工具栏状态：光标所在格式决定按钮高亮，代码块里的 code 不算行内代码', () => {
+  const { api } = makeApi();
+  const none = (cmd) => false;
+  const fakeNode = (tags) => ({ closest: (sel) => (tags.includes(sel) ? {} : null) });
+  assert.deepEqual(JSON.parse(JSON.stringify(api.toolFlags(fakeNode(['strong']), (cmd) => cmd === 'bold'))), {
+    bold: true, italic: false, ul: false, ol: false, h2: false, quote: false, pre: false, code: false, link: false,
+  });
+  const pre = api.toolFlags(fakeNode(['pre', 'code']), none);
+  assert.equal(pre.pre, true);
+  assert.equal(pre.code, false);
+  const quote = api.toolFlags(fakeNode(['blockquote']), none);
+  assert.equal(quote.quote, true);
+  const heading = api.toolFlags(fakeNode(['h2']), none);
+  assert.equal(heading.h2, true);
+  const code = api.toolFlags(fakeNode(['code']), none);
+  assert.equal(code.code, true);
+});
