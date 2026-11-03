@@ -362,9 +362,9 @@ export function docPage(db, docId, query = {}) {
   const jumpNav = (() => {
     const items = [
       docTags.length ? ['#sec-tags', `关联法条 ${docTags.length}`] : null,
+      curated.length ? ['#sec-notes', `疑难注解 ${curated.length}`] : null,
       !isInterp && interps.length ? ['#sec-interps', `关联司法解释 ${interps.length}`] : null,
       isInterp && hasCoverage ? ['#sec-coverage', '引用概览'] : null,
-      curated.length ? ['#sec-notes', `疑难注解 ${curated.length}`] : null,
       cases.length ? ['#sec-cases', `指导性案例 ${cases.length}`] : null,
       loose.length ? ['#sec-data', '数据说明'] : null,
     ].filter(Boolean);
@@ -425,6 +425,17 @@ ${
 }
 
 ${
+  curated.length
+    ? `<section class="block" id="sec-notes"><h3>本书的疑难注解</h3><ul class="note-list">${curated
+        .map(
+          (a) => `<li>${levelBadge(a.level)} <a href="${articleIdUrl(a.articleId)}">${esc(a.displayNumber)} · ${esc(a.topic)}</a>
+    <div class="muted">${esc((a.analysis[0] || '').slice(0, 120))}…</div></li>`,
+        )
+        .join('')}</ul></section>`
+    : ''
+}
+
+${
   !isInterp && interps.length
     ? `<section class="block" id="sec-interps">
   <h3>关联司法解释（${interps.length} 件）</h3>
@@ -453,17 +464,6 @@ ${
   ].join('')}</div>
   ${cov.cited.interpLinks ? `<p class="muted">除法律法规外，另有 ${cov.cited.interpLinks} 处引用其他司法解释。</p>` : ''}
 </section>`
-    : ''
-}
-
-${
-  curated.length
-    ? `<section class="block" id="sec-notes"><h3>本书的疑难注解</h3><ul class="note-list">${curated
-        .map(
-          (a) => `<li>${levelBadge(a.level)} <a href="${articleIdUrl(a.articleId)}">${esc(a.displayNumber)} · ${esc(a.topic)}</a>
-    <div class="muted">${esc((a.analysis[0] || '').slice(0, 120))}…</div></li>`,
-        )
-        .join('')}</ul></section>`
     : ''
 }
 

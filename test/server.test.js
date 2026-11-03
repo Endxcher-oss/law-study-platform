@@ -243,7 +243,7 @@ test('法律总览页：关联信息在目录之后，侧栏顶部有区段跳�
   assert.ok(iToc > 0 && iNav > iToc, '跳转栏应在侧栏“目录”标题之下');
   assert.ok(iWin > iNav, '条文窗在侧栏之后');
   assert.ok(iInterps > iWin, '关联司法解释应在目录/条文窗之后');
-  assert.ok(iNotes > iInterps && iCases > iNotes, '顺序应为 关联司法解释 → 疑难注解 → 指导性案例');
+  assert.ok(iInterps > iNotes && iCases > iInterps, '顺序应为 疑难注解 → 关联司法解释 → 指导性案例');
   assert.ok(iBack > iCases, '末尾应有“回到条文目录”');
   assert.ok(!r.body.includes('id="sec-coverage"'), '法律页不再有“关联概览”');
   for (const id of ['#sec-interps', '#sec-notes', '#sec-cases']) {
