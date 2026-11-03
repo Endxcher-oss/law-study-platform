@@ -407,28 +407,47 @@
     var sel = root.getSelection();
     if (name === 'bold' || name === 'italic' || name === 'undo' || name === 'redo') {
       doc.execCommand(name, false, null);
-    } else if (name === 'h2') {
-      doc.execCommand('formatBlock', false, 'h2');
-    } else if (name === 'quote') {
-      doc.execCommand('formatBlock', false, 'blockquote');
-    } else if (name === 'pre') {
-      doc.execCommand('formatBlock', false, 'pre');
+    } else if (name === 'h2' || name === 'quote' || name === 'pre') {
+      var tag = name === 'quote' ? 'blockquote' : name;
+      doc.execCommand('formatBlock', false, toggleTarget(blockNode(sel), tag));
     } else if (name === 'ul') {
       doc.execCommand('insertUnorderedList', false, null);
     } else if (name === 'ol') {
       doc.execCommand('insertOrderedList', false, null);
     } else if (name === 'code') {
-      if (!sel || !sel.rangeCount) return;
-      var range = sel.getRangeAt(0);
-      if (range.collapsed) return;
-      var code = doc.createElement('code');
-      try { range.surroundContents(code); } catch (err) { /* 跨节点时跳过 */ }
+      toggleInlineCode(sel);
     } else if (name === 'link') {
       var url = root.prompt('链接地址（http 或 https）', 'https://');
       if (url && /^https?:\/\//i.test(url)) doc.execCommand('createLink', false, url);
     }
     scheduleSave();
     updateTools();
+  }
+
+  function blockNode(sel) {
+    if (!sel || !sel.rangeCount || !editor) return null;
+    var node = sel.getRangeAt(0).startContainer;
+    node = node.nodeType === 3 ? node.parentNode : node;
+    return node && editor.contains(node) ? node : null;
+  }
+
+  function toggleTarget(node, tag) {
+    return node && node.closest && node.closest(tag) ? 'p' : tag;
+  }
+
+  function toggleInlineCode(sel) {
+    var node = blockNode(sel);
+    var code = node && node.closest && node.closest('code');
+    if (code && !code.closest('pre')) {
+      var parent = code.parentNode;
+      while (code.firstChild) parent.insertBefore(code.firstChild, code);
+      parent.removeChild(code);
+      return;
+    }
+    var range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+    if (!range || range.collapsed) return;
+    var el = doc.createElement('code');
+    try { range.surroundContents(el); } catch (err) { /* 跨节点时跳过 */ }
   }
 
   function toolFlags(node, commandState) {
@@ -709,6 +728,7 @@
     groupMarks: groupMarks,
     pruneMarks: pruneMarks,
     toolFlags: toolFlags,
+    toggleTarget: toggleTarget,
     sortMarks: sortMarks,
     uid: uid,
   };

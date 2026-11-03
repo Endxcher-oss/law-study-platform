@@ -113,3 +113,12 @@ test('工具栏状态：光标所在格式决定按钮高亮，代码块里的 c
   const code = api.toolFlags(fakeNode(['code']), none);
   assert.equal(code.code, true);
 });
+
+test('标题、引用、代码块可以再次点击回到普通段落', () => {
+  const { api } = makeApi();
+  const node = (tags) => ({ closest: (sel) => (tags.includes(sel) ? {} : null) });
+  assert.equal(api.toggleTarget(node(['h2']), 'h2'), 'p');
+  assert.equal(api.toggleTarget(node([]), 'h2'), 'h2');
+  assert.equal(api.toggleTarget(node(['blockquote']), 'blockquote'), 'p');
+  assert.equal(api.toggleTarget(node(['pre']), 'pre'), 'p');
+});
