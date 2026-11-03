@@ -672,6 +672,9 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
         <span class="article-doc"><a href="${docUrl(doc.id)}">${esc(doc.shortTitle)}</a></span>
         <span class="article-num">${esc(article.displayNumber)}</span>
         ${rubric ? `<span class="article-rubric">【${esc(rubric)}】</span>` : ''}
+        <button type="button" class="mark-pencil" id="mark-pencil" hidden aria-label="添加标注" title="选中文字后添加标注">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L20 8l-4-4L4 16v4zM14.5 5.5l4 4"/></svg>
+        </button>
       </h1>
       <p class="doc-meta">
         ${categoryBadge(doc.category)}
@@ -682,9 +685,6 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
     </header>
 
     <div class="article-text-wrap">
-      <button type="button" class="mark-pencil" id="mark-pencil" hidden aria-label="添加标注" title="选中文字后添加标注">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L20 8l-4-4L4 16v4zM14.5 5.5l4 4"/></svg>
-      </button>
       <div class="article-body" id="article-text" data-article-id="${esc(article.id)}" data-doc-id="${esc(doc.id)}" data-law="${esc(doc.shortTitle)}" data-number="${esc(article.displayNumber)}" data-slug="${esc(article.slug)}" data-date="${esc(doc.promulgationDate || '')}" data-category="${esc(doc.category || '')}">${textToHtml(article.text)}</div>
     </div>
     <div class="article-tools">
