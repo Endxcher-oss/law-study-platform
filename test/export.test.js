@@ -99,11 +99,11 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
     '.nojekyll',
     'search/index.html',
     'notes/index.html',
-    'notes/d/civil/index.html',
+    'notes/d/civil-commercial/index.html',
     'notes/l/key/index.html',
     'cases/index.html',
     'cases/page/2/index.html',
-    'divisions/index.html',
+    'classifications/index.html',
     'about/index.html',
     'assets/style.css',
     'assets/app.js',
@@ -134,7 +134,7 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
 
   const cases = fs.readFileSync(path.join(out, 'cases/index.html'), 'utf8');
   assert.ok(cases.includes('action="/law-study-platform/search"'), '案例页检索表单未改接到全局检索');
-  assert.ok(cases.includes('name="type" value="指导性案例"'), '案例页检索未限定类型');
+  assert.ok(cases.includes('name="scope" value="case"'), '案例页检索未限定分类');
   assert.ok(cases.includes('href="/law-study-platform/cases/page/2"'), '案例分页未改写成静态路径');
 
   const gazettes = fs.readFileSync(path.join(out, 'gazettes/index.html'), 'utf8');
@@ -144,7 +144,7 @@ test('样本导出：目录结构、部署前缀、查询参数改写与浏览�
   assert.ok(fs.existsSync(path.join(out, `gazette/${gid}/index.html`)), '裁判文书详情页应导出');
 
   const notes = fs.readFileSync(path.join(out, 'notes/index.html'), 'utf8');
-  assert.ok(notes.includes('href="/law-study-platform/notes/d/civil"'), '注解筛选未改写成静态路径');
+  assert.ok(notes.includes('href="/law-study-platform/notes/d/civil-commercial"'), '注解筛选未改写成静态路径');
   assert.ok(notes.includes('href="/law-study-platform/notes/l/key"'), '注解等级筛选未改写成静态路径');
 
   const leftovers = [];

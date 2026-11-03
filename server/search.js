@@ -254,7 +254,7 @@ function countOccurrences(hay, term, cap = 6) {
 const CATEGORY_RANK = { 宪法: 0, 法律: 1, 行政法规: 2, 司法解释: 3, 指导性案例: 2 };
 
 export function search(db, opts = {}) {
-  const { q, scope = 'all', type = 'all', docId = null, sort = 'relevance', page = 1, pageSize = 20, onlyAnnotated = false, gazetteOnly = false } = opts;
+  const { q, scope = 'all', docId = null, sort = 'relevance', page = 1, pageSize = 20, onlyAnnotated = false, gazetteOnly = false } = opts;
   const { terms, raw, clauses, boolean } = tokenize(q);
   const hasQuery = clauses.length > 0;
 
@@ -262,7 +262,6 @@ export function search(db, opts = {}) {
   const exactDocs = new Set(namedDocs.filter((x) => x.level === 0).map((x) => x.doc.id));
 
   const scopes = gazetteOnly ? [] : splitList(scope);
-  const types = gazetteOnly ? [] : splitList(type);
 
   let pool = gazetteOnly ? db.corpus.filter((r) => r.kind === 'gazette') : db.corpus.filter((r) => r.kind !== 'gazette');
   if (docId) pool = pool.filter((r) => r.docId === docId);
@@ -343,14 +342,7 @@ export function search(db, opts = {}) {
   }
   const ms = Math.round((performance.now() - scanStart) * 10) / 10;
 
-  const byScope = scopes.length ? results.filter((r) => scopes.includes(r.rec.division)) : results;
-  const byType = types.length ? results.filter((r) => types.includes(r.rec.category)) : results;
-  const filtered =
-    scopes.length && types.length
-      ? results.filter((r) => scopes.includes(r.rec.division) && types.includes(r.rec.category))
-      : scopes.length
-        ? byScope
-        : byType;
+  const filtered = scopes.length ? results.filter((r) => scopes.includes(r.rec.division)) : results;
 
   const cmp = {
     relevance: (a, b) => a.tier - b.tier || b.groups - a.groups || b.score - a.score || (CATEGORY_RANK[a.rec.category] ?? 9) - (CATEGORY_RANK[b.rec.category] ?? 9) || (b.rec.promulgationDate || '').localeCompare(a.rec.promulgationDate || ''),
@@ -372,15 +364,9 @@ export function search(db, opts = {}) {
     snippet: hasQuery ? buildSnippet(r.rec, terms.map((t) => t.term), r.hits) : null,
   }));
 
-  const facets = {
-    category: {},
-    division: {},
-  };
-  for (const r of byScope) {
+  const facets = { category: {} };
+  for (const r of filtered) {
     facets.category[r.rec.category] = (facets.category[r.rec.category] || 0) + 1;
-  }
-  for (const r of byType) {
-    facets.division[r.rec.division] = (facets.division[r.rec.division] || 0) + 1;
   }
 
   const docHits = docId
@@ -399,7 +385,7 @@ export function search(db, opts = {}) {
           level,
         }));
 
-  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, docHits, sort, scope: scopes, type: types, docId, onlyAnnotated, gazetteOnly };
+  return { query: raw, terms: terms.map((t) => t.term), total, page, pageSize, scanned, ms, items: pageItems, facets, docHits, sort, scope: scopes, docId, onlyAnnotated, gazetteOnly };
 }
 
 function buildSnippet(rec, terms, matched) {

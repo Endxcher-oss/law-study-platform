@@ -7,7 +7,7 @@ laws/*.json     ─┐
 guiding-cases/  ─┴─► clean.js（清洗）─► cn-num.js（条号）
                         │
                         ├─► refs.js     抽取条文引用 ─► links.json
-                        ├─► taxonomy.js 编/领域归类 ─► taxonomy*.json、catalog.json
+                        ├─► taxonomy.js 分类归类 ────► taxonomy*.json、catalog.json
                         └─► curated.mjs 人工注解 ────► annotations/*.json
                                                        │
                             build-db.js ──────────────┴─► codes/ interpretations/

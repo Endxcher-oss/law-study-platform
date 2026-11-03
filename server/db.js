@@ -75,11 +75,8 @@ class Database {
       addAlias(d.shortTitle, d.id);
       for (const a of d.aliases || []) addAlias(a, d.id);
     }
-    this.divisionById = new Map(this.taxonomy.divisions.map((d) => [d.id, d]));
-    this.domainById = new Map();
-    for (const div of this.taxonomy.divisions) {
-      for (const dom of div.domains) this.domainById.set(dom.id, { ...dom, division: div.id, divisionName: div.name });
-    }
+    this.categoryById = new Map(this.taxonomy.categories.map((c) => [c.id, c]));
+    this.divisionById = this.categoryById;
 
     this._loadLinks();
     this._loadAnnotations();
@@ -335,7 +332,6 @@ class Database {
           docShortTitle: doc.shortTitle,
           category: doc.category,
           division: doc.division,
-          domain: doc.domain,
           promulgationDate: doc.promulgationDate,
           effectiveDate: doc.effectiveDate,
           status: doc.status,
@@ -368,7 +364,6 @@ class Database {
         docShortTitle: `指导案例 ${c.number} 号`,
         category: '指导性案例',
         division: 'case',
-        domain: 'case',
         promulgationDate: null,
         effectiveDate: null,
         number: c.number,
@@ -395,7 +390,6 @@ class Database {
         docShortTitle: `公报 ${g.issueYear} 年第 ${g.issueNo} 期`,
         category: '裁判文书',
         division: 'gazette',
-        domain: 'gazette',
         promulgationDate: null,
         effectiveDate: null,
         number: null,
@@ -452,7 +446,7 @@ class Database {
   }
 
   divisionStats() {
-    return this.meta.divisions;
+    return this.meta.categories;
   }
 
   hotArticles(limit = 12, opts = {}) {

@@ -1,12 +1,12 @@
 # 如何扩展
 
 ## 新增一部法律/司法解释
-把上游 JSON 放进 `data/raw/laws/`，在 `data/raw/laws/index.json` 里登记，然后 `npm run build`。若文件名是 `law-xxxxxxxx.json` 这种哈希名，`scripts/lib/taxonomy.js` 的 `CURATED` 表可用文档 id 直接指定编/领域。
+把上游 JSON 放进 `data/raw/laws/`（文件名就是 docId），再到 `data/taxonomy/departments.json` 把 docId 写进对应法律部门，然后 `npm run build`。缺映射时构建会直接报错（司法解释、行政法规按 `category` 自动归类，不用改映射）。
 
-## 新增一个编（如社会法编转为正式交付）
-1. `scripts/lib/taxonomy.js`：把该编 `status` 改成 `ready`，必要时补 `RULES` 规则或 `CURATED` 兜底；
-2. `npm run build && npm run verify`；
-3. 刷新页面即可（`/divisions` 与检索的 `scope` 选项都从 `db/taxonomy.json` 读取，无需改前端）。
+## 新增一个法律部门
+1. `scripts/lib/taxonomy.js`：在 `DEPARTMENTS` 里加一项（id、名称、顺序、说明）；
+2. `data/taxonomy/departments.json`：把属于它的 docId 写进去；
+3. `npm run build && npm run verify`；`/classifications`、检索的 `scope` 选项与页面面包屑都从分类表读取，无需改前端。
 
 ## 新增一条人工疑难注解
 编辑 `data/annotations/curated.mjs`，照现有条目填 `question/analysis/points/pitfalls/basis[]`，然后：

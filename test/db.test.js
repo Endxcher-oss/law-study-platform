@@ -22,10 +22,11 @@ test('catalog 字段完整，且每部文档至少有 1 条条文', () => {
   for (const d of db.catalog) {
     assert.ok(d.id && d.title && d.shortTitle, `${d.id} 缺少标题`);
     assert.ok(['宪法', '法律', '行政法规', '司法解释'].includes(d.category), `${d.id} 类别非法：${d.category}`);
-    assert.ok(d.division && d.domain, `${d.id} 缺少编/门类`);
+    assert.ok(d.division, `${d.id} 缺少分类`);
+    assert.equal(d.domain, undefined, `${d.id} 不应再有门类字段`);
     assert.equal(d.articleCount, d.articles?.length ?? db.getDoc(d.id).articles.length, `${d.id} 条文数不一致`);
     assert.ok(d.articleCount >= 1, `${d.id} 没有条文`);
-    assert.ok(db.domainById.has(d.domain), `${d.id} 的门类 ${d.domain} 不在 taxonomy 中`);
+    assert.ok(db.categoryById.has(d.division), `${d.id} 的分类 ${d.division} 不在 taxonomy 中`);
   }
 });
 

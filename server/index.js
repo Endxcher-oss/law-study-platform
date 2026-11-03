@@ -86,12 +86,10 @@ export function createServer() {
 
       let out;
       if (pathname === '/' || pathname === '') out = pages.homePage(db);
-      else if (pathname === '/divisions') out = pages.divisionsPage(db);
+      else if (pathname === '/classifications') out = pages.classificationsPage(db);
 
-      let m = pathname.match(/^\/division\/([^/]+)$/);
-      if (m) out = pages.divisionPage(db, m[1]);
-      m = pathname.match(/^\/domain\/([^/]+)$/);
-      if (m) out = pages.domainPage(db, m[1]);
+      let m = pathname.match(/^\/classification\/([^/]+)$/);
+      if (m) out = pages.classificationPage(db, m[1]);
 
       m = pathname.match(/^\/d\/([^/]+)\/(\d+(?:-\d+)?)$/);
       if (m) out = pages.articlePage(db, m[1], m[2]);

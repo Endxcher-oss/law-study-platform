@@ -83,8 +83,7 @@ for (const entry of catalog) {
   const doc = readJson(file);
   if (doc.id !== entry.id) err(`${rel(file)} 的 id（${doc.id}）与 catalog（${entry.id}）不一致`);
   if (doc.category !== entry.category) warn(`${entry.id} 类别不一致：文件 ${doc.category} / catalog ${entry.category}`);
-  if (doc.division !== entry.division) warn(`${entry.id} 编不一致：文件 ${doc.division} / catalog ${entry.division}`);
-  if (doc.domain !== entry.domain) warn(`${entry.id} 门类不一致：文件 ${doc.domain} / catalog ${entry.domain}`);
+  if (doc.division !== entry.division) warn(`${entry.id} 分类不一致：文件 ${doc.division} / catalog ${entry.division}`);
 
   const arts = doc.articles || [];
   articlesByDoc.set(entry.id, arts);
@@ -163,38 +162,32 @@ const diskFiles = ['codes', 'interpretations', 'regulations'].reduce(
 );
 note(`磁盘文件：法律/宪法/解释/法规 ${diskFiles} 个 + 案例 2 个；catalog 收录 ${catalog.length} 部`);
 
-const divisionIds = new Set(taxonomy.divisions.map((d) => d.id));
-const domainIds = new Set(taxonomy.divisions.flatMap((d) => (d.domains || []).map((x) => x.id)));
-if (divisionIds.size !== taxonomy.divisions.length) err('taxonomy.json 中编 id 重复');
-if (domainIds.size !== taxonomy.divisions.flatMap((d) => d.domains || []).length) err('taxonomy.json 中门类 id 重复');
+const categoryIds = new Set(taxonomy.categories.map((c) => c.id));
+if (categoryIds.size !== taxonomy.categories.length) err('taxonomy.json 中分类 id 重复');
+if (taxonomy.categories.length !== 11) err(`taxonomy.json 应有 11 个分类，实际 ${taxonomy.categories.length}`);
 
-for (const [docId, cls] of Object.entries(taxMap)) {
+for (const [docId, division] of Object.entries(taxMap)) {
   if (!docById.has(docId)) {
     err(`taxonomy.map.json 中的 ${docId} 在 catalog 中不存在`);
     continue;
   }
-  if (!divisionIds.has(cls.division)) err(`${docId} 的编「${cls.division}」不在 taxonomy.json 中`);
-  if (cls.domain && !domainIds.has(cls.domain)) err(`${docId} 的门类「${cls.domain}」不在 taxonomy.json 中`);
+  if (!categoryIds.has(division)) err(`${docId} 的分类「${division}」不在 taxonomy.json 中`);
   const entry = docById.get(docId);
-  if (entry.division !== cls.division) err(`${docId} 编不一致：catalog ${entry.division} / map ${cls.division}`);
-  if (cls.domain && entry.domain !== cls.domain) err(`${docId} 门类不一致：catalog ${entry.domain} / map ${cls.domain}`);
+  if (entry.division !== division) err(`${docId} 分类不一致：catalog ${entry.division} / map ${division}`);
 }
 for (const entry of catalog) if (!taxMap[entry.id]) warn(`catalog 中的 ${entry.id} 没有 taxonomy 归类`);
 
-for (const div of taxonomy.divisions) {
-  const docs = catalog.filter((d) => d.division === div.id);
-  const stats = meta.divisions?.[div.id];
+for (const category of taxonomy.categories) {
+  const docs = catalog.filter((d) => d.division === category.id);
+  const stats = meta.categories?.[category.id];
   if (!stats) {
-    warn(`meta.divisions 缺少 ${div.id}`);
+    warn(`meta.categories 缺少 ${category.id}`);
     continue;
   }
-  if (stats.documents !== docs.length) err(`meta.divisions.${div.id}.documents=${stats.documents}，实际 ${docs.length}`);
+  const expectedDocuments = category.kind === 'case' ? caseManifest.length : docs.length;
+  if (stats.documents !== expectedDocuments) err(`meta.categories.${category.id}.documents=${stats.documents}，实际 ${expectedDocuments}`);
   const arts = docs.reduce((n, d) => n + (articlesByDoc.get(d.id) || []).length, 0);
-  if (stats.articles !== arts) err(`meta.divisions.${div.id}.articles=${stats.articles}，实际 ${arts}`);
-  const sumDomains = (div.domains || []).reduce((n, x) => n + (x.articles || 0), 0);
-  if (sumDomains && sumDomains !== stats.articles) {
-    warn(`${div.id} 门类条文合计 ${sumDomains} ≠ 编条文 ${stats.articles}`);
-  }
+  if (stats.articles !== arts) err(`meta.categories.${category.id}.articles=${stats.articles}，实际 ${arts}`);
 }
 
 const CONF = new Set(['explicit', 'list', 'contextual', 'document']);

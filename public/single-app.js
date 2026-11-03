@@ -35,11 +35,9 @@ export function queryOf(search) {
 
 function pageOf(db, pathname, query) {
   if (pathname === '/' || pathname === '') return pages.homePage(db);
-  if (pathname === '/divisions') return pages.divisionsPage(db);
-  let m = pathname.match(/^\/division\/([^/]+)$/);
-  if (m) return pages.divisionPage(db, m[1]);
-  m = pathname.match(/^\/domain\/([^/]+)$/);
-  if (m) return pages.domainPage(db, m[1]);
+  if (pathname === '/classifications') return pages.classificationsPage(db);
+  let m = pathname.match(/^\/classification\/([^/]+)$/);
+  if (m) return pages.classificationPage(db, m[1]);
   m = pathname.match(/^\/d\/([^/]+)\/(\d+(?:-\d+)?)$/);
   if (m) return pages.articlePage(db, m[1], m[2]);
   m = pathname.match(/^\/d\/([^/]+)$/);

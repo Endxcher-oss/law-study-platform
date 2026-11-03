@@ -9,10 +9,11 @@ law-study-platform/
 ├── docs/                     # 详细文档（数据模型 / 流水线 / 关联 / 检索 / API / 部署…）
 ├── data/
 │   ├── raw/                  # 只读语料（上游 CC0 语料，未经改写）
-│   │   ├── laws/             #   520 部法律/司法解释/行政法规 JSON + index.json + manifest
+│   │   ├── laws/             #   521 部法律/司法解释/行政法规 JSON + index.json + manifest
 │   │   ├── guiding-cases/    #   278 件指导性案例 JSON + manifest.json
 │   │   ├── gazette-cases/    #   445 件《最高人民法院公报》裁判文书 JSON + manifest.json
 │   │   └── LICENSE           #   语料来源与许可（CC0-1.0）
+│   ├── taxonomy/departments.json  # ★ 法律部门权威映射（docId → 部门）
 │   └── annotations/
 │       ├── curated.mjs       # ★ 人工撰写的疑难注解（唯一需要手写的业务文件）
 │       └── rubrics.mjs       # ★ 人工撰写的条文主旨（条旨）
@@ -26,9 +27,9 @@ law-study-platform/
 │       ├── clean.js          #   正文清洗（去页眉页脚/空格/繁体标点归一）
 │       ├── cn-num.js         #   中文数字 ⇄ 阿拉伯数字、条号解析
 │       ├── refs.js          #   ★ 引用抽取引擎（谁引用了哪一条）
-│       └── taxonomy.js       #   ★ 编/领域分类规则与人工兜底表
+│       └── taxonomy.js       #   ★ 分类定义（八个法律部门 + 三类文件）与排序
 ├── db/                       # ★ 构建产物：结构化数据库（只读，可随时重建）
-│   ├── catalog.json          #   文档目录（数组，520 项）
+│   ├── catalog.json          #   文档目录（数组，521 项）
 │   ├── codes/                #   法律条文（312 部，一部一文件）
 │   ├── interpretations/      #   司法解释条文（175 部，一部一文件）
 │   ├── regulations/          #   行政法规条文（32 部，一部一文件）
@@ -38,8 +39,8 @@ law-study-platform/
 │   ├── links.json            #   ★ 条文级关联表（2,717 条，合计 3,043 处提及）
 │   ├── rubrics.json          #   条文主旨（条旨，人工撰写的编辑层）
 │   ├── tags.json             #   关联法条索引（文书/案例 → 法名与条号标签）
-│   ├── taxonomy.json         #   编/领域树（含各编规模）
-│   ├── taxonomy.map.json     #   文档 → {division, domain}
+│   ├── taxonomy.json         #   分类树（11 类，含每类文档/条文数）
+│   ├── taxonomy.map.json     #   文档 → 分类 id
 │   ├── meta.json             #   元信息、计数、覆盖度
 │   └── reports/              #   build-report.json、stats.json
 ├── server/                   # 服务端（原生 http，无框架）

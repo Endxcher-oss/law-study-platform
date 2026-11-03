@@ -36,7 +36,7 @@ const docs = [...db.docs.values()];
 const articles = [...db.articles.values()];
 const totalArticles = articles.length;
 
-const byDivision = db.taxonomy.divisions.map((div) => {
+const byDivision = db.taxonomy.categories.filter((c) => c.kind !== 'case').map((div) => {
   const list = docs.filter((d) => d.division === div.id);
   const arts = list.reduce((n, d) => n + d.articles.length, 0);
   const linked = arts
@@ -51,10 +51,9 @@ const byDivision = db.taxonomy.divisions.map((div) => {
   return {
     id: div.id,
     name: div.name,
-    status: div.status,
+    kind: div.kind,
     documents: list.length,
     articles: arts,
-    domains: (div.domains || []).length,
     interps: interps.size,
     linked,
     annotated,
@@ -115,7 +114,7 @@ for (const d of db.catalog) {
 }
 const years = [...yearHist.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 
-const unclassified = db.catalog.filter((d) => d.division === 'other' || d.domain === 'other-all');
+const unclassified = db.catalog.filter((d) => !db.categoryById.has(d.division));
 const noArticles = docs.filter((d) => !d.articles.length);
 const buildReport = fs.existsSync(path.join(DB, 'reports/build-report.json'))
   ? JSON.parse(fs.readFileSync(path.join(DB, 'reports/build-report.json'), 'utf8'))
@@ -167,8 +166,8 @@ if (ONLY_JSON) {
       `   条文 ${counts.articles}   关联 ${counts.links}${counts.linkMentions ? `（${counts.linkMentions} 处提及）` : ''}   案例 ${counts.cases}   注解 ${counts.annotations}`,
   );
   console.log(sub);
-  console.log('【各编分布】');
-  console.log(table(['编', '名称', '状态', '文件', '条文', '门类', '司法解释', '被引条文', '覆盖率', '注解'], byDivision.map((d) => [d.id, d.name, d.status, d.documents, d.articles, d.domains, d.interps, d.linked, pct(d.linked, d.articles), d.annotated])));
+  console.log('【各分类分布】');
+  console.log(table(['分类', '名称', '类型', '文件', '条文', '司法解释', '被引条文', '覆盖率', '注解'], byDivision.map((d) => [d.id, d.name, d.kind === 'department' ? '法律' : d.kind, d.documents, d.articles, d.interps, d.linked, pct(d.linked, d.articles), d.annotated])));
   console.log(sub);
   console.log('【关联强度】', Object.entries(linkByConfidence).map(([k, v]) => `${k} ${v}`).join('   '));
   console.log(`   未定位引用（未指明法律名）${db.looseLinks.length} 处，涉及 ${db.looseBySource.size} 部文档`);

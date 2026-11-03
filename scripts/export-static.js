@@ -24,7 +24,7 @@ const DOC_STEP = 100;
 const CASE_PAGE_SIZE = 20;
 const GAZETTE_PAGE_SIZE = 20;
 const LEVELS = ['all', 'key', 'warning'];
-const SEARCH_FIELDS = ['kind', 'id', 'docId', 'docTitle', 'docShortTitle', 'category', 'division', 'domain', 'promulgationDate', 'effectiveDate', 'status', 'number', 'seq', 'slug', 'displayNumber', 'path', 'text', 'titleText', 'annotText', 'rubricText', 'hasAnnotation', 'annotLevel', 'caseTitle', 'caseNumber'];
+const SEARCH_FIELDS = ['kind', 'id', 'docId', 'docTitle', 'docShortTitle', 'category', 'division', 'promulgationDate', 'effectiveDate', 'status', 'number', 'seq', 'slug', 'displayNumber', 'path', 'text', 'titleText', 'annotText', 'rubricText', 'hasAnnotation', 'annotLevel', 'caseTitle', 'caseNumber'];
 const COPY = [
   ['public/style.css', 'assets/style.css'],
   ['public/app.js', 'assets/app.js'],
@@ -38,7 +38,7 @@ const COPY = [
   ['db/taxonomy.json', 'assets/taxonomy.json'],
 ];
 const CASE_FORM = '<form class="search-form" action="/cases" method="get" role="search">';
-const CASE_FORM_FIXED = '<form class="search-form" action="/search" method="get" role="search"><input type="hidden" name="type" value="指导性案例">';
+const CASE_FORM_FIXED = '<form class="search-form" action="/search" method="get" role="search"><input type="hidden" name="scope" value="case">';
 const STATIC_SEARCH_SCRIPT = '<script type="module" src="/assets/public/static.js"></script>\n</body>';
 
 function normBase(value) {
@@ -76,7 +76,7 @@ function canonical(params) {
 
 function buildQueryMap(db) {
   const notes = new Map();
-  for (const division of ['all', ...db.taxonomy.divisions.map((d) => d.id)]) {
+  for (const division of ['all', ...new Set(db.curatedAnnotations.map((a) => a.division))]) {
     for (const level of LEVELS) notes.set(canonical({ division, level }), notesRoute(division, level));
   }
 
@@ -105,7 +105,7 @@ function buildQueryMap(db) {
     }
     if (route === '/cases') {
       const q = params.get('q');
-      if (q) return `/search?q=${encodeURIComponent(q)}&type=${encodeURIComponent('指导性案例')}`;
+      if (q) return `/search?q=${encodeURIComponent(q)}&scope=case`;
       return cases.get(canonical({ q: '', page: Number(params.get('page')) || 1 })) || null;
     }
     const m = route.match(/^\/d\/([^/]+)$/);
@@ -172,13 +172,12 @@ function collectRoutes(db) {
   };
 
   add('/', pages.homePage(db));
-  add('/divisions', pages.divisionsPage(db));
+  add('/classifications', pages.classificationsPage(db));
   add('/about', pages.aboutPage(db));
-  for (const div of db.taxonomy.divisions) add(`/division/${div.id}`, pages.divisionPage(db, div.id));
-  for (const dom of db.taxonomy.divisions.flatMap((d) => d.domains)) add(`/domain/${dom.id}`, pages.domainPage(db, dom.id));
+  for (const category of db.taxonomy.categories.filter((c) => c.kind !== 'case')) add(`/classification/${category.id}`, pages.classificationPage(db, category.id));
   for (const item of db.cases) add(`/case/${item.id}`, pages.casePage(db, item.id));
 
-  for (const division of ['all', ...db.taxonomy.divisions.map((d) => d.id)]) {
+  for (const division of ['all', ...new Set(db.curatedAnnotations.map((a) => a.division))]) {
     for (const level of LEVELS) add(notesRoute(division, level), pages.notesPage(db, { division, level }));
   }
 

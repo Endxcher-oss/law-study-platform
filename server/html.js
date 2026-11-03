@@ -30,8 +30,7 @@ export function articleIdUrl(articleId) {
 export const docUrl = (id) => `/d/${encodeURIComponent(id)}`;
 export const caseUrl = (id) => `/case/${encodeURIComponent(id)}`;
 export const gazetteUrl = (id) => `/gazette/${encodeURIComponent(id)}`;
-export const divisionUrl = (id) => `/division/${encodeURIComponent(id)}`;
-export const domainUrl = (id) => `/domain/${encodeURIComponent(id)}`;
+export const classificationUrl = (id) => `/classification/${encodeURIComponent(id)}`;
 export const searchUrl = (params) => {
   const sp = new URLSearchParams();
   const skip = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length);
@@ -81,7 +80,7 @@ export function crumbs(items) {
 export function layout({ title, body, meta = {}, searchBar = null, breadcrumbs = null, activeNav = '' }) {
   const nav = [
     { href: '/', label: '首页', key: 'home' },
-    { href: '/divisions', label: '编 / 门类', key: 'divisions' },
+    { href: '/classifications', label: '分类', key: 'classifications' },
     { href: '/notes', label: '疑难注解', key: 'notes' },
     { href: '/cases', label: '指导性案例', key: 'cases' },
     { href: '/gazettes', label: '裁判文书', key: 'gazettes' },

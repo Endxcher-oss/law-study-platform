@@ -52,7 +52,7 @@ const json = async (p) => {
 };
 
 test('首页与导航页可访问', async () => {
-  for (const p of ['/', '/divisions', '/cases', '/notes', '/about']) {
+  for (const p of ['/', '/classifications', '/cases', '/notes', '/about']) {
     const r = await html(p);
     assert.equal(r.status, 200, `${p} 返回 ${r.status}`);
     assert.match(r.type, /text\/html/);
@@ -65,7 +65,7 @@ test('顶部导航不再放“全文检索”；搜索框留空提交 = 进入 /
   const nav = home.body.match(/<nav class="site-nav">[\s\S]*?<\/nav>/)[0];
   assert.ok(!nav.includes('全文检索'), '顶部导航里不应再有“全文检索”');
   assert.ok(!nav.includes('href="/search"'), '顶部导航不应残留 /search 入口');
-  assert.ok(nav.includes('href="/divisions"') && nav.includes('href="/notes"'), '其他导航项应保留');
+  assert.ok(nav.includes('href="/classifications"') && nav.includes('href="/notes"'), '其他导航项应保留');
 
   const redirect = await fetch(`${BASE}/search?q=`, { redirect: 'manual' });
   assert.equal(redirect.status, 302);
@@ -75,7 +75,7 @@ test('顶部导航不再放“全文检索”；搜索框留空提交 = 进入 /
   assert.equal(clean.status, 200);
   assert.match(clean.body, /全库检索/);
 
-  const filtered = await html('/search?q=&scope=civil');
+  const filtered = await html('/search?q=&scope=civil-commercial');
   assert.equal(filtered.status, 200);
   assert.ok(!filtered.body.includes('按当前范围浏览'), '浏览态不显示结果计数行');
 });
@@ -110,13 +110,11 @@ test('检索页：指定范围/排序/类型', async () => {
   const r = await html('/search?q=%E8%BF%9D%E7%BA%A6%E9%87%91&scope=civil&sort=date_desc');
   assert.equal(r.status, 200);
   assert.match(r.body, /违约金/);
-  const multi = await html('/search?q=%E8%BF%9D%E7%BA%A6%E9%87%91&scope=civil&scope=social&type=%E5%8F%B8%E6%B3%95%E8%A7%A3%E9%87%8A');
+  const multi = await html('/search?q=%E8%BF%9D%E7%BA%A6%E9%87%91&scope=civil-commercial&scope=social');
   assert.equal(multi.status, 200);
-  assert.match(multi.body, /name="scope" value="civil" checked/, '多选范围应在下拉里勾选');
-  assert.match(multi.body, /name="scope" value="social" checked/, '第二个范围也应勾选');
-  assert.match(multi.body, /name="type" value="司法解释" checked/, '多选类型应在下拉里勾选');
-  assert.match(multi.body, /<summary>范围：民法编、社会法编<\/summary>/, '下拉摘要应显示已选范围');
-  assert.match(multi.body, /<summary>类型：司法解释<\/summary>/, '下拉摘要应显示已选类型');
+  assert.match(multi.body, /name="scope" value="civil-commercial" checked/, '多选分类应在下拉里勾选');
+  assert.match(multi.body, /name="scope" value="social" checked/, '第二个分类也应勾选');
+  assert.match(multi.body, /<summary>分类：民法商法、社会法<\/summary>/, '下拉摘要应显示已选分类');
   assert.match(multi.body, /<details class="multi-select" name="search-filter">/, '两个下拉共用 name，浏览器原生互斥');
   const app = await html('/assets/app.js');
   assert.match(app.body, /querySelectorAll\('\.multi-select'\)/, '脚本应在打开一个下拉时收起另一个');
@@ -140,7 +138,8 @@ test('API：meta / taxonomy / catalog', async () => {
   assert.ok(meta.body.ok);
   assert.ok(meta.body.meta.counts.documents >= 500);
   const tax = await json('/api/taxonomy');
-  assert.ok(tax.body.taxonomy.divisions.length >= 4);
+  assert.equal(tax.body.taxonomy.categories.length, 11);
+  assert.ok(tax.body.taxonomy.categories.every((c) => c.name && !c.name.endsWith('编')));
   const cat = await json('/api/catalog?q=' + encodeURIComponent('民法典') + '&size=5');
   assert.ok(cat.body.items.length >= 1);
   assert.ok(cat.body.items.some((d) => d.id === 'civil-code'));
@@ -174,11 +173,11 @@ test('API：search 支持范围/类型/排序/分页，并返回分面', async (
   assert.equal(all.body.items.length, 5);
   assert.ok(Object.keys(all.body.facets.category).length >= 2);
 
-  const civil = await json(`/api/search?q=${q}&scope=civil&size=5`);
-  assert.ok(civil.body.items.every((i) => i.division === 'civil'));
+  const civil = await json(`/api/search?q=${q}&scope=civil-commercial&size=5`);
+  assert.ok(civil.body.items.every((i) => i.division === 'civil-commercial'));
   assert.ok(civil.body.total < all.body.total);
 
-  const byInterp = await json(`/api/search?q=${q}&type=${encodeURIComponent('司法解释')}&size=5`);
+  const byInterp = await json(`/api/search?q=${q}&scope=interpretation&size=5`);
   assert.ok(byInterp.body.items.every((i) => i.category === '司法解释'));
 
   const page2 = await json(`/api/search?q=${q}&size=5&page=2`);
@@ -439,7 +438,7 @@ test('移动端：窄屏折叠页头与目录树、案例页侧栏折成一列',
 });
 
 test('检索页不再输出分面标签行（筛选走表单下拉）', async () => {
-  const r = await html('/search?q=' + encodeURIComponent('违约金') + '&scope=civil&type=%E6%B3%95%E5%BE%8B');
+  const r = await html('/search?q=' + encodeURIComponent('违约金') + '&scope=civil-commercial');
   assert.equal(r.status, 200);
   assert.ok(!r.body.includes('facet-row'), '页面不应再渲染分面行');
   assert.ok(!r.body.includes('facet-label'), '页面不应再渲染分面标签');
@@ -522,7 +521,7 @@ test('裁判文书：导航位于“指导性案例”与“关于数据”之�
   const home = await html('/');
   const nav = home.body.slice(home.body.indexOf('site-nav'), home.body.indexOf('</nav>'));
   const order = [...nav.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]);
-  assert.deepEqual(order, ['首页', '编 / 门类', '疑难注解', '指导性案例', '裁判文书', '关于数据'], '顶部导航顺序');
+  assert.deepEqual(order, ['首页', '分类', '疑难注解', '指导性案例', '裁判文书', '关于数据'], '顶部导航顺序');
 
   const list = await html('/gazettes');
   assert.equal(list.status, 200);

@@ -34,7 +34,6 @@ export function handleApi(db, pathname, query) {
   if (p === '/catalog') {
     let list = db.catalog;
     if (query.division) list = list.filter((d) => d.division === query.division);
-    if (query.domain) list = list.filter((d) => d.domain === query.domain);
     if (query.category) list = list.filter((d) => d.category === query.category);
     if (query.status) list = list.filter((d) => d.status === query.status);
     if (query.q) {
@@ -116,7 +115,6 @@ export function handleApi(db, pathname, query) {
     const res = runSearch(db, {
       q: query.q || '',
       scope: query.scope || 'all',
-      type: query.type || 'all',
       sort: query.sort || 'relevance',
       docId: query.doc || null,
       page: query.page,

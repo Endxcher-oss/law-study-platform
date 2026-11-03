@@ -16,8 +16,7 @@
   "shortTitle": "民法典",
   "aliases": ["民法典", "中国民法典"],
   "category": "法律",                 // 宪法 | 法律 | 行政法规 | 司法解释
-  "division": "civil",               // 编：见下文“taxonomy.json — 编与领域”
-  "domain": "m-civilcode",           // 编内领域
+  "division": "civil-commercial",    // 分类 id：见下文“taxonomy.json — 分类与法律部门”
   "status": "effective",             // effective | amended | repealed
   "promulgationDate": "2020-05-28",
   "effectiveDate": "2021-01-01",
@@ -35,7 +34,7 @@
 ```json
 {
   "id": "civil-code", "title": "…", "shortTitle": "民法典", "category": "法律",
-  "division": "civil", "domain": "m-civilcode", "status": "effective",
+  "division": "civil-commercial", "status": "effective",
   "promulgationDate": "2020-05-28", "effectiveDate": "2021-01-01",
   "authority": "全国人民代表大会", "interpretationOf": null,
   "articleCount": 1260, "sections": [ … ],
@@ -153,7 +152,7 @@
 
 - 与 `cases/guiding.json` 不同：**没有 `related`**，即不与条文建立条文级关联（`verify` 会拒绝任何带 `related` / `articleId` / `lawId` 的条目），因此条文页不会出现这些文书，详情页也不链到条文。
 - 排序键是公报期号（`issueYear` → `issueNo` 倒序，同期的按 id），因为文书本身没有统一的公布日期；`summary`（裁判摘要）可能为空数组（4 件如此），界面会显示“该期未收录裁判摘要”。
-- 检索语料里这些条目 `kind: 'gazette'`，`category` 固定为“裁判文书”，`division` 为 `gazette`（不在编/门类体系内，所以不参与编分面）；默认检索会把它们整体排除，只有 `gazette=1` 时才进入候选池。
+- 检索语料里这些条目 `kind: 'gazette'`，`category` 固定为“裁判文书”，`division` 为 `gazette`（不在 11 个分类内，所以不参与分类筛选）；默认检索会把它们整体排除，只有 `gazette=1` 时才进入候选池。
 
 ## `rubrics.json` — 条文主旨（条旨）
 
@@ -190,20 +189,23 @@
 - 排序统一为 `mentions` 降序 → 法名（中文排序）→ 条号；同一部法律只出现一个法名标签。
 - 体量：201 部文书 1,446 个标签（条文 1,318 / 法名 128），278 件案例 616 个标签（条文 521 / 法名 95）。
 
-## `taxonomy.json` — 编与领域
+## `taxonomy.json` — 分类与法律部门
 
-| 编 id | 名称 | 状态 | 文档 | 条文 | 领域数（有文件的） |
-| --- | --- | --- | --- | --- | --- |
-| `constitutional` | 宪法编 | ready | 71 | 3,390 | 7 |
-| `criminal` | 刑法编 | ready | 41 | 2,500 | 5 |
-| `civil` | 民法编 | ready | 152 | 6,993 | 10 |
-| `commercial` | 商法编 | ready | 47 | 3,234 | 9 |
-| `social` | 社会法编 | ready | 60 | 4,221 | 5 |
-| `administrative` | 行政法编 | ready | 53 | 3,698 | 5 |
-| `economic` | 经济法编 | ready | 96 | 6,033 | 6 |
-| `other` | 其他编（待归类） | pending | 0 | 0 | 0 |
+| 分类 id | 名称 | 类型 | 文档 | 条文 |
+| --- | --- | --- | --- | --- |
+| `constitutional` | 宪法相关法 | 法律部门 | 57 | 2,782 |
+| `criminal` | 刑法 | 法律部门 | 8 | 942 |
+| `civil-commercial` | 民法商法 | 法律部门 | 24 | 3,848 |
+| `administrative` | 行政法 | 法律部门 | 75 | 5,068 |
+| `economic` | 经济法 | 法律部门 | 72 | 4,405 |
+| `social` | 社会法 | 法律部门 | 32 | 2,232 |
+| `ecological-environment` | 生态环境法 | 法律部门 | 36 | 3,855 |
+| `litigation` | 诉讼与非诉讼程序法 | 法律部门 | 10 | 1,207 |
+| `interpretation` | 司法解释 | 文件类别 | 175 | 5,069 |
+| `regulation` | 行政法规 | 文件类别 | 32 | 1,903 |
+| `case` | 指导性案例 | 文件类别 | 278 | —（案例无条文） |
 
-七个编均为**正式交付**范围（`status: 'ready'`，门类划分已定型）。`status` 是留给后续扩展的字段：规则尚未覆盖的法规会落到 `other`（`pending`，页面上标“待归类”），保证不丢失数据；当前该桶为空，说明分类规则覆盖了全部 520 部文件。编总览页只列出有文件的编。
+八个法律部门对齐《我国现行有效法律》目录，司法解释、行政法规、指导性案例按文件类别各自成类，共 11 个分类、顺序固定。每部法律/宪法归入哪个部门由 `data/taxonomy/departments.json` 逐篇指定（宪法并入宪法相关法）；司法解释、行政法规由 `category` 自动归类。新增法律必须在该文件补上 docId，否则构建报错。分类名称、顺序、说明见 `scripts/lib/taxonomy.js`。旧“编 / 门类”两级体系已删除。
 
 ## `cases/guiding.json` — 指导性案例
 

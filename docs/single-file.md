@@ -33,7 +33,7 @@ SINGLE_DOCS=civil-code SINGLE_SKIP_CASES=1 SINGLE_OUT=/tmp/sample.html node scri
 ```text
 index.html#/d/civil-code/585
 index.html#/search?q=违约金&scope=civil&scope=social
-index.html#/notes?division=civil&level=key
+index.html#/notes?division=civil-commercial&level=key
 ```
 
 - 页头/页内检索表单由脚本拦截，提交后同样落到 hash；

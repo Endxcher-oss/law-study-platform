@@ -35,16 +35,16 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 
 | 服务端写法 | 静态导出后的路径 |
 | --- | --- |
-| `/notes?division=civil` | `/notes/d/civil` |
+| `/notes?division=civil-commercial` | `/notes/d/civil-commercial` |
 | `/notes?level=key` | `/notes/l/key` |
-| `/notes?division=civil&level=warning` | `/notes/d/civil/l/warning` |
+| `/notes?division=civil-commercial&level=warning` | `/notes/d/civil-commercial/l/warning` |
 | `/cases?page=3` | `/cases/page/3` |
-| `/cases?q=居间合同` | `/search?q=居间合同&type=指导性案例` |
+| `/cases?q=居间合同` | `/search?q=居间合同&scope=case` |
 | `/gazettes?page=3` | `/gazettes/page/3` |
 | `/gazettes?q=专利` | `/search?gazette=1&q=专利`（裁判文书列表页的检索框自带 `gazette=1`） |
 | `/d/civil-code?from=101` | `/d/civil-code/from/101` |
 | `/d/civil-code?from=585` | `/d/civil-code/from/501`（落到**包含**该条的窗口页，锚点依旧可达） |
-| `/search?q=违约金&scope=civil` | 保持查询串，交给浏览器检索 |
+| `/search?q=违约金&scope=civil-commercial` | 保持查询串，交给浏览器检索 |
 
 条文窗（`?from=`）之所以也要改写成路径，是因为一部法律超过 100 条时分页显示目录，静态站点必须为每一窗准备文件。服务端接受任意的 `from`（例如目录树的“第三编 合同”指向 `?from=463`），静态站点只有 100 条一档的窗口文件，所以改写时按 `floor((from-1)/100)` 归到**包含该条**的窗口，窗口里的锚点保证存在；改写后仍带查询串的站内链接会被导出自检判为错误（检索页除外）。案例页的检索表单改接全局检索，静态站点没有服务端过滤。
 
@@ -52,18 +52,18 @@ Pages 的项目站点挂在 `https://<用户>.github.io/<仓库名>/` 下，而�
 
 - 打分、摘要高亮、分面全部复用 `server/search.js`：导出时把该模块与 `server/html.js`、`server/constants.js`、`scripts/lib/cn-num.js` 原样复制进 `dist/assets/`，浏览器按原生 ES 模块加载，**没有打包器，也没有第二套实现**。为此 `server/html.js` 只依赖 `server/constants.js`，`server/search.js` 只依赖 `scripts/lib/cn-num.js`。
 - 条文语料导出成 `assets/index.json`（30,347 条、31 MB，gzip 后约 4.7 MB），只在检索页按需下载，之后走浏览器缓存；公报裁判文书另出 `assets/gazette-index.json`（445 篇、14 MB），**只在勾选“只搜索裁判文书”时才下载**（静态检索同样按 `gazette` 二分候选池）；`assets/catalog.json`、`assets/taxonomy.json` 供“法律名 + 条号”直达与筛选计数使用。
-- 检索页首屏仍是服务端渲染的第一页（浏览态不显示结果计数），禁用 JS 也能看到表单与内容；一旦 URL 带参数（`q` / `page` / `scope` / `type` / `sort` / `doc` / `annotated`），`public/static.js` 才会在浏览器里重算并替换结果区。搜索表单是普通 GET 表单，回车即跳转，不需要 JS 拦截。
+- 检索页首屏仍是服务端渲染的第一页（浏览态不显示结果计数），禁用 JS 也能看到表单与内容；一旦 URL 带参数（`q` / `page` / `scope` / `sort` / `doc` / `annotated`），`public/static.js` 才会在浏览器里重算并替换结果区。搜索表单是普通 GET 表单，回车即跳转，不需要 JS 拦截。
 
 ## 导出物结构
 
 ```
 dist/
 ├── index.html · 404.html · .nojekyll
-├── divisions/ about/ search/                     # 静态页面（每页一个目录 + index.html）
-├── notes/ notes/d/<编>/ notes/l/<等级>/
+├── classifications/ about/ search/               # 静态页面（每页一个目录 + index.html）
+├── notes/ notes/d/<分类>/ notes/l/<等级>/
 ├── cases/ cases/page/<n>/ case/<案例 id>/
 ├── gazettes/ gazettes/page/<n>/ gazette/<文书 id>/
-├── division/<编>/ domain/<领域>/
+├── classification/<分类>/
 ├── d/<文件 id>/[from/<n>/] d/<文件 id>/<条号>/
 └── assets/
     ├── style.css app.js                          # 与服务端渲染页面里引用的路径一致

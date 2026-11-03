@@ -184,7 +184,7 @@ ${docHitList(res.docHits)}
 ${p.q ? `<div class="result-meta">“${esc(p.q)}” 命中 <strong>${res.total}</strong> ${p.gazette ? '篇裁判文书' : '条结果'}（浏览器内检索，索引 ${res.scanned} 条）${p.gazette ? ' · 仅裁判文书' : p.annotated ? ' · 仅看有注解条文' : ''}</div>` : ''}
 ${doc ? `<p class="muted">当前限定在《${esc(doc.title)}》内检索　<a href="${url({ doc: '' })}">取消限定</a></p>` : ''}
 <section class="results">
-  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}
+  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', '试试更短的关键词，或切换分类；也可以直接输入“法律名 + 条号”。')}
 </section>
 ${pagination({ page: res.page, pageSize: res.pageSize, total: res.total, makeUrl: (n) => searchUrl({ ...params, page: n }) })}
 `;

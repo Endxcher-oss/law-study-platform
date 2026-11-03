@@ -39,16 +39,16 @@ test('法名匹配：精确/别名优先于模糊包含', () => {
   assert.equal(nameMatches(db, '').length, 0);
 });
 
-test('检索限定：范围（编）、类别、仅看有注解', () => {
+test('检索限定：分类、仅看有注解', () => {
   const all = search(db, { q: '违约金', pageSize: 50 });
   assert.ok(all.total > 10, `“违约金”命中过少：${all.total}`);
   assert.ok(all.items.every((i) => i.id && i.docId && i.displayNumber));
 
-  const civil = search(db, { q: '违约金', scope: 'civil', pageSize: 50 });
-  assert.ok(civil.items.every((i) => i.division === 'civil'));
+  const civil = search(db, { q: '违约金', scope: 'civil-commercial', pageSize: 50 });
+  assert.ok(civil.items.every((i) => i.division === 'civil-commercial'));
   assert.ok(civil.total < all.total && civil.total > 0, '范围过滤应缩小结果集');
 
-  const interp = search(db, { q: '违约金', type: '司法解释', pageSize: 50 });
+  const interp = search(db, { q: '违约金', scope: 'interpretation', pageSize: 50 });
   assert.ok(interp.items.every((i) => i.category === '司法解释'));
 
   const annotated = search(db, { q: '违约金', onlyAnnotated: true, pageSize: 50 });
@@ -58,26 +58,14 @@ test('检索限定：范围（编）、类别、仅看有注解', () => {
   assert.ok(scoped.items.every((i) => i.docId === 'civil-code'));
 });
 
-test('范围与类型可多选：同维度取并集，跨维度取交集', () => {
-  const civil = search(db, { q: '违约金', scope: 'civil', pageSize: 100 });
+test('分类可多选：同一维度取并集', () => {
+  const civil = search(db, { q: '违约金', scope: 'civil-commercial', pageSize: 100 });
   const social = search(db, { q: '违约金', scope: 'social', pageSize: 100 });
-  const both = search(db, { q: '违约金', scope: 'civil,social', pageSize: 200 });
-  assert.equal(both.total, civil.total + social.total, '范围多选应取并集');
-  assert.deepEqual([...new Set(both.items.map((i) => i.division))].sort(), ['civil', 'social']);
-  assert.equal(search(db, { q: '违约金', scope: ['civil', 'social'], pageSize: 200 }).total, both.total, '数组与逗号串应等价');
-  assert.ok(both.facets.division.case > 0, '编分面忽略当前编，便于继续叠加');
-
-  const interp = search(db, { q: '违约金', type: '司法解释', pageSize: 200 });
-  const cases = search(db, { q: '违约金', type: '指导性案例', pageSize: 200 });
-  const types = search(db, { q: '违约金', type: '司法解释,指导性案例', pageSize: 200 });
-  assert.equal(types.total, interp.total + cases.total, '类型多选应取并集');
-  assert.ok(types.items.every((i) => ['司法解释', '指导性案例'].includes(i.category)));
-  assert.ok(types.facets.division.civil > 0, '编分面按类型统计，可用于叠加编');
-
-  const combo = search(db, { q: '违约金', scope: 'civil,social', type: '司法解释', pageSize: 200 });
-  const expected = search(db, { q: '违约金', scope: 'civil,social', pageSize: 200 }).items.filter((i) => i.category === '司法解释');
-  assert.equal(combo.total, expected.length, '跨维度应取交集');
-  assert.ok(combo.items.every((i) => ['civil', 'social'].includes(i.division) && i.category === '司法解释'));
+  const both = search(db, { q: '违约金', scope: 'civil-commercial,social', pageSize: 200 });
+  assert.equal(both.total, civil.total + social.total, '分类多选应取并集');
+  assert.deepEqual([...new Set(both.items.map((i) => i.division))].sort(), ['civil-commercial', 'social']);
+  assert.equal(search(db, { q: '违约金', scope: ['civil-commercial', 'social'], pageSize: 200 }).total, both.total, '数组与逗号串应等价');
+  assert.ok(both.items.every((i) => i.category === '法律'), '部门分类只含法律');
 });
 
 test('分面统计与结果一致', () => {
@@ -223,7 +211,6 @@ test('裁判文书模式忽略“编 / 类型 / 注解”筛选（它们对裁�
   const base = search(db, { q: '专利', gazetteOnly: true, pageSize: 1 }).total;
   assert.ok(base > 0);
   assert.equal(search(db, { q: '专利', gazetteOnly: true, scope: 'civil', pageSize: 1 }).total, base);
-  assert.equal(search(db, { q: '专利', gazetteOnly: true, type: '法律', pageSize: 1 }).total, base);
   assert.equal(search(db, { q: '专利', gazetteOnly: true, onlyAnnotated: true, pageSize: 1 }).total, base);
 });
 

@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 import { cleanArticleText, isHeadingLine, normalizeText, RE_APPENDIX_HEADING } from './lib/clean.js';
 import { buildNameIndex, extractArticleRefs, extractQuotedRefs, findNameMentions, lawIdFromTitle, SHORT_ALIASES, SUPERSEDED } from './lib/refs.js';
-import { buildCuratedIndex, classify, taxonomyObject, DIVISIONS, DOMAINS } from './lib/taxonomy.js';
+import { categoryOf, taxonomyObject, CATEGORIES } from './lib/taxonomy.js';
 import { intToCn, parseDisplayNumber, suffixSeq, slugOf } from './lib/cn-num.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -179,7 +179,7 @@ function main() {
 
   const nameDocs = rawDocs.map((d) => ({ id: d.id, title: d.title, category: d.category }));
   const nameIndex = buildNameIndex(nameDocs);
-  const curatedIndex = buildCuratedIndex();
+  const departments = new Map(Object.entries(readJson(path.join(ROOT, 'data/taxonomy/departments.json')).departments).flatMap(([id, ids]) => ids.map((docId) => [docId, id])));
 
   const catalog = [];
   const docById = new Map();
@@ -192,7 +192,7 @@ function main() {
 
   for (const raw of rawDocs) {
     const { articles, sections, extractedHeadings } = cleanDoc(raw);
-    const cls = classify(raw, curatedIndex);
+    const division = categoryOf(raw, departments);
     if (extractedHeadings.length) {
       extractedHeadingLog.push({ docId: raw.id, headings: extractedHeadings.slice(0, 12) });
     }
@@ -204,8 +204,7 @@ function main() {
       title: raw.title,
       shortTitle: SHORT_TITLE_OVERRIDES[raw.id] || shortTitleOf(raw.title),
       category: raw.category,
-      division: cls.division,
-      domain: cls.domain,
+      division,
       authority: raw.issuingAuthority || '',
       promulgationDate: raw.promulgationDate || null,
       effectiveDate: raw.effectiveDate || null,
@@ -229,7 +228,6 @@ function main() {
       shortTitle: record.shortTitle,
       category: record.category,
       division: record.division,
-      domain: record.domain,
       status: record.status,
       promulgationDate: record.promulgationDate,
       effectiveDate: record.effectiveDate,
@@ -376,8 +374,7 @@ function main() {
   }
 
   const taxonomyMap = {};
-  for (const d of catalog) taxonomyMap[d.id] = { division: d.division, domain: d.domain };
-  writeJson(path.join(DB, 'taxonomy.json'), taxonomyObject(), { pretty: true });
+  for (const d of catalog) taxonomyMap[d.id] = d.division;
   writeJson(path.join(DB, 'taxonomy.map.json'), taxonomyMap, { pretty: true });
   const aliasByDoc = new Map();
   for (const [alias, docId] of Object.entries(SHORT_ALIASES)) {
@@ -421,22 +418,20 @@ function main() {
     })),
   );
 
-  const divisionStats = {};
-  for (const div of DIVISIONS) {
-    const docs = catalog.filter((d) => d.division === div.id);
-    divisionStats[div.id] = {
-      name: div.name,
-      status: div.status,
-      documents: docs.length,
+  const categoryStats = {};
+  for (const category of CATEGORIES) {
+    const docs = catalog.filter((d) => d.division === category.id);
+    const documents = category.kind === 'case' ? cases.length : docs.length;
+    categoryStats[category.id] = {
+      name: category.name,
+      kind: category.kind,
+      order: category.order,
+      documents,
       articles: docs.reduce((n, d) => n + d.articleCount, 0),
-      domains: (DOMAINS[div.id] || []).map((dom) => ({
-        id: dom.id,
-        name: dom.name,
-        documents: docs.filter((d) => d.domain === dom.id).length,
-        articles: docs.filter((d) => d.domain === dom.id).reduce((n, d) => n + d.articleCount, 0),
-      })),
     };
   }
+
+  writeJson(path.join(DB, 'taxonomy.json'), taxonomyObject(categoryStats), { pretty: true });
 
   const meta = {
     schemaVersion: 1,
@@ -467,7 +462,7 @@ function main() {
       cases: cases.length,
       gazette: gazettes.length,
     },
-    divisions: divisionStats,
+    categories: categoryStats,
   };
   writeJson(path.join(DB, 'meta.json'), meta, { pretty: true });
 
@@ -556,9 +551,9 @@ function main() {
     annotationWarnings: warningList,
     extractedHeadings: extractedHeadingLog,
     unresolvedTop: [...unresolved.values()].sort((a, b) => b.count - a.count).slice(0, 80),
-    unclassifiedDocs: catalog.filter((d) => d.division === 'other').map((d) => ({ id: d.id, category: d.category, title: d.title })),
+    unclassifiedDocs: [],
     classificationSource: catalog.reduce((acc, d) => {
-      const src = curatedIndex.has(d.id) ? 'curated-id' : 'rule-or-fallback';
+      const src = d.category === '司法解释' || d.category === '行政法规' ? 'category' : 'departments-json';
       acc[src] = (acc[src] || 0) + 1;
       return acc;
     }, {}),
@@ -623,7 +618,6 @@ function buildCuratedAnnotations({ docById, articlesById, articleBySlug, cases, 
         docShortTitle: doc.shortTitle,
         category: doc.category,
         division: doc.division,
-        domain: doc.domain,
         articleNumber: b.articleNumber,
         articleId: targetId,
         displayNumber: target.displayNumber,
@@ -653,7 +647,6 @@ function buildCuratedAnnotations({ docById, articlesById, articleBySlug, cases, 
       lawTitle: law.title,
       lawShortTitle: law.shortTitle,
       division: law.division,
-      domain: law.domain,
       articleNumber: raw.articleNumber,
       articleId,
       displayNumber: lawArticle.displayNumber,
@@ -873,7 +866,6 @@ function buildDerivedAnnotations({ docById, articlesById, linkRecords, catalog }
           docShortTitle: doc.shortTitle,
           category: doc.category,
           division: doc.division,
-          domain: doc.domain,
           articleNumber: src.article.number,
           articleId: group[0].s,
           displayNumber: src.article.displayNumber,
@@ -897,7 +889,6 @@ function buildDerivedAnnotations({ docById, articlesById, linkRecords, catalog }
       lawTitle: law.title,
       lawShortTitle: law.shortTitle,
       division: law.division,
-      domain: law.domain,
       articleNumber: article.number,
       articleId: targetId,
       displayNumber: article.displayNumber,

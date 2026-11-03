@@ -6,11 +6,10 @@
 import { getDb, CONFIDENCE } from './db.js';
 import {
   esc, layout, categoryBadge, levelBadge, confBadge, crumbs, articleUrl, docUrl, caseUrl, gazetteUrl,
-  divisionUrl, domainUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle, docHitList,
+  classificationUrl, searchUrl, pagination, statCard, emptyState, articleCard, articleIdUrl, sectionTitle, docHitList,
 } from './html.js';
 import { search as runSearch, directHit, nameMatches, splitList } from './search.js';
 
-const CATEGORY_ORDER = ['宪法', '法律', '行政法规', '司法解释', '指导性案例'];
 const SORTS = [
   ['relevance', '相关度'],
   ['date_desc', '颁布时间：新 → 旧'],
@@ -123,25 +122,19 @@ function searchForm(db, { big = false, opts = {} } = {}) {
   const sortOpts = SORTS.map(([v, l]) => `<option value="${v}"${opts.sort === v ? ' selected' : ''}>${l}</option>`).join('');
   const off = opts.gazetteOnly ? ' disabled' : '';
   const scopes = splitList(opts.scope);
-  const types = splitList(opts.type);
-  const divisionName = new Map(db.taxonomy.divisions.map((d) => [d.id, d.name]));
+  const categoryName = new Map(db.taxonomy.categories.map((c) => [c.id, c.name]));
   const joined = (ids, nameOf, empty) => (ids.length ? ids.map(nameOf).join('、') : empty);
   const dropdown = (summary, options) => `<details class="multi-select" name="search-filter">
     <summary>${esc(summary)}</summary>
     <div class="multi-panel">${options}</div>
   </details>`;
   const scopeBox = dropdown(
-    `范围：${joined(scopes, (id) => divisionName.get(id) || id, '全部')}`,
-    db.taxonomy.divisions
-      .filter((d) => (db.meta.divisions[d.id]?.documents || 0) > 0)
-      .map((d) => `<label class="check"><input type="checkbox" name="scope" value="${d.id}"${scopes.includes(d.id) ? ' checked' : ''}${off}> ${esc(d.name)}<em>${db.meta.divisions[d.id].articles} 条</em></label>`)
+    `分类：${joined(scopes, (id) => categoryName.get(id) || id, '全部')}`,
+    db.taxonomy.categories
+      .filter((c) => c.kind !== 'case' && (db.meta.categories[c.id]?.documents || 0) > 0)
+      .map((c) => `<label class="check"><input type="checkbox" name="scope" value="${c.id}"${scopes.includes(c.id) ? ' checked' : ''}${off}> ${esc(c.name)}<em>${db.meta.categories[c.id].articles} 条</em></label>`)
       .join(''),
   );
-  const typeBox = dropdown(
-    `类型：${joined(types, (t) => t, '全部')}`,
-    CATEGORY_ORDER.map((c) => `<label class="check"><input type="checkbox" name="type" value="${esc(c)}"${types.includes(c) ? ' checked' : ''}${off}> ${esc(c)}</label>`).join(''),
-  );
-
   return `<form class="search-form${big ? ' is-big' : ''}" action="/search" method="get" role="search">
   <div class="search-row">
     <input type="search" name="q" value="${esc(opts.q || '')}" placeholder="输入关键词，或“民法典 585”“违约金 调整”" autocomplete="off" aria-label="检索关键词">
@@ -149,7 +142,6 @@ function searchForm(db, { big = false, opts = {} } = {}) {
   </div>
   <div class="search-filters">
     ${scopeBox}
-    ${typeBox}
     <label>排序 <select name="sort">${sortOpts}</select></label>
     <label class="check"><input type="checkbox" name="annotated" value="1"${opts.onlyAnnotated ? ' checked' : ''}${off}> 只看有注解的条文</label>
     <label class="check"><input type="checkbox" name="gazette" value="1"${opts.gazetteOnly ? ' checked' : ''}> 只搜索裁判文书</label>
@@ -158,82 +150,60 @@ function searchForm(db, { big = false, opts = {} } = {}) {
 </form>`;
 }
 
-export function divisionsPage(db) {
+export function classificationsPage(db) {
   const meta = metaFromDb(db);
-  const body = db.taxonomy.divisions
-    .filter((div) => (db.meta.divisions[div.id]?.documents || 0) > 0)
-    .map((div) => {
-      const stats = db.meta.divisions[div.id];
-      const domains = stats.domains.filter((d) => d.documents > 0);
-      const docs = db.catalog.filter((d) => d.division === div.id);
-      const badge = div.status === 'ready' ? '' : div.status === 'planned' ? '待扩展' : '待归类';
+  const body = db.taxonomy.categories
+    .map((category) => {
+      const stats = db.meta.categories[category.id] || { documents: 0, articles: 0 };
+      const unit = category.kind === 'case' ? '件' : '部';
+      const href = category.kind === 'case' ? '/cases' : classificationUrl(category.id);
       return `<section class="block">
-    <h2 class="block-title ${div.status !== 'ready' ? 'is-planned' : ''}">
-      <a href="${divisionUrl(div.id)}">${esc(div.name)}</a>
-      ${badge ? `<span class="badge lv-standard">${badge}</span>` : ''}
-      <span class="muted">${stats.documents} 部 / ${stats.articles} 条</span>
-    </h2>
-    <p class="muted">${esc(div.description)}</p>
-    <div class="domain-chips">${domains
-      .map((d) => `<a class="chip" href="${domainUrl(d.id)}">${esc(d.name)} <em>${d.documents}</em></a>`)
-      .join('')}</div>
+    <h2 class="block-title"><a href="${href}">${esc(category.name)}</a> <span class="muted">${stats.documents} ${unit}${category.kind === 'case' ? '' : ` / ${stats.articles} 条`}</span></h2>
+    ${category.description ? `<p class="muted">${esc(category.description)}</p>` : ''}
   </section>`;
     })
     .join('');
-  return layout({ title: '编 / 门类', body, meta, activeNav: 'divisions' });
+  return layout({ title: '分类', body, meta, activeNav: 'classifications' });
 }
 
-export function divisionPage(db, divisionId) {
+export function classificationPage(db, categoryId) {
   const meta = metaFromDb(db);
-  const div = db.divisionById.get(divisionId);
-  if (!div) return notFoundPage(db, `未知的编：${divisionId}`);
-  const stats = db.meta.divisions[div.id];
-  const docs = db.catalog.filter((d) => d.division === div.id);
-  const casesCount = db.cases.length;
+  const category = db.categoryById.get(categoryId);
+  if (!category) return notFoundPage(db, `未知的分类：${categoryId}`);
+  if (category.kind === 'case') return casesPage(db, {});
 
-  const domainBlocks = div.domains
-    .map((dom) => {
-      const list = docs.filter((d) => d.domain === dom.id).sort(categoryThenTitle);
-      if (!list.length) return '';
-      return `<section class="block domain-block" id="${esc(dom.id)}">
-      <h3 class="domain-title">${esc(dom.name)}<span class="muted">${list.length} 部</span></h3>
-      <ul class="doc-list">${list
-        .map(
-          (d) => `<li>
-        ${categoryBadge(d.category)}
-        <a href="${docUrl(d.id)}">${esc(d.shortTitle)}</a>
-        <span class="muted">${d.articleCount} 条${d.promulgationDate ? ` · ${esc(d.promulgationDate)}` : ''}</span>
-        ${statInline(db, d.id)}
-      </li>`,
-        )
-        .join('')}</ul>
-    </section>`;
-    })
-    .join('');
-
-  const notes = db.curatedAnnotations.filter((a) => a.division === divisionId);
-  const hot = db.hotArticles(12, { division: divisionId });
+  const stats = db.meta.categories[category.id];
+  const docs = db.catalog.filter((d) => d.division === category.id).sort(categoryThenTitle);
+  const notes = db.curatedAnnotations.filter((a) => a.division === category.id);
+  const hot = category.kind === 'department' ? db.hotArticles(12, { division: category.id }) : [];
+  const countLabel = category.kind === 'department' ? '收录法律' : `收录${category.name}`;
 
   const body = `
-${crumbs([{ label: '首页', href: '/' }, { label: '编 / 门类', href: '/divisions' }, { label: div.name }])}
+${crumbs([{ label: '首页', href: '/' }, { label: '分类', href: '/classifications' }, { label: category.name }])}
 <section class="page-head">
-  <h1>${esc(div.name)}</h1>
-  <p class="muted">${esc(div.description)}</p>
+  <h1>${esc(category.name)}</h1>
+  ${category.description ? `<p class="muted">${esc(category.description)}</p>` : ''}
   <div class="page-stats">
-    ${statCard('收录文件', stats.documents)}
+    ${statCard(countLabel, stats.documents)}
     ${statCard('法条条文', stats.articles)}
-    ${statCard('门类', div.domains.filter((d) => docs.some((x) => x.domain === d.id)).length)}
     ${statCard('疑难注解', notes.length)}
   </div>
 </section>
-<div class="domain-nav">${div.domains
-    .filter((d) => docs.some((x) => x.domain === d.id))
-    .map((d) => `<a class="chip" href="#${esc(d.id)}">${esc(d.name)} <em>${docs.filter((x) => x.domain === d.id).length}</em></a>`)
-    .join('')}</div>
-${domainBlocks}
+<section class="block">
+  <ul class="doc-list">${docs
+    .map(
+      (d) => `<li>
+    ${categoryBadge(d.category)}
+    <a href="${docUrl(d.id)}">${esc(d.shortTitle)}</a>
+    <span class="muted">${d.articleCount} 条${d.promulgationDate ? ` · ${esc(d.promulgationDate)}` : ''}</span>
+    ${statInline(db, d.id)}
+  </li>`,
+    )
+    .join('')}</ul>
+</section>
 ${
   hot.length
-    ? `<section class="block"><h2 class="block-title">本编被司法解释引用最多的条文</h2><ul class="hot-list">${hot
+    ? `<section class="block"><h2 class="block-title">本类被司法解释引用最多的条文</h2><ul class="hot-list">${hot
         .map(
           (h) => `<li><a href="${articleUrl(h.doc.id, h.article.slug)}">${esc(h.doc.shortTitle)} <strong>${esc(h.article.displayNumber)}</strong></a>
     <span class="hot-count">${h.interpCount} 件司法解释引用</span><span class="hot-text">${esc((h.article.text || '').slice(0, 42))}…</span></li>`,
@@ -241,11 +211,11 @@ ${
         .join('')}</ul></section>`
     : ''
 }
-${notes.length ? `<section class="block"><h2 class="block-title">本编疑难注解</h2><ul class="link-list">${notes
+${notes.length ? `<section class="block"><h2 class="block-title">本类疑难注解</h2><ul class="link-list">${notes
       .map((a) => `<li><a href="${articleIdUrl(a.articleId)}">${esc(a.lawShortTitle)} ${esc(a.displayNumber)} · ${esc(a.topic)}</a></li>`)
       .join('')}</ul></section>` : ''}
 `;
-  return layout({ title: div.name, body, meta, activeNav: 'divisions' });
+  return layout({ title: category.name, body, meta, activeNav: 'classifications' });
 }
 
 function statInline(db, docId) {
@@ -257,28 +227,6 @@ function statInline(db, docId) {
   if (cov.annotations.curated) parts.push(`疑难注解 ${cov.annotations.curated}`);
   if (!parts.length) return '';
   return `<span class="inline-stat">${parts.map(esc).join(' · ')}</span>`;
-}
-
-export function domainPage(db, domainId) {
-  const meta = metaFromDb(db);
-  const dom = db.domainById.get(domainId);
-  if (!dom) return notFoundPage(db, `未知的门类：${domainId}`);
-  const docs = db.catalog.filter((d) => d.domain === domainId).sort(categoryThenTitle);
-  const body = `
-${crumbs([{ label: '首页', href: '/' }, { label: '编 / 门类', href: '/divisions' }, { label: dom.divisionName, href: divisionUrl(dom.division) }, { label: dom.name }])}
-<section class="page-head">
-  <h1>${esc(dom.name)}</h1>
-  <p class="muted">${esc(dom.divisionName)} · ${docs.length} 部文件 · ${docs.reduce((n, d) => n + d.articleCount, 0)} 条条文</p>
-</section>
-<section class="block">
-  <ul class="doc-list">${docs
-    .map(
-      (d) => `<li>${categoryBadge(d.category)} <a href="${docUrl(d.id)}">${esc(d.shortTitle)}</a>
-  <span class="muted">${d.articleCount} 条${d.promulgationDate ? ` · ${esc(d.promulgationDate)}` : ''}</span> ${statInline(db, d.id)}</li>`,
-    )
-    .join('')}</ul>
-</section>`;
-  return layout({ title: dom.name, body, meta });
 }
 
 const CATEGORY_RANK = { 宪法: 0, 法律: 1, 行政法规: 2, 司法解释: 3 };
@@ -428,7 +376,7 @@ ${crumbs(breadcrumbTrail(db, doc))}
     <h1>${esc(doc.title)}</h1>
     <p class="doc-meta">
       ${categoryBadge(doc.category)}
-      <span class="meta">${esc(db.domainById.get(doc.domain)?.divisionName || '')} · ${esc(db.domainById.get(doc.domain)?.name || '')}</span>
+      <span class="meta">${esc(db.categoryById.get(doc.division)?.name || '')}</span>
       ${doc.promulgationDate ? `<span class="meta">颁布 ${esc(doc.promulgationDate)}</span>` : ''}
       ${doc.effectiveDate ? `<span class="meta">施行 ${esc(doc.effectiveDate)}</span>` : ''}
       ${doc.authority ? `<span class="meta">${esc(doc.authority)}</span>` : ''}
@@ -551,11 +499,11 @@ ${
 }
 
 function breadcrumbTrail(db, doc) {
-  const dom = db.domainById.get(doc.domain);
+  const category = db.categoryById.get(doc.division);
   return [
     { label: '首页', href: '/' },
-    { label: dom?.divisionName || '编', href: divisionUrl(doc.division) },
-    ...(dom ? [{ label: dom.name, href: domainUrl(dom.id) }] : []),
+    { label: '分类', href: '/classifications' },
+    { label: category?.name || '未分类', href: classificationUrl(doc.division) },
     { label: doc.shortTitle },
   ];
 }
@@ -933,7 +881,6 @@ export function searchPage(db, query) {
   const opts = {
     q,
     scope: splitList(query.scope),
-    type: splitList(query.type),
     sort: query.sort || 'relevance',
     docId: query.doc || null,
     page: Math.max(1, Number(query.page) || 1),
@@ -941,13 +888,10 @@ export function searchPage(db, query) {
     onlyAnnotated: query.annotated === '1',
     gazetteOnly: query.gazette === '1',
   };
-  if (opts.gazetteOnly) {
-    opts.scope = [];
-    opts.type = [];
-  }
+  if (opts.gazetteOnly) opts.scope = [];
   const res = runSearch(db, opts);
   const doc = opts.docId ? db.getDoc(opts.docId) : null;
-  const params = { q, scope: opts.scope, type: opts.type, sort: opts.sort, doc: opts.docId, annotated: opts.onlyAnnotated ? 1 : '', gazette: opts.gazetteOnly ? 1 : '' };
+  const params = { q, scope: opts.scope, sort: opts.sort, doc: opts.docId, annotated: opts.onlyAnnotated ? 1 : '', gazette: opts.gazetteOnly ? 1 : '' };
   const dh = q && !opts.gazetteOnly ? directHit(db, q) : null;
   const altDocs = dh?.ambiguous
     ? dh.ambiguous
@@ -981,7 +925,7 @@ ${
     : ''
 }
 <section class="results">
-  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', opts.gazetteOnly ? '裁判文书里没有命中，换个更短的关键词试试。' : '试试更短的关键词，或切换范围/类型；也可以直接输入“法律名 + 条号”。')}
+  ${res.items.length ? res.items.map((r) => articleCard(r, { snippet: r.snippet })).join('') : emptyState('没有命中结果。', opts.gazetteOnly ? '裁判文书里没有命中，换个更短的关键词试试。' : '试试更短的关键词，或切换分类；也可以直接输入“法律名 + 条号”。')}
 </section>
 ${pagination({
   page: res.page,
@@ -1001,7 +945,7 @@ export function notesPage(db, query) {
   if (division !== 'all') list = list.filter((a) => a.division === division);
   if (level !== 'all') list = list.filter((a) => a.level === level);
 
-  const byDivision = db.taxonomy.divisions
+  const byDivision = db.taxonomy.categories
     .map((d) => ({ d, n: db.curatedAnnotations.filter((a) => a.division === d.id).length }))
     .filter((x) => x.n > 0);
 
@@ -1222,10 +1166,11 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '裁判文书', href: '/gazet
 export function aboutPage(db) {
   const meta = metaFromDb(db);
   const c = db.meta.counts;
-  const divRows = db.taxonomy.divisions
-    .map((d) => {
-      const s = db.meta.divisions[d.id];
-      return `<tr><td>${esc(d.name)}</td><td>${esc(d.status === 'ready' ? '已建设' : d.status === 'planned' ? '待扩展' : '待归类')}</td><td>${s.documents}</td><td>${s.articles}</td><td>${s.domains.filter((x) => x.documents > 0).length}</td></tr>`;
+  const divRows = db.taxonomy.categories
+    .map((category) => {
+      const stats = db.meta.categories[category.id];
+      const unit = category.kind === 'case' ? '件' : '部';
+      return `<tr><td>${esc(category.name)}</td><td>${esc(category.kind === 'department' ? '法律部门' : '文件类别')}</td><td>${stats.documents} ${unit}</td><td>${stats.articles}</td></tr>`;
     })
     .join('');
 
@@ -1236,13 +1181,13 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
 <section class="block prose">
   <h2>1. 数据来源</h2>
   <p>条文正文取自 <a href="https://flk.npc.gov.cn/" target="_blank" rel="noopener">国家法律法规数据库</a> 的公开文本，经 <code>chinese-law-corpus</code>（CC0-1.0）项目整理为逐条结构化语料；司法解释与指导性案例来自最高人民法院公开发布。本平台不修改条文正文，仅做结构化、分类与关联。</p>
-  <p>收录情况：${c.documents} 部文件（法律 ${c.codes} 部、行政法规 ${c.regulations} 部、司法解释 ${c.interpretations} 部），共 ${c.articles} 条条文；构建 ${c.links} 条条文级关联、${c.annotations} 条注解、${c.cases} 件指导性案例${c.rubrics ? `，另有 ${c.rubrics} 条人工撰写的条文主旨` : ''}。</p>
+  <p>收录情况：${c.documents} 部文件（法律与宪法 ${c.codes} 部、行政法规 ${c.regulations} 部、司法解释 ${c.interpretations} 部），共 ${c.articles} 条条文；构建 ${c.links} 条条文级关联、${c.annotations} 条注解、${c.cases} 件指导性案例${c.rubrics ? `，另有 ${c.rubrics} 条人工撰写的条文主旨` : ''}。</p>
   <p>另独立收录《最高人民法院公报》裁判文书 ${c.gazette} 件（2003 年以来，含裁判摘要与文书全文，见<a href="/gazettes">裁判文书</a>）。这批文书只保留客观元数据与正文，<strong>不与法条建立条文级关联</strong>，也不参与默认的条文检索（检索页勾选“只搜索裁判文书”时可全文检索）。</p>
   <p>本平台源码以 MIT 许可发布（见页脚“源码”链接），静态站点由 GitHub Actions 构建并发布到 Pages。</p>
 
-  <h2>2. 编与门类的划分</h2>
-  <p>七个编全部纳入正式建设：宪法编、刑法编、民法编、商法编、社会法编、行政法编、经济法编（均已定型门类，标记为“已建设”）；规则未覆盖的进入“其他编（待归类）”，保证不丢失数据（目前为空）。分类规则见 <code>scripts/lib/taxonomy.js</code>：先匹配人工核定表（按文档 id），再按法规名称关键词规则，最后按类型兜底。</p>
-  <table class="table"><thead><tr><th>编</th><th>状态</th><th>文件</th><th>条文</th><th>门类</th></tr></thead><tbody>${divRows}</tbody></table>
+  <h2>2. 分类体系</h2>
+  <p>法律按八个法律部门归类：宪法相关法、刑法、民法商法、行政法、经济法、社会法、生态环境法、诉讼与非诉讼程序法；司法解释、行政法规、指导性案例按文件类别各自成类。每部法律归入哪个部门，以 <code>data/taxonomy/departments.json</code> 的逐篇映射为准；分类名称与顺序见 <code>scripts/lib/taxonomy.js</code>。</p>
+  <table class="table"><thead><tr><th>分类</th><th>类型</th><th>文件</th><th>条文</th></tr></thead><tbody>${divRows}</tbody></table>
 
   <h2>3. 司法解释如何关联到法条</h2>
   <p>构建脚本逐条扫描司法解释（并包括法律、行政法规）的正文，识别三种引用形态并给出可靠性分级：</p>
@@ -1260,7 +1205,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
   </ul>
 
   <h2>5. 检索</h2>
-  <p>中文按二元组（bigram）切分、英文与数字按词元切分，配合覆盖率阈值、连续短语加权与字段权重（标题 &gt; 注解 &gt; 正文）排序；支持按编、类型、单部法律限定范围，支持相关度、颁布时间、法律位阶、注解优先等排序方式。不引入分词与检索引擎依赖，语料规模下线性扫描即可在毫秒级返回。</p>
+  <p>中文按二元组（bigram）切分、英文与数字按词元切分，配合覆盖率阈值、连续短语加权与字段权重（标题 &gt; 注解 &gt; 正文）排序；支持按分类、单部法律限定范围，支持相关度、颁布时间、法律位阶、注解优先等排序方式。不引入分词与检索引擎依赖，语料规模下线性扫描即可在毫秒级返回。</p>
 
   <h2>6. 已知局限</h2>
   <ul>
