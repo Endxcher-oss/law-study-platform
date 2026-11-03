@@ -77,6 +77,15 @@ test('分面统计与结果一致', () => {
   }
 });
 
+test('分类可限定指导性案例', () => {
+  const browse = search(db, { q: '', scope: ['case'], pageSize: 10 });
+  assert.ok(browse.total > 0, '空查询也应能列出指导性案例');
+  assert.ok(browse.items.every((i) => i.kind === 'case'), '限定后只返回案例');
+
+  const hit = search(db, { q: '违约金', scope: ['case'], pageSize: 10 });
+  assert.ok(hit.items.every((i) => i.kind === 'case'), '带查询词时也只返回案例');
+});
+
 test('排序方式：层级、时间、命中数', () => {
   const hier = search(db, { q: '违约金', sort: 'hierarchy', pageSize: 30 });
   const rank = { 宪法: 0, 法律: 1, 行政法规: 2, 司法解释: 3 };

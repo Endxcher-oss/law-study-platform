@@ -116,6 +116,10 @@ test('检索页：指定范围/排序/类型', async () => {
   assert.match(multi.body, /name="scope" value="social" checked/, '第二个分类也应勾选');
   assert.match(multi.body, /<summary>分类：民法商法、社会法<\/summary>/, '下拉摘要应显示已选分类');
   assert.match(multi.body, /<details class="multi-select" name="search-filter">/, '两个下拉共用 name，浏览器原生互斥');
+  const caseScope = await html('/search?scope=case');
+  assert.match(caseScope.body, /name="scope" value="case" checked/, '指导性案例应能作为分类勾选');
+  assert.match(caseScope.body, /指导性案例<em>278 件<\/em>/, '指导性案例的分类计数按件显示');
+  assert.match(caseScope.body, /href="\/case\//, '限定指导性案例后应列出案例');
   const app = await html('/assets/app.js');
   assert.match(app.body, /querySelectorAll\('\.multi-select'\)/, '脚本应在打开一个下拉时收起另一个');
   assert.match(app.body, /!det\.contains\(e\.target\)/, '点下拉以外（含排序控件）应收起');

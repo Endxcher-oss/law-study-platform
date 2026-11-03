@@ -131,8 +131,11 @@ function searchForm(db, { big = false, opts = {} } = {}) {
   const scopeBox = dropdown(
     `分类：${joined(scopes, (id) => categoryName.get(id) || id, '全部')}`,
     db.taxonomy.categories
-      .filter((c) => c.kind !== 'case' && (db.meta.categories[c.id]?.documents || 0) > 0)
-      .map((c) => `<label class="check"><input type="checkbox" name="scope" value="${c.id}"${scopes.includes(c.id) ? ' checked' : ''}${off}> ${esc(c.name)}<em>${db.meta.categories[c.id].articles} 条</em></label>`)
+      .filter((c) => (db.meta.categories[c.id]?.documents || 0) > 0)
+      .map((c) => {
+        const count = db.meta.categories[c.id];
+        return `<label class="check"><input type="checkbox" name="scope" value="${c.id}"${scopes.includes(c.id) ? ' checked' : ''}${off}> ${esc(c.name)}<em>${c.kind === 'case' ? `${count.documents} 件` : `${count.articles} 条`}</em></label>`;
+      })
       .join(''),
   );
   return `<form class="search-form${big ? ' is-big' : ''}" action="/search" method="get" role="search">
