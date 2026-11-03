@@ -752,10 +752,6 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
   </article>
 
   <aside class="article-side">
-    <div class="side-block">
-      <h3>所在章节</h3>
-      <p class="muted">${path.length ? path.map(esc).join(' · ') : '—'}</p>
-    </div>
     ${
       chapterIndex.length
         ? `<div class="side-block"><h3>邻近条文</h3><ul class="side-list">${chapterIndex
