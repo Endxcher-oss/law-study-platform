@@ -337,7 +337,10 @@
             '<li class="tag-article">' + categoryBadge(categoryOf(e)) +
             '<a class="tag-article-title" href="' + articleHref(e) + '">' + esc(e.law) + ' ' + esc(e.number) + '</a>' +
             '<span class="tag-article-date">' + esc(formatTime(e.updatedAt)) + '</span>' +
-            '<span class="tag-chips">' + e.tags.map(function (t) { return '<span class="chip is-static">' + esc(t.name) + '</span>'; }).join('') + '</span></li>'
+            '<span class="tag-chips">' + e.tags.map(function (t) {
+              return '<span class="tag-item"><span class="chip is-static">' + esc(t.name) + '</span>' +
+                '<button type="button" class="tag-del" data-article-id="' + esc(e.id) + '" data-name="' + esc(t.name) + '" aria-label="删除标签：' + esc(t.name) + '" title="删除">×</button></span>';
+            }).join('') + '</span></li>'
           );
         })
         .join('');
@@ -359,11 +362,16 @@
     var del = e.target.closest('.tag-del');
     if (del) {
       var b = del.closest('#user-tags');
-      if (!b) return;
-      var store = load();
-      removeTag(store, metaOf(b).id, del.getAttribute('data-name'));
-      renderArticle(b);
-      renderTagsPage();
+      var page = del.closest('[data-tags-page]');
+      if (b) {
+        var store = load();
+        removeTag(store, metaOf(b).id, del.getAttribute('data-name'));
+        renderArticle(b);
+        renderTagsPage();
+      } else if (page) {
+        removeTag(load(), del.getAttribute('data-article-id'), del.getAttribute('data-name'));
+        renderTagsPage();
+      }
       return;
     }
     var add = e.target.closest('[data-tag-add]');
