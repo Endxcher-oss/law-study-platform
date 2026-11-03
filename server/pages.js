@@ -362,7 +362,8 @@ export function docPage(db, docId, query = {}) {
   const jumpNav = (() => {
     const items = [
       docTags.length ? ['#sec-tags', `关联法条 ${docTags.length}`] : null,
-      hasCoverage ? ['#sec-coverage', doc.category === '司法解释' ? '引用概览' : '关联概览'] : null,
+      !isInterp && interps.length ? ['#sec-interps', `关联司法解释 ${interps.length}`] : null,
+      isInterp && hasCoverage ? ['#sec-coverage', '引用概览'] : null,
       curated.length ? ['#sec-notes', `疑难注解 ${curated.length}`] : null,
       cases.length ? ['#sec-cases', `指导性案例 ${cases.length}`] : null,
       loose.length ? ['#sec-data', '数据说明'] : null,
@@ -424,39 +425,33 @@ ${
 }
 
 ${
-  hasCoverage
+  !isInterp && interps.length
+    ? `<section class="block" id="sec-interps">
+  <h3>关联司法解释（${interps.length} 件）</h3>
+  <ul class="doc-list">${interps
+    .slice(0, 80)
+    .map(
+      (i) => `<li><a href="${docUrl(i.docId)}">${esc(i.shortTitle)}</a>
+    <span class="muted">关联条文 ${i.articleCount} 条 · ${i.count} 处引用 ${confBadge(i.best)}</span></li>`,
+    )
+    .join('')}</ul>
+  ${interps.length > 80 ? `<p class="muted">…共 ${interps.length} 件，先列出前 80 件。</p>` : ''}
+</section>`
+    : ''
+}
+
+${
+  isInterp && hasCoverage
     ? `<section class="block coverage" id="sec-coverage">
-  <h3>${isInterp ? '引用概览' : '关联概览'}</h3>
-  <div class="page-stats">${
-    isInterp
-      ? [
-          statCard('涉及法律', cov.cited.docs, '部'),
-          statCard('引用条文', cov.cited.articles, '条'),
-          statCard('条文级关联', cov.cited.links, '处'),
-          statCard('疑难注解', cov.annotations.curated + cov.annotations.derived, `人工 ${cov.annotations.curated}`),
-          statCard('指导性案例', cov.cases, '件'),
-        ].join('')
-      : [
-          statCard('关联司法解释', cov.interpCount, '件'),
-          statCard('被解释条文', `${cov.linkedArticles}/${cov.totalArticles}`, `覆盖 ${((cov.linkedArticles / Math.max(1, cov.totalArticles)) * 100).toFixed(1)}%`),
-          statCard('条文级关联', cov.linkCount, '处'),
-          statCard('疑难注解', cov.annotations.curated + cov.annotations.derived, `人工 ${cov.annotations.curated}`),
-          statCard('指导性案例', cov.cases, '件'),
-        ].join('')
-  }</div>
-  ${isInterp && cov.cited.interpLinks ? `<p class="muted">除法律法规外，另有 ${cov.cited.interpLinks} 处引用其他司法解释。</p>` : ''}
-  ${
-    !isInterp && interps.length
-      ? `<details class="interp-list"><summary>关联的司法解释清单（${interps.length} 件）</summary>
-    <ul class="doc-list">${interps
-      .slice(0, 80)
-      .map(
-        (i) => `<li>${categoryBadge(i.category)} <a href="${docUrl(i.docId)}">${esc(i.shortTitle)}</a>
-      <span class="muted">关联条文 ${i.articleCount} 条 · ${i.count} 处引用 ${confBadge(i.best)}</span></li>`,
-      )
-      .join('')}</ul></details>`
-      : ''
-  }
+  <h3>引用概览</h3>
+  <div class="page-stats">${[
+    statCard('涉及法律', cov.cited.docs, '部'),
+    statCard('引用条文', cov.cited.articles, '条'),
+    statCard('条文级关联', cov.cited.links, '处'),
+    statCard('疑难注解', cov.annotations.curated + cov.annotations.derived, `人工 ${cov.annotations.curated}`),
+    statCard('指导性案例', cov.cases, '件'),
+  ].join('')}</div>
+  ${cov.cited.interpLinks ? `<p class="muted">除法律法规外，另有 ${cov.cited.interpLinks} 处引用其他司法解释。</p>` : ''}
 </section>`
     : ''
 }

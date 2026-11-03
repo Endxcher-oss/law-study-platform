@@ -236,18 +236,20 @@ test('法律总览页：关联信息在目录之后，侧栏顶部有区段跳�
   const iToc = at('<h3>目录</h3>');
   const iNav = at('class="toc-jump"');
   const iWin = at('class="article-window"');
-  const iCov = at('id="sec-coverage"');
+  const iInterps = at('id="sec-interps"');
   const iNotes = at('id="sec-notes"');
   const iCases = at('id="sec-cases"');
   const iBack = at('assoc-back');
   assert.ok(iToc > 0 && iNav > iToc, '跳转栏应在侧栏“目录”标题之下');
   assert.ok(iWin > iNav, '条文窗在侧栏之后');
-  assert.ok(iCov > iWin, '关联概览应在目录/条文窗之后');
-  assert.ok(iNotes > iCov && iCases > iNotes, '顺序应为 概览 → 疑难注解 → 指导性案例');
+  assert.ok(iInterps > iWin, '关联司法解释应在目录/条文窗之后');
+  assert.ok(iNotes > iInterps && iCases > iNotes, '顺序应为 关联司法解释 → 疑难注解 → 指导性案例');
   assert.ok(iBack > iCases, '末尾应有“回到条文目录”');
-  for (const id of ['#sec-coverage', '#sec-notes', '#sec-cases']) {
+  assert.ok(!r.body.includes('id="sec-coverage"'), '法律页不再有“关联概览”');
+  for (const id of ['#sec-interps', '#sec-notes', '#sec-cases']) {
     assert.ok(r.body.includes(`href="${id}"`), `侧栏跳转缺少 ${id}`);
   }
+  assert.match(r.body, /<h3>关联司法解释（\d+ 件）<\/h3>/);
   assert.ok(r.body.includes('id="toc"'), '目录容器应有 #toc 锚点供回跳');
   assert.match(r.body, /href="#sec-notes">疑难注解 \d+</);
 });
@@ -259,6 +261,7 @@ test('司法解释页：解释对象按钮 + 关联法条 + 引用概览（反�
   assert.ok(!r.body.includes('href="#sec-interp-of"'), '跳转导航也不再有该项');
   assert.ok(r.body.includes('>查看《民法典》</a>'), '标题能确定解释对象时，按钮直接指向该法');
   assert.ok(r.body.includes('id="sec-tags"'), '关联法条标签区仍在');
+  assert.ok(!r.body.includes('id="sec-interps"'), '司法解释页不重复列“关联司法解释”');
   assert.ok(r.body.includes('id="sec-coverage"'));
   assert.ok(r.body.includes('引用概览'), '司法解释页的概览应叫“引用概览”');
   const at = (s) => r.body.indexOf(s);
