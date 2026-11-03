@@ -91,7 +91,7 @@
     det.querySelectorAll('input[type=checkbox]:checked').forEach(function (i) {
       names.push(i.dataset.name || i.value);
     });
-    var summary = det.querySelector('summary');
+    var summary = det.querySelector('.multi-summary-text') || det.querySelector('summary');
     if (summary) summary.textContent = (det.dataset.label || '') + (names.length ? names.join('、') : '全部');
   });
 

@@ -125,7 +125,7 @@ function searchForm(db, { big = false, opts = {} } = {}) {
   const categoryName = new Map(db.taxonomy.categories.map((c) => [c.id, c.name]));
   const joined = (ids, nameOf, empty) => (ids.length ? ids.map(nameOf).join('、') : empty);
   const dropdown = (summary, options, label) => `<details class="multi-select" name="search-filter" data-label="${esc(label)}">
-    <summary>${esc(summary)}</summary>
+    <summary><span class="multi-summary-text">${esc(summary)}</span></summary>
     <div class="multi-panel">${options}</div>
   </details>`;
   const scopeBox = dropdown(

@@ -214,14 +214,15 @@ h3 { font-size: 17px; }
   font-size: 13px; font-family: var(--sans); color: var(--ink);
 }
 .search-filters .check { cursor: pointer; }
-.search-filters .multi-select { position: relative; }
+.search-filters .multi-select { position: relative; min-width: 0; }
 .multi-select > summary {
   list-style: none; cursor: pointer; padding: 5px 10px; border: 1px solid var(--line-strong);
   border-radius: 6px; background: var(--field); color: var(--ink); font-size: 13px;
-  max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  display: flex; align-items: center; max-width: 320px; min-width: 0;
 }
+.multi-summary-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .multi-select > summary::-webkit-details-marker { display: none; }
-.multi-select > summary::after { content: '▾'; margin-left: 6px; color: var(--ink-muted); font-size: 11px; }
+.multi-select > summary::after { content: '▾'; flex: none; margin-left: 6px; color: var(--ink-muted); font-size: 11px; }
 .multi-select[open] > summary { border-color: var(--accent-soft); }
 .multi-panel {
   position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 220px; max-height: 320px; overflow: auto;
@@ -623,7 +624,7 @@ code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
   .search-filters .check { flex: 1 1 auto; min-height: 32px; }
   .search-filters input[type="checkbox"] { width: 18px; height: 18px; margin: 0; }
   .search-filters .multi-select { flex: 1 1 100%; }
-  .multi-select > summary { max-width: none; padding: 7px 8px; font-size: 16px; }
+  .multi-select > summary { max-width: 100%; padding: 7px 8px; font-size: 16px; }
   .multi-panel { position: static; margin-top: 6px; max-height: none; }
 
   .block { padding: 14px; margin: 14px 0; border-radius: 8px; }

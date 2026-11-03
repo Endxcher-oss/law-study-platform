@@ -114,7 +114,7 @@ test('检索页：指定范围/排序/类型', async () => {
   assert.equal(multi.status, 200);
   assert.match(multi.body, /name="scope" value="civil-commercial"[^>]* checked/, '多选分类应在下拉里勾选');
   assert.match(multi.body, /name="scope" value="social"[^>]* checked/, '第二个分类也应勾选');
-  assert.match(multi.body, /<summary>分类：民法商法、社会法<\/summary>/, '下拉摘要应显示已选分类');
+  assert.match(multi.body, /class="multi-summary-text">分类：民法商法、社会法</, '下拉摘要应显示已选分类');
   assert.match(multi.body, /<details class="multi-select" name="search-filter"/, '多个下拉共用 name，浏览器原生互斥');
   const caseScope = await html('/search?scope=case');
   assert.match(caseScope.body, /name="scope" value="case"[^>]* checked/, '指导性案例应能作为分类勾选');
