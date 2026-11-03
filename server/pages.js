@@ -282,7 +282,7 @@ function tagsBlock(db, tags) {
       .map((tag) => tagChip(db, tag))
       .filter(Boolean);
     const rest = chips.slice(TAG_PREVIEW);
-    const more = rest.length ? `<details class="tag-more"><summary>另 ${rest.length} 条</summary>${rest.join('')}</details>` : '';
+    const more = rest.length ? `<details class="tag-more"><summary>另 ${rest.length} 条</summary><div class="tag-more-list">${rest.join('')}</div></details>` : '';
     return `<div class="tag-group">${lawChip}${chips.slice(0, TAG_PREVIEW).join('')}${more}</div>`;
   });
   return `<div class="tag-groups">${rows.join('')}</div>`;
