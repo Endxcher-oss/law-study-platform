@@ -60,6 +60,15 @@ test('添加、去除、改名：同一标签在一篇条文内去重，删空�
   assert.equal(again.articles['civil-code-585'], undefined, '没有标签后不再保留空条目');
 });
 
+test('条目快照保存类别，最近修改时间按本地时间格式化', () => {
+  const { api } = makeApi();
+  const store = api.load();
+  api.addTag(store, { ...meta(1), category: '法律' }, 'x');
+  assert.equal(store.articles['civil-code-1'].category, '法律');
+  assert.match(api.formatTime(store.articles['civil-code-1'].updatedAt), /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+  assert.equal(api.formatTime(0), '');
+});
+
 test('多选标签取交集，未选中时返回全部', () => {
   const { api } = makeApi();
   const store = api.load();

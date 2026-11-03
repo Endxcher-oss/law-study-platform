@@ -736,7 +736,7 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
   </article>
 
   <aside class="article-side">
-    <div class="side-block user-tags" id="user-tags" hidden data-article-id="${esc(article.id)}" data-doc-id="${esc(doc.id)}" data-law="${esc(doc.shortTitle)}" data-number="${esc(article.displayNumber)}" data-slug="${esc(article.slug)}" data-date="${esc(doc.promulgationDate || '')}">
+    <div class="side-block user-tags" id="user-tags" hidden data-article-id="${esc(article.id)}" data-doc-id="${esc(doc.id)}" data-law="${esc(doc.shortTitle)}" data-number="${esc(article.displayNumber)}" data-slug="${esc(article.slug)}" data-date="${esc(doc.promulgationDate || '')}" data-category="${esc(doc.category || '')}">
       <h3>标签</h3>
       <div class="tag-chips" data-tag-chips></div>
       <button type="button" class="tag-add" data-tag-add>＋ 添加标签</button>

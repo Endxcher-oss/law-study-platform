@@ -44,6 +44,7 @@
         number: meta.number || '',
         slug: meta.slug || '',
         date: meta.date || '',
+        category: meta.category || '',
         tags: [],
         updatedAt: 0,
       };
@@ -88,6 +89,37 @@
     e.updatedAt = Date.now();
     save(store);
     return true;
+  }
+
+  function formatTime(ts) {
+    var d = new Date(ts || 0);
+    if (!ts || isNaN(d.getTime())) return '';
+    var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  var CATEGORY_CLASS = {
+    '宪法': 'cat-constitution',
+    '法律': 'cat-law',
+    '行政法规': 'cat-regulation',
+    '司法解释': 'cat-interpretation',
+    '指导性案例': 'cat-case',
+    '裁判文书': 'cat-gazette',
+  };
+
+  function categoryBadge(category) {
+    if (!category) return '';
+    return '<span class="badge ' + (CATEGORY_CLASS[category] || 'cat-other') + '">' + esc(category) + '</span>';
+  }
+
+  function touchMeta(store, meta) {
+    var e = store.articles[meta.id];
+    if (!e) return;
+    var changed = false;
+    ['docId', 'law', 'number', 'slug', 'date', 'category'].forEach(function (k) {
+      if (meta[k] && e[k] !== meta[k]) { e[k] = meta[k]; changed = true; }
+    });
+    if (changed) save(store);
   }
 
   function entries(store) {
@@ -141,6 +173,7 @@
   root.LawTags = {
     KEY: KEY,
     MAX: MAX,
+    formatTime: formatTime,
     normalize: normalize,
     load: load,
     save: save,
@@ -175,6 +208,7 @@
       number: block.getAttribute('data-number') || '',
       slug: block.getAttribute('data-slug') || '',
       date: block.getAttribute('data-date') || '',
+      category: block.getAttribute('data-category') || '',
     };
   }
 
@@ -188,6 +222,7 @@
   function renderArticle(block) {
     var store = load();
     var meta = metaOf(block);
+    touchMeta(store, meta);
     var entry = store.articles[meta.id];
     var chips = entry && entry.tags.length ? entry.tags.map(function (t) { return tagItem(t.name); }).join('') : '';
     var holder = block.querySelector('[data-tag-chips]');
@@ -289,8 +324,9 @@
       list.innerHTML = shown
         .map(function (e) {
           return (
-            '<li class="tag-article"><a class="tag-article-title" href="' + articleHref(e) + '">' + esc(e.law) + ' ' + esc(e.number) + '</a>' +
-            '<span class="tag-article-date">' + esc(e.date || '') + '</span>' +
+            '<li class="tag-article">' + categoryBadge(e.category) +
+            '<a class="tag-article-title" href="' + articleHref(e) + '">' + esc(e.law) + ' ' + esc(e.number) + '</a>' +
+            '<span class="tag-article-date">' + esc(formatTime(e.updatedAt)) + '</span>' +
             '<span class="tag-chips">' + e.tags.map(function (t) { return '<span class="chip is-static">' + esc(t.name) + '</span>'; }).join('') + '</span></li>'
           );
         })
