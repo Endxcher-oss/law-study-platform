@@ -69,6 +69,17 @@ test('条目快照保存类别，最近修改时间按本地时间格式化', ()
   assert.equal(api.formatTime(0), '');
 });
 
+test('删除标签：可从所有条文中一并移除', () => {
+  const { api } = makeApi();
+  const store = api.load();
+  api.addTag(store, meta(1), 'x');
+  api.addTag(store, meta(1), 'y');
+  api.addTag(store, meta(2), 'x');
+  assert.equal(api.removeEverywhere(store, 'x'), 2);
+  assert.equal(api.entries(store).length, 1);
+  assert.equal(api.removeEverywhere(store, 'nope'), 0);
+});
+
 test('多选标签取交集，未选中时返回全部', () => {
   const { api } = makeApi();
   const store = api.load();

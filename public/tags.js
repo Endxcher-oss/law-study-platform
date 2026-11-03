@@ -122,6 +122,22 @@
     if (changed) save(store);
   }
 
+  function removeEverywhere(store, name) {
+    var hit = 0;
+    Object.keys(store.articles).forEach(function (id) {
+      var e = store.articles[id];
+      var before = e.tags.length;
+      e.tags = e.tags.filter(function (t) { return t.name !== name; });
+      if (e.tags.length !== before) {
+        hit += 1;
+        e.updatedAt = Date.now();
+        if (!e.tags.length) delete store.articles[id];
+      }
+    });
+    if (hit) save(store);
+    return hit;
+  }
+
   function entries(store) {
     return Object.keys(store.articles)
       .map(function (k) { return store.articles[k]; })
@@ -179,6 +195,7 @@
     save: save,
     addTag: addTag,
     removeTag: removeTag,
+    removeEverywhere: removeEverywhere,
     renameTag: renameTag,
     entries: entries,
     counts: counts,
@@ -322,7 +339,8 @@
       var chips = ['<button type="button" class="chip' + (state.selected.length ? '' : ' is-active') + '" data-tag-all>全部</button>'];
       cats.forEach(function (c) {
         var active = state.selected.indexOf(c.name) >= 0;
-        chips.push('<button type="button" class="chip' + (active ? ' is-active' : '') + '" data-tag="' + esc(c.name) + '">' + esc(c.name) + '<em>' + c.count + '</em></button>');
+        chips.push('<span class="tag-item"><button type="button" class="chip' + (active ? ' is-active' : '') + '" data-tag="' + esc(c.name) + '">' + esc(c.name) + '<em>' + c.count + '</em></button>' +
+          '<button type="button" class="tag-del" data-tag-remove="' + esc(c.name) + '" aria-label="删除标签：' + esc(c.name) + '" title="删除标签">×</button></span>');
       });
       cloud.innerHTML = chips.join('');
     }
@@ -359,6 +377,22 @@
       if (block) startInput(block, chip.getAttribute('data-name'));
       return;
     }
+    var removeAll = e.target.closest('[data-tag-remove]');
+    if (removeAll) {
+      var target = removeAll.getAttribute('data-tag-remove');
+      var pageNode = removeAll.closest('[data-tags-page]');
+      var store0 = load();
+      var hit = 0;
+      entries(store0).forEach(function (entry) {
+        if (entry.tags.some(function (t) { return t.name === target; })) hit += 1;
+      });
+      if (pageNode && hit && root.confirm && root.confirm('从 ' + hit + ' 篇条文中删除标签“' + target + '”？')) {
+        removeEverywhere(store0, target);
+        renderTagsPage();
+      }
+      return;
+    }
+
     var del = e.target.closest('.tag-del');
     if (del) {
       var b = del.closest('#user-tags');
