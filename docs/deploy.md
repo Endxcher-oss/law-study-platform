@@ -92,7 +92,7 @@ dist/
 
 ## 单文件离线版
 
-如果只需要“拷一个文件、双击就能用”，执行 `npm run export:single`，产物是一份约 11 MB 的 `dist-single/index.html`：样式、脚本、页面渲染模块与 gzip 后的整库数据都内嵌其中，按 hash 路由切换页面，不依赖服务器。详见[单文件离线站点](single-file.md)。
+如果只需要“拷一个文件、双击就能用”，执行 `npm run export:portable`，产物是一份约 11 MB 的 `dist-portable/index.html`：样式、脚本、页面渲染模块与 gzip 后的整库数据都内嵌其中，按 hash 路由切换页面，不依赖服务器。详见[单文件离线站点](portable-file.md)。
 
 ## 已知边界
 

@@ -20,7 +20,7 @@
     "dev": "node --watch server/index.js",
     "test": "node --test test/*.test.js",
     "export:static": "node scripts/export-static.js",
-    "export:single": "node scripts/export-single.js"
+    "export:portable": "node scripts/export-portable.js"
   },
   "dependencies": {},
   "license": "MIT"

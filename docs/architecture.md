@@ -22,7 +22,7 @@ law-study-platform/
 │   ├── verify-db.js          #   数据校验（含注解引文逐字比对）
 │   ├── stats.js              #   统计报表 → db/reports/stats.json
 │   ├── export-static.js      #   ★ 静态导出：服务端渲染结果 → dist/（部署见 docs/deploy.md）
-│   ├── export-single.js      #   ★ 单文件导出：整站 + 数据 → dist-single/index.html（见 docs/single-file.md）
+│   ├── export-portable.js      #   ★ 单文件导出：整站 + 数据 → dist-portable/index.html（见 docs/portable-file.md）
 │   └── lib/
 │       ├── clean.js          #   正文清洗（去页眉页脚/空格/繁体标点归一）
 │       ├── cn-num.js         #   中文数字 ⇄ 阿拉伯数字、条号解析
@@ -54,7 +54,7 @@ law-study-platform/
 ├── public/                   # 前端增强（零依赖，禁用 JS 也能用）
 │   ├── style.css             #   印刷风格的排版与配色
 │   ├── app.js                #   搜索建议、目录跳转、复制条文、快捷键
-│   ├── single-app.js         #   单文件站点入口：hash 路由 + 内嵌数据装载
+│   ├── portable-app.js         #   单文件站点入口：hash 路由 + 内嵌数据装载
 │   ├── static.js             #   静态站点检索增强（只在 dist/ 里加载）
 │   └── static-url.js         #   静态站点链接前缀改写（导出脚本与浏览器共用）
 └── test/                     # node:test 测试（94 项）
@@ -63,7 +63,7 @@ law-study-platform/
     ├── search.test.js        #   检索、排序、分页、高亮
     ├── server.test.js        #   端到端 HTTP 冒烟（随机端口起真服务）
     ├── export.test.js        #   静态导出：条文地址往返、前缀改写、样本导出结构
-    ├── single.test.js        #   单文件导出：hash 路由、内联资源与内嵌数据
+    ├── portable.test.js        #   单文件导出：hash 路由、内联资源与内嵌数据
     └── docs.test.js          #   文档一致性：README/docs 的链接与锚点可达
 ```
 

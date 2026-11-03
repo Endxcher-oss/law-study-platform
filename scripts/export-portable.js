@@ -1,6 +1,6 @@
 /**
  * 单文件导出：把 db 数据、样式、脚本与页面渲染模块打成一份可双击打开的 HTML。
- * 用法与限制见 docs/single-file.md。
+ * 用法与限制见 docs/portable-file.md。
  */
 
 import fs from 'node:fs';
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DB = path.join(ROOT, 'db');
-const OUT = path.resolve(process.env.SINGLE_OUT || path.join(ROOT, 'dist-single', 'index.html'));
+const OUT = path.resolve(process.env.PORTABLE_OUT || path.join(ROOT, 'dist-portable', 'index.html'));
 
 const NODE_STUBS = {
   'node:fs': `var fail = function () { throw new Error('单文件版本不读取本地文件'); };
@@ -162,13 +162,13 @@ function listDocs() {
 }
 
 function buildSources() {
-  const only = (process.env.SINGLE_DOCS || '')
+  const only = (process.env.PORTABLE_DOCS || '')
     .split(',')
     .map((id) => id.trim())
     .filter(Boolean);
   let docs = listDocs();
   if (only.length) docs = docs.filter((doc) => only.includes(doc.id));
-  const skipCases = process.env.SINGLE_SKIP_CASES === '1';
+  const skipCases = process.env.PORTABLE_SKIP_CASES === '1';
   return {
     'meta.json': readJson('meta.json'),
     'taxonomy.json': readJson('taxonomy.json'),
@@ -190,7 +190,7 @@ function main() {
   const data = zlib.gzipSync(Buffer.from(JSON.stringify(sources)), { level: 6 }).toString('base64');
   const css = fs.readFileSync(path.join(ROOT, 'public', 'style.css'), 'utf8');
   const app = fs.readFileSync(path.join(ROOT, 'public', 'app.js'), 'utf8');
-  const bundle = buildBundle('public/single-app');
+  const bundle = buildBundle('public/portable-app');
 
   const html = `<!DOCTYPE html>
 <html lang="zh-CN">

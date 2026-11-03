@@ -1,6 +1,6 @@
 /**
  * 单文件离线站点测试：hash 路由到页面函数的映射、导出产物的自包含性，以及打包后站点的实际跳转行为。
- * 产物用法与边界见 docs/single-file.md。
+ * 产物用法与边界见 docs/portable-file.md。
  */
 
 import test from 'node:test';
@@ -12,16 +12,16 @@ import zlib from 'node:zlib';
 import { execFileSync } from 'node:child_process';
 
 import { getDb } from '../server/db.js';
-import { parseHash, queryOf, renderPage } from '../public/single-app.js';
+import { parseHash, queryOf, renderPage } from '../public/portable-app.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 
 function exportSample() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'law-single-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'law-portable-'));
   const out = path.join(dir, 'index.html');
-  execFileSync(process.execPath, ['scripts/export-single.js'], {
+  execFileSync(process.execPath, ['scripts/export-portable.js'], {
     cwd: ROOT,
-    env: { ...process.env, SINGLE_OUT: out, SINGLE_DOCS: 'civil-code', SINGLE_SKIP_CASES: '1' },
+    env: { ...process.env, PORTABLE_OUT: out, PORTABLE_DOCS: 'civil-code', PORTABLE_SKIP_CASES: '1' },
     stdio: 'pipe',
   });
   return fs.readFileSync(out, 'utf8');
@@ -48,7 +48,7 @@ test('单文件导出内联全部资源并带上可解压的数据', () => {
   assert.match(html, /id="db-data" type="application\/gzip-base64"/);
   assert.doesNotMatch(head, /<link[^>]+stylesheet/);
   assert.doesNotMatch(head, /<script src=/);
-  assert.match(html, /__req\("public\/single-app"\)\.boot\(\)/);
+  assert.match(html, /__req\("public\/portable-app"\)\.boot\(\)/);
 
   const encoded = html.match(/id="db-data"[^>]*>([\s\S]*?)<\/script>/)[1].trim();
   const sources = JSON.parse(zlib.gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8'));
