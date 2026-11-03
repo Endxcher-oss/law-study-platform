@@ -82,6 +82,19 @@
     });
   }
 
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el || el.type !== 'checkbox' || !el.matches('.multi-panel input[name=scope]')) return;
+    var det = el.closest('details.multi-select');
+    if (!det) return;
+    var names = [];
+    det.querySelectorAll('input[type=checkbox]:checked').forEach(function (i) {
+      names.push(i.dataset.name || i.value);
+    });
+    var summary = det.querySelector('summary');
+    if (summary) summary.textContent = (det.dataset.label || '') + (names.length ? names.join('、') : '全部');
+  });
+
   document.querySelectorAll('.header-search').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       var box = form.querySelector('input[name=q]');
