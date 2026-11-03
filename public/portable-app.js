@@ -54,6 +54,7 @@ function pageOf(db, pathname, query) {
   m = pathname.match(/^\/gazette\/([^/]+)$/);
   if (m) return pages.gazettePage(db, m[1]);
   if (pathname === '/tags') return pages.tagsPage(db);
+  if (pathname === '/marks') return pages.marksPage(db);
   if (pathname === '/about') return pages.aboutPage(db);
   return pages.notFoundPage(db, `找不到路径：${pathname}`);
 }

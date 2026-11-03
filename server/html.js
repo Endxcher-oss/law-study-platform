@@ -85,6 +85,7 @@ export function layout({ title, body, meta = {}, searchBar = null, breadcrumbs =
     { href: '/cases', label: '指导性案例', key: 'cases' },
     { href: '/gazettes', label: '裁判文书', key: 'gazettes' },
     { href: '/tags', label: '标签', key: 'tags' },
+    { href: '/marks', label: '标记', key: 'marks' },
     { href: '/about', label: '关于数据', key: 'about' },
   ]
     .map((n) => `<a href="${n.href}" class="nav-link${activeNav === n.key ? ' is-active' : ''}">${n.label}</a>`)
@@ -122,6 +123,7 @@ ${body}
 </footer>
 <script src="/assets/app.js" defer></script>
 <script src="/assets/tags.js" defer></script>
+<script src="/assets/marks.js" defer></script>
 <a class="to-top" href="#top" title="回到顶部" aria-label="回到顶部"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19.5V6.2M5.7 12.5 12 6l6.3 6.5"/></svg></a>
 </body>
 </html>`;

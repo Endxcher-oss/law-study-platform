@@ -190,6 +190,7 @@ function main() {
   const css = fs.readFileSync(path.join(ROOT, 'public', 'style.css'), 'utf8');
   const app = fs.readFileSync(path.join(ROOT, 'public', 'app.js'), 'utf8');
   const tags = fs.readFileSync(path.join(ROOT, 'public', 'tags.js'), 'utf8');
+  const marks = fs.readFileSync(path.join(ROOT, 'public', 'marks.js'), 'utf8');
   const bundle = buildBundle('public/portable-app');
 
   const html = `<!DOCTYPE html>
@@ -221,6 +222,9 @@ ${app.replace(/<\/script/gi, '<\\/script')}
 </script>
 <script>
 ${tags.replace(/<\/script/gi, '<\\/script')}
+</script>
+<script>
+${marks.replace(/<\/script/gi, '<\\/script')}
 </script>
 </head>
 <body>

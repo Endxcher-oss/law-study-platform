@@ -681,7 +681,12 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
       </p>
     </header>
 
-    <div class="article-body" id="article-text">${textToHtml(article.text)}</div>
+    <div class="article-text-wrap">
+      <button type="button" class="mark-pencil" id="mark-pencil" hidden aria-label="添加标注" title="选中文字后添加标注">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L20 8l-4-4L4 16v4zM14.5 5.5l4 4"/></svg>
+      </button>
+      <div class="article-body" id="article-text" data-article-id="${esc(article.id)}" data-doc-id="${esc(doc.id)}" data-law="${esc(doc.shortTitle)}" data-number="${esc(article.displayNumber)}" data-slug="${esc(article.slug)}" data-date="${esc(doc.promulgationDate || '')}" data-category="${esc(doc.category || '')}">${textToHtml(article.text)}</div>
+    </div>
     <div class="article-tools">
       <button class="btn js-copy" data-target="#article-text">复制条文</button>
       <a class="btn" href="${searchUrl({ q: `"${(article.text || '').slice(0, 12)}"` })}">检索相似表述</a>
@@ -1104,6 +1109,33 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '裁判文书', href: '/gazet
 </article>
 `;
   return layout({ title: g.title, body, meta, activeNav: 'gazettes' });
+}
+
+export function marksPage(db) {
+  const meta = metaFromDb(db);
+  const categories = {};
+  for (const d of db.docs.values()) categories[d.id] = d.category;
+  const body = `
+${crumbs([{ href: '/', label: '首页' }, { href: '/marks', label: '标记' }])}
+<section class="page-head">
+  <h1>标记</h1>
+</section>
+
+<section class="block mark-page" data-marks-page data-categories="${esc(JSON.stringify(categories))}">
+  <p class="empty" data-marks-empty hidden>还没有标注。在条文页选中文字，点正文右上角的铅笔即可添加。</p>
+  <div class="tag-list-head" data-marks-head>
+    <span class="muted" data-marks-count></span>
+    <label class="sort-control">排序
+      <select data-marks-sort>
+        <option value="count" selected>标注数</option>
+        <option value="recent">最近修改</option>
+      </select>
+    </label>
+  </div>
+  <ul class="tag-articles" data-marks-list></ul>
+</section>
+`;
+  return layout({ title: '标记', body, meta, activeNav: 'marks' });
 }
 
 export function aboutPage(db) {
