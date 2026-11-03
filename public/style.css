@@ -427,7 +427,6 @@ h3 { font-size: 17px; }
 .legend li { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; }
 
 .annotation { border-left: 4px solid var(--accent); }
-.derived-annotation { border-left: 4px solid var(--note-line); }
 .annotation-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .annotation-head h2 { margin: 0; }
 .annotation-topic { font-size: 18px; margin-top: 10px; color: var(--accent); }
@@ -443,28 +442,13 @@ h3 { font-size: 17px; }
 .pitfalls li { padding: 6px 0 6px 14px; position: relative; font-size: 14px; color: var(--ink-soft); }
 .pitfalls li::before { content: "!"; position: absolute; left: 2px; color: var(--amber); font-weight: 700; }
 
-.basis { margin-top: 18px; }
-.basis-list { display: grid; gap: 12px; }
-.basis-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
-.basis-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13.5px; }
-.basis-doc { font-family: var(--serif); font-weight: 600; }
-.basis-num { font-family: var(--serif); color: var(--accent); }
-.basis-note { font-size: 12.5px; color: var(--ink-muted); margin: 6px 0 0; }
-.basis-card blockquote {
-  margin: 8px 0 0; padding: 10px 12px; background: var(--bg-alt); border-left: 3px solid var(--line-strong);
-  border-radius: 4px; font-family: var(--serif); font-size: 14.5px; line-height: 1.85;
-}
-.basis-card blockquote .para { margin: 0 0 .5em; text-indent: 2em; }
-.basis-card blockquote .para:last-child { margin-bottom: 0; }
-.basis-source { margin: 6px 0 0; font-size: 12px; }
-
-.interp-group { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; background: var(--bg); }
-.interp-group summary { cursor: pointer; font-family: var(--serif); font-size: 14.5px; }
-.interp-articles { list-style: none; margin: 10px 0 0; padding: 0; }
-.interp-articles > li { padding: 10px 0; border-top: 1px dashed var(--line); }
-.interp-article-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
-.interp-article-text { font-family: var(--serif); font-size: 14px; color: var(--ink-soft); margin-top: 4px; }
-.interp-article-text .para { margin: 0 0 .4em; text-indent: 2em; }
+.interp-groups { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.interp-group { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); }
+.interp-group h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 14.5px; }
+.interp-articles { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.interp-articles > li { display: flex; gap: 6px; align-items: center; font-size: 13.5px; }
+.interp-block .legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 0 0; }
+.interp-block .legend li { padding: 0; }
 
 .cite-list { list-style: none; margin: 0; padding: 0; }
 .cite-list > li { padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 13.5px; }
@@ -669,8 +653,6 @@ code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
   .annotation-head h2 { font-size: 19px; }
   .annotation-question { padding: 8px 10px; font-size: 13.5px; }
   .points li, .pitfalls li { font-size: 13.5px; }
-  .basis-card { padding: 10px 12px; }
-  .basis-card blockquote { padding: 8px 10px; font-size: 14px; }
   .interp-group { padding: 8px 10px; }
 
   .result { padding: 11px 12px; }

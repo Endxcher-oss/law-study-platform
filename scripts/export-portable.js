@@ -176,7 +176,6 @@ function buildSources() {
     'catalog.json': readJson('catalog.json'),
     'links.json': readJson('links.json'),
     'annotations/curated.json': readJson('annotations/curated.json'),
-    'annotations/derived.json': readJson('annotations/derived.json'),
     'rubrics.json': readJson('rubrics.json'),
     'tags.json': fs.existsSync(path.join(DB, 'tags.json')) ? readJson('tags.json') : null,
     'cases/guiding.json': skipCases ? null : readJson('cases/guiding.json'),

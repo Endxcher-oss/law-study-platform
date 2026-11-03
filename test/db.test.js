@@ -138,26 +138,13 @@ test('人工注解的依据引文逐字可核（若给出 quote）', () => {
   assert.ok(checked >= 15, `实际核对到的引文过少：${checked}`);
 });
 
-test('自动派生注解：只挂真实条文，且有依据', () => {
-  assert.ok(db.derivedAnnotations.length > 800);
-  for (const a of db.derivedAnnotations.slice(0, 400)) {
-    assert.equal(a.source, 'derived');
-    assert.ok(db.articles.has(a.articleId), `${a.id} 的条文不存在`);
-    assert.ok(a.basis.length >= 1, `${a.id} 没有依据`);
-    assert.ok(a.basis.every((b) => db.articles.has(b.articleId)), `${a.id} 的依据条文不存在`);
-  }
-});
-
-test('注解统计与索引一致', () => {
-  const total = db.curatedAnnotations.length + db.derivedAnnotations.length;
-  assert.equal(db.annotationById.size, total);
+test('注解只有人工撰写的一层，派生数据已下线', () => {
+  assert.equal(db.derivedAnnotations, undefined);
+  assert.equal(db.derivedByArticle, undefined);
+  assert.equal(db.annotationById.size, db.curatedAnnotations.length);
   for (const [articleId, a] of db.curatedByArticle) {
     assert.ok(db.articles.has(articleId));
     assert.equal(a.source, 'curated');
-  }
-  for (const [articleId, a] of db.derivedByArticle) {
-    assert.ok(db.articles.has(articleId));
-    assert.equal(a.source, 'derived');
   }
 });
 
@@ -216,7 +203,6 @@ test('覆盖度元数据与实际数据一致', () => {
   assert.equal(db.meta.coverage.lawArticlesWithLinks, linked.size);
   const fromInterp = new Set(db.catalog.filter((d) => d.category === '司法解释').map((d) => d.id));
   assert.equal(db.meta.coverage.interpretationLinks, rawLinks.links.filter((l) => fromInterp.has(l.sd)).length);
-  assert.ok(db.meta.coverage.lawArticlesWithAnnotations <= linked.size);
   assert.ok(db.meta.counts.links === rawLinks.links.length);
 });
 
@@ -289,8 +275,6 @@ test('同一条文多处提及同一目标时只列一行（提及次数记在 m
   const interp = db.interpretationsOfArticle(art.id);
   assert.equal(interp.length, 1, '被引用列表只应有一行');
   assert.equal(interp[0].mentions, 2, '两次提及应合并为 mentions=2');
-  assert.equal(db.derivedByArticle.get(art.id).basis.length, 1, '派生注解的依据条文也不应重复');
-  assert.match(db.derivedByArticle.get(art.id).analysis[0], /共 1 个条文引用了/, '摘要里的条文数应为去重后的条数');
 
   for (const [id, ls] of db.linksByTarget) {
     if (!ls.some((l) => l.td && l.td !== l.sd)) continue;

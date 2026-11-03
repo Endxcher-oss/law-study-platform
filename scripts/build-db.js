@@ -469,7 +469,6 @@ function main() {
   log('生成注解…');
   const warningList = [];
   const curatedAnnotations = buildCuratedAnnotations({ docById, articlesById, articleBySlug, cases, warningList });
-  const derivedAnnotations = buildDerivedAnnotations({ docById, articlesById, linkRecords, catalog });
   const rubrics = buildRubrics({ docById, articlesById, articleBySlug, warningList });
 
   writeJson(path.join(DB, 'annotations', 'curated.json'), {
@@ -478,13 +477,6 @@ function main() {
     source: 'data/annotations/curated.mjs',
     count: curatedAnnotations.length,
     annotations: curatedAnnotations,
-  });
-  writeJson(path.join(DB, 'annotations', 'derived.json'), {
-    schemaVersion: 1,
-    generatedAt: meta.builtAt,
-    note: '依据 db/links.json 的条文级关联自动生成的适用规则摘要，非人工意见。',
-    count: derivedAnnotations.length,
-    annotations: derivedAnnotations,
   });
   writeJson(path.join(DB, 'rubrics.json'), {
     schemaVersion: 1,
@@ -496,7 +488,7 @@ function main() {
   });
   writeJson(
     path.join(DB, 'annotations', 'index.json'),
-    [...curatedAnnotations, ...derivedAnnotations].map((a) => ({
+    curatedAnnotations.map((a) => ({
       id: a.id,
       lawId: a.lawId,
       articleNumber: a.articleNumber,
@@ -511,7 +503,7 @@ function main() {
     })),
   );
 
-  meta.counts.annotations = curatedAnnotations.length + derivedAnnotations.length;
+  meta.counts.annotations = curatedAnnotations.length;
   meta.counts.rubrics = rubrics.length;
   const catalogById = new Map(catalog.map((d) => [d.id, d]));
   const tagData = buildRelatedTags({ docById, catalogById, validLinks, cases, nameIndex });
@@ -531,16 +523,13 @@ function main() {
     lawArticles: catalog.filter((d) => d.category !== '司法解释').reduce((n, d) => n + d.articleCount, 0),
     interpretationArticles: catalog.filter((d) => d.category === '司法解释').reduce((n, d) => n + d.articleCount, 0),
     lawArticlesWithLinks: new Set(linkRecords.filter((l) => l.t && lawArticleIds.has(l.t)).map((l) => l.t)).size,
-    lawArticlesWithAnnotations: new Set(
-      derivedAnnotations.map((a) => a.articleId).filter((id) => lawArticleIds.has(id)),
-    ).size,
     interpretationLinks: linkRecords.filter((l) => {
       const sd = catalogById.get(l.sd);
       return sd && sd.category === '司法解释';
     }).length,
   };
   writeJson(path.join(DB, 'meta.json'), meta, { pretty: true });
-  log(`  人工注解 ${curatedAnnotations.length} 条 / 自动派生 ${derivedAnnotations.length} 条 / 条旨 ${rubrics.length} 条 / 校验告警 ${warningList.length} 条`);
+  log(`  人工注解 ${curatedAnnotations.length} 条 / 条旨 ${rubrics.length} 条 / 校验告警 ${warningList.length} 条`);
 
   const report = {
     generatedAt: meta.builtAt,
@@ -821,96 +810,6 @@ function buildRelatedTags({ docById, catalogById, validLinks, cases, nameIndex }
   }
 
   return { docs, cases: caseTags };
-}
-
-function buildDerivedAnnotations({ docById, articlesById, linkRecords, catalog }) {
-  const inbound = new Map();
-  for (const l of linkRecords) {
-    if (!l.t) continue;
-    if (!inbound.has(l.t)) inbound.set(l.t, []);
-    inbound.get(l.t).push(l);
-  }
-
-  const out = [];
-  for (const [targetId, links] of inbound) {
-    const target = articlesById.get(targetId);
-    if (!target) continue;
-    const law = docById.get(target.docId);
-    const external = links.filter((l) => l.sd !== target.docId);
-    if (!external.length) continue;
-
-    const byDoc = new Map();
-    for (const l of external) {
-      if (!byDoc.has(l.sd)) byDoc.set(l.sd, []);
-      byDoc.get(l.sd).push(l);
-    }
-
-    const basis = [];
-    for (const [docId, ls] of [...byDoc.entries()].sort((a, b) => b[1].length - a[1].length)) {
-      const doc = docById.get(docId);
-      if (!doc) continue;
-      const byArticle = new Map();
-      for (const l of ls) {
-        if (!byArticle.has(l.s)) byArticle.set(l.s, []);
-        byArticle.get(l.s).push(l);
-      }
-      for (const group of [...byArticle.values()].slice(0, 4)) {
-        const src = articlesById.get(group[0].s);
-        if (!src) continue;
-        const rank = { explicit: 3, list: 2, contextual: 1, document: 0 };
-        const best = [...group].sort((a, b) => (rank[b.c] || 0) - (rank[a.c] || 0))[0];
-        const readings = [...new Set(group.map((l) => l.raw).filter(Boolean))];
-        basis.push({
-          docId,
-          docTitle: doc.title,
-          docShortTitle: doc.shortTitle,
-          category: doc.category,
-          division: doc.division,
-          articleNumber: src.article.number,
-          articleId: group[0].s,
-          displayNumber: src.article.displayNumber,
-          relation: '依据',
-          confidence: best.c,
-          asMentioned: readings.join(' / '),
-          mentions: group.reduce((n, l) => n + (l.mentions || 1), 0),
-          excerpt: src.article.text.slice(0, 220),
-        });
-      }
-    }
-    if (!basis.length) continue;
-    basis.sort((a, b) => (a.category === '司法解释' ? -1 : 1) - (b.category === '司法解释' ? -1 : 1));
-
-    const interpDocs = [...byDoc.keys()].filter((id) => docById.get(id)?.category === '司法解释');
-    const article = target.article;
-    out.push({
-      id: `dev-${targetId}`,
-      source: 'derived',
-      lawId: target.docId,
-      lawTitle: law.title,
-      lawShortTitle: law.shortTitle,
-      division: law.division,
-      articleNumber: article.number,
-      articleId: targetId,
-      displayNumber: article.displayNumber,
-      path: article.path,
-      articleText: article.text,
-      level: interpDocs.length >= 5 ? 'key' : interpDocs.length >= 2 ? 'standard' : 'note',
-      topic: `${interpDocs.length} 件司法解释的条文引用了本条`,
-      question: '',
-      analysis: [
-        `机器抽取结果：本平台中有 ${interpDocs.length} 件司法解释、共 ${basis.length} 个条文引用了${law.shortTitle}${article.displayNumber}。下方“依据条文”已按关联强度排序。`,
-      ],
-      points: [],
-      pitfalls: [],
-      keywords: [],
-      chips: basis.slice(0, 3).map((b) => b.docShortTitle),
-      basis,
-      cases: [],
-      machineGenerated: true,
-    });
-  }
-  out.sort((a, b) => b.basis.length - a.basis.length || a.articleId.localeCompare(b.articleId));
-  return out;
 }
 
 const curatedModule = await loadCuratedAnnotationsModule();

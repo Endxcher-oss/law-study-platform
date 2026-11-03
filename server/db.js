@@ -231,31 +231,20 @@ class Database {
 
   _loadAnnotations() {
     const curated = this._read('annotations/curated.json');
-    const derived = this._read('annotations/derived.json');
     this.curatedAnnotations = curated.annotations;
-    this.derivedAnnotations = derived.annotations;
-    this.annotationById = new Map([...this.curatedAnnotations, ...this.derivedAnnotations].map((a) => [a.id, a]));
-
-    this.curatedByArticle = new Map();
-    for (const a of this.curatedAnnotations) this.curatedByArticle.set(a.articleId, a);
-    this.derivedByArticle = new Map();
-    for (const a of this.derivedAnnotations) this.derivedByArticle.set(a.articleId, a);
-
+    this.annotationById = new Map(this.curatedAnnotations.map((a) => [a.id, a]));
+    this.curatedByArticle = new Map(this.curatedAnnotations.map((a) => [a.articleId, a]));
     this.annotationStatsByLaw = new Map();
-    for (const a of [...this.curatedAnnotations, ...this.derivedAnnotations]) {
-      if (!this.annotationStatsByLaw.has(a.lawId)) this.annotationStatsByLaw.set(a.lawId, { curated: 0, derived: 0, key: 0 });
+    for (const a of this.curatedAnnotations) {
+      if (!this.annotationStatsByLaw.has(a.lawId)) this.annotationStatsByLaw.set(a.lawId, { curated: 0, key: 0 });
       const s = this.annotationStatsByLaw.get(a.lawId);
-      if (a.source === 'curated') {
-        s.curated += 1;
-        if (a.level === 'key') s.key += 1;
-      } else s.derived += 1;
+      s.curated += 1;
+      if (a.level === 'key') s.key += 1;
     }
   }
 
   annotationsForArticle(articleId) {
-    const curated = this.curatedByArticle.get(articleId) || null;
-    const derived = this.derivedByArticle.get(articleId) || null;
-    return { curated, derived };
+    return { curated: this.curatedByArticle.get(articleId) || null };
   }
 
   _loadRubrics() {
@@ -493,7 +482,7 @@ class Database {
       totalArticles: doc.articles.length,
       linkCount: totalLinked,
       cited: { docs: citedDocs.size, articles: citedArticles.size, links: citedLinks, interpLinks: citedInterpLinks },
-      annotations: this.annotationStatsByLaw.get(docId) || { curated: 0, derived: 0, key: 0 },
+      annotations: this.annotationStatsByLaw.get(docId) || { curated: 0, key: 0 },
       cases: this.casesOfLaw(docId).length,
     };
   }

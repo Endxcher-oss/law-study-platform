@@ -43,7 +43,7 @@ const byDivision = db.taxonomy.categories.filter((c) => c.kind !== 'case').map((
     ? list.reduce((n, d) => n + d.articles.filter((a) => (db.linksByTarget.get(a.id) || []).length).length, 0)
     : 0;
   const annotated = list.reduce(
-    (n, d) => n + d.articles.filter((a) => (db.derivedByArticle?.get(a.id) || []).length || db.curatedByArticle?.has(a.id)).length,
+    (n, d) => n + d.articles.filter((a) => db.curatedByArticle.has(a.id)).length,
     0,
   );
   const interps = new Set();
@@ -91,7 +91,6 @@ const topInterpretations = docs
   .slice(0, TOP);
 
 const curated = db.curatedAnnotations;
-const derived = db.derivedAnnotations;
 const curatedByLevel = curated.reduce((acc, a) => ({ ...acc, [a.level]: (acc[a.level] || 0) + 1 }), {});
 const curatedByDivision = curated.reduce((acc, a) => ({ ...acc, [a.division]: (acc[a.division] || 0) + 1 }), {});
 const basisCount = curated.reduce((n, a) => n + (a.basis || []).length, 0);
@@ -132,7 +131,6 @@ const stats = {
   coverage: db.meta.coverage,
   annotations: {
     curated: curated.length,
-    derived: derived.length,
     curatedByLevel,
     curatedByDivision,
     basisCount,
@@ -182,7 +180,7 @@ if (ONLY_JSON) {
   console.log(`【覆盖法律最多的司法解释 Top ${TOP}】`);
   console.log(table(['司法解释', '涉及法律', '条文数'], topInterpretations.map((d) => [d.title.slice(0, 34), d.laws, d.articles])));
   console.log(sub);
-  console.log(`【注解】人工 ${curated.length} 条（依据条文 ${basisCount} 处，按等级 ${Object.entries(curatedByLevel).map(([k, v]) => `${k} ${v}`).join(' / ')}）+ 自动派生 ${derived.length} 条`);
+  console.log(`【注解】人工 ${curated.length} 条（依据条文 ${basisCount} 处，按等级 ${Object.entries(curatedByLevel).map(([k, v]) => `${k} ${v}`).join(' / ')}）`);
   console.log(`   人工注解分布：${Object.entries(curatedByDivision).map(([k, v]) => `${k} ${v}`).join(' / ')}`);
   console.log(sub);
   console.log(`【指导性案例】${cases.length} 件，关联法律 ${caseLawRefs.size} 部`);

@@ -37,7 +37,6 @@ const REQUIRED = [
   'taxonomy.map.json',
   'annotations/index.json',
   'annotations/curated.json',
-  'annotations/derived.json',
   'cases/guiding.json',
   'cases/gazette.json',
   'cases/manifest.json',
@@ -55,7 +54,6 @@ const taxonomy = readJson(path.join(DB, 'taxonomy.json'));
 const taxMap = readJson(path.join(DB, 'taxonomy.map.json'));
 const annIndex = readJson(path.join(DB, 'annotations/index.json'));
 const curated = readJson(path.join(DB, 'annotations/curated.json')).annotations || [];
-const derived = readJson(path.join(DB, 'annotations/derived.json')).annotations || [];
 const guiding = readJson(path.join(DB, 'cases/guiding.json'));
 const gazette = readJson(path.join(DB, 'cases/gazette.json'));
 const caseManifest = readJson(path.join(DB, 'cases/manifest.json'));
@@ -148,7 +146,7 @@ const expect = {
   links: links.length,
   cases: guiding.cases?.length ?? guiding.count,
   gazette: gazette.cases?.length ?? gazette.count,
-  annotations: curated.length + derived.length,
+  annotations: curated.length,
 };
 for (const [k, v] of Object.entries(expect)) {
   if (meta.counts[k] !== v) err(`meta.counts.${k}=${meta.counts[k]}，实际 ${v}`);
@@ -280,14 +278,13 @@ const checkAnnotation = (a, kind) => {
   }
 };
 for (const a of curated) checkAnnotation(a, 'curated');
-for (const a of derived) checkAnnotation(a, 'derived');
 
-if (annIndex.length !== curated.length + derived.length) {
-  err(`annotations/index.json ${annIndex.length} 条 ≠ 人工 ${curated.length} + 派生 ${derived.length}`);
+if (annIndex.length !== curated.length) {
+  err(`annotations/index.json ${annIndex.length} 条 ≠ 人工 ${curated.length}`);
 }
 const indexIds = new Set(annIndex.map((x) => x.id));
-for (const a of [...curated, ...derived]) if (!indexIds.has(a.id)) err(`annotations/index.json 缺少 ${a.id}`);
-note(`注解：人工 ${curated.length} 条（重点 ${curated.filter((a) => a.level === 'key').length}）/ 自动派生 ${derived.length} 条`);
+for (const a of curated) if (!indexIds.has(a.id)) err(`annotations/index.json 缺少 ${a.id}`);
+note(`注解：人工 ${curated.length} 条（重点 ${curated.filter((a) => a.level === 'key').length}）`);
 
 {
   const rubricsFile = path.join(DB, 'rubrics.json');
@@ -400,12 +397,8 @@ if (meta.coverage) {
   if (meta.coverage.lawArticlesWithLinks !== linkedTargets.size) {
     err(`meta.coverage.lawArticlesWithLinks=${meta.coverage.lawArticlesWithLinks}，实际 ${linkedTargets.size}`);
   }
-  const derivedTargets = new Set(derived.map((a) => a.articleId).filter(isLawArticle));
-  if (meta.coverage.lawArticlesWithAnnotations !== derivedTargets.size) {
-    err(`meta.coverage.lawArticlesWithAnnotations=${meta.coverage.lawArticlesWithAnnotations}，实际 ${derivedTargets.size}`);
-  }
   const pct = ((linkedTargets.size / lawLikeArticles) * 100).toFixed(1);
-  note(`覆盖度：${linkedTargets.size} / ${lawLikeArticles} 条法条被司法解释引用（${pct}%）；${derivedTargets.size} 条有自动派生注解`);
+  note(`覆盖度：${linkedTargets.size} / ${lawLikeArticles} 条法条被司法解释引用（${pct}%）`);
 }
 
 function printList(label, list, mark) {

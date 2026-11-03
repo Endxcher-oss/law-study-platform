@@ -87,7 +87,7 @@ export function homePage(db) {
     ${statCard('收录文件', c.documents, '法律 / 行政法规 / 司法解释')}
     ${statCard('法条条文', c.articles, '逐条结构化')}
     ${statCard('条文级关联', c.links, c.linkMentions ? `合计 ${c.linkMentions} 处提及` : '法条 ↔ 司法解释')}
-    ${statCard('疑难注解', c.annotations, '人工 + 自动派生')}
+    ${statCard('疑难注解', c.annotations, '人工撰写')}
     ${statCard('指导性案例', c.cases, '裁判要点与关联法条')}
     ${statCard('裁判文书', c.gazette, '《最高人民法院公报》，独立收录')}
   </div>
@@ -365,7 +365,7 @@ export function docPage(db, docId, query = {}) {
       curated.length ? ['#sec-notes', `疑难注解 ${curated.length}`] : null,
       !isInterp && interps.length ? ['#sec-interps', `关联司法解释 ${interps.length}`] : null,
       isInterp && hasCoverage ? ['#sec-coverage', '引用概览'] : null,
-      cases.length ? ['#sec-cases', `指导性案例 ${cases.length}`] : null,
+      cases.length ? ['#sec-cases', `关联指导性案例 ${cases.length}`] : null,
       loose.length ? ['#sec-data', '数据说明'] : null,
     ].filter(Boolean);
     if (!items.length) return '';
@@ -459,7 +459,7 @@ ${
     statCard('涉及法律', cov.cited.docs, '部'),
     statCard('引用条文', cov.cited.articles, '条'),
     statCard('条文级关联', cov.cited.links, '处'),
-    statCard('疑难注解', cov.annotations.curated + cov.annotations.derived, `人工 ${cov.annotations.curated}`),
+    statCard('疑难注解', cov.annotations.curated, '人工撰写'),
     statCard('指导性案例', cov.cases, '件'),
   ].join('')}</div>
   ${cov.cited.interpLinks ? `<p class="muted">除法律法规外，另有 ${cov.cited.interpLinks} 处引用其他司法解释。</p>` : ''}
@@ -646,7 +646,7 @@ export function articlePage(db, docId, number) {
   }
 
   const sib = db.siblings(article);
-  const { curated, derived } = db.annotationsForArticle(article.id);
+  const { curated } = db.annotationsForArticle(article.id);
   const rubric = db.rubricByArticle.get(article.id);
   const interps = db.interpretationsOfArticle(article.id);
   const outgoing = db.outgoingOfArticle(article.id);
@@ -692,7 +692,7 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
 
     ${
       curated
-        ? `<section class="block annotation curated-annotation">
+        ? `<section class="block annotation curated-annotation" id="sec-notes">
       <div class="annotation-head">
         <h2>疑难注解</h2>
         ${levelBadge(curated.level)}
@@ -721,30 +721,18 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
           : ''
       }
       ${
-        curated.cases?.length
-          ? `<h3 class="sub-title">相关指导性案例</h3><ul class="link-list">${curated.cases
-              .map(
-                (c) => `<li><a href="${caseUrl(c.caseId)}">指导案例 ${c.number} 号 · ${esc(c.title)}</a>
-          <span class="muted">${esc(c.relation)}</span></li>`,
-              )
-              .join('')}</ul>`
-          : ''
-      }
-      ${
         curated.keywords?.length
           ? `<div class="keywords">${curated.keywords.map((k) => `<a class="chip" href="${searchUrl({ q: k })}">${esc(k)}</a>`).join('')}</div>`
           : ''
       }
-      ${basisBlock(db, curated.basis, '本条注解的依据条文')}
     </section>`
         : ''
     }
 
-    ${derived ? derivedBlock(db, derived) : ''}
     ${interps.length ? interpBlock(db, article, interps) : ''}
     ${cases.length ? caseStrip(cases) : ''}
     ${outgoing.length ? outgoingBlock(db, outgoing) : ''}
-    ${!curated && !derived && !interps.length && !outgoing.length && !cases.length ? emptyState('本条暂无关联的司法解释与注解。', '可在检索框中搜索本条的关键词，查看在其他法律或案例中的对应规则。') : ''}
+    ${!curated && !interps.length && !outgoing.length && !cases.length ? emptyState('本条暂无关联的司法解释与注解。', '可在检索框中搜索本条的关键词，查看在其他法律或案例中的对应规则。') : ''}
   </article>
 
   <aside class="article-side">
@@ -759,55 +747,12 @@ ${crumbs([...breadcrumbTrail(db, doc), { label: article.displayNumber }])}
             .join('')}</ul></div>`
         : ''
     }
-    <div class="side-block">
-      <h3>关联强度说明</h3>
-      <ul class="legend">
-        ${Object.entries(CONFIDENCE)
-          .map(([, v]) => `<li>${confBadge(Object.keys(CONFIDENCE).find((k) => CONFIDENCE[k] === v))}<span>${esc(v.hint)}</span></li>`)
-          .join('')}
-      </ul>
-    </div>
   </aside>
 </div>
 `;
   return layout({ title: `${doc.shortTitle} ${article.displayNumber}`, body, meta });
 }
 
-function basisBlock(db, basis, title) {
-  if (!basis?.length) return '';
-  return `<section class="basis">
-  <h3 class="sub-title">${esc(title)}</h3>
-  <div class="basis-list">
-    ${basis
-      .map(
-        (b) => `<div class="basis-card">
-      <div class="basis-head">
-        <a href="${docUrl(b.docId)}" class="basis-doc">${esc(b.docShortTitle || b.docTitle)}</a>
-        <a href="${articleIdUrl(b.articleId)}" class="basis-num">${esc(b.displayNumber)}</a>
-        <span class="badge badge-relation">${esc(b.relation || '依据')}</span>
-        ${b.confidence ? confBadge(b.confidence) : ''}
-      </div>
-      ${b.note ? `<p class="basis-note">${esc(b.note)}</p>` : ''}
-      <blockquote>${textToHtml(b.quote || b.excerpt || '')}</blockquote>
-      ${b.asMentioned ? `<p class="muted basis-source">本平台识别到的引用表述：${esc(b.asMentioned)}${b.mentions > 1 ? `（同一条文提及 ${b.mentions} 处）` : ''}</p>` : ''}
-    </div>`,
-      )
-      .join('')}
-  </div>
-</section>`;
-}
-
-function derivedBlock(db, derived) {
-  return `<section class="block annotation derived-annotation">
-  <div class="annotation-head">
-    <h2>适用规则摘要（自动派生）</h2>
-    <span class="badge badge-source badge-auto">机器抽取</span>
-  </div>
-  <div class="annotation-analysis">${derived.analysis.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-  ${basisBlock(db, derived.basis, '依据的司法解释条文')}
-  <p class="muted small">以上依据由程序从司法解释原文中自动摘录整理，未经人工确认，仅供参照；引用是否适用，请以条文原文与司法解释原文为准。</p>
-</section>`;
-}
 
 function interpBlock(db, article, interps) {
   const mentionTotal = interps.reduce((n, i) => n + (i.mentions || 1), 0);
@@ -816,33 +761,31 @@ function interpBlock(db, article, interps) {
     if (!byDoc.has(i.docId)) byDoc.set(i.docId, []);
     byDoc.get(i.docId).push(i);
   }
-  return `<section class="block interp-block">
-  <h2>本条被引用于以下司法解释（${byDoc.size} 件 / ${mentionTotal} 处）</h2>
-  ${[...byDoc.entries()]
+  const legend = `<ul class="legend">${Object.entries(CONFIDENCE)
+    .map(([k, v]) => `<li>${confBadge(k)}<span>${esc(v.hint)}</span></li>`)
+    .join('')}</ul>`;
+  return `<section class="block interp-block" id="sec-interps">
+  <h2>关联的司法解释（${byDoc.size} 件 / ${mentionTotal} 处）</h2>
+  ${legend}
+  <ul class="interp-groups">${[...byDoc.entries()]
+    .sort((a, b) => b[1].length - a[1].length)
     .map(
-      ([docId, list]) => `<details class="interp-group">
-    <summary>${esc(list[0].docShortTitle)} <span class="muted">${list.reduce((n, i) => n + (i.mentions || 1), 0)} 处引用</span></summary>
+      ([docId, list]) => `<li class="interp-group">
+    <h3><a href="${docUrl(docId)}">${esc(list[0].docShortTitle)}</a></h3>
     <ul class="interp-articles">${list
       .map(
-        (i) => `<li>
-      <div class="interp-article-head">
-        <a href="${articleIdUrl(i.articleId)}">${esc(i.displayNumber)}</a>
-        ${confBadge(i.confidence)}
-        <span class="muted small">${esc(CONFIDENCE[i.confidence]?.hint || '')}${i.mentions > 1 ? ` · 同一条文提及 ${i.mentions} 处` : ''}</span>
-      </div>
-      <div class="interp-article-text">${textToHtml(i.articleText)}</div>
-    </li>`,
+        (i) => `<li><a href="${articleIdUrl(i.articleId)}">${esc(i.displayNumber)}</a>${confBadge(i.confidence)}<span class="muted small">${i.mentions > 1 ? `${i.mentions} 处提及` : '1 处提及'}</span></li>`,
       )
       .join('')}</ul>
-  </details>`,
+  </li>`,
     )
-    .join('')}
+    .join('')}</ul>
 </section>`;
 }
 
 function caseStrip(cases) {
-  return `<section class="block">
-  <h2>相关指导性案例</h2>
+  return `<section class="block" id="sec-cases">
+  <h2>关联的指导性案例（${cases.length} 件）</h2>
   <ul class="link-list">${cases
     .map((c) => `<li><a href="${caseUrl(c.caseId)}">指导案例 ${c.caseNumber} 号 · ${esc(c.caseTitle)}</a></li>`)
     .join('')}</ul>
@@ -850,7 +793,7 @@ function caseStrip(cases) {
 }
 
 function outgoingBlock(db, outgoing) {
-  return `<section class="block">
+  return `<section class="block" id="sec-outgoing">
   <h2>本条引用的其他条文（${outgoing.length}）</h2>
   <ul class="cite-list">${outgoing
     .map(
@@ -948,7 +891,7 @@ export function notesPage(db, query) {
 ${crumbs([{ label: '首页', href: '/' }, { label: '疑难注解' }])}
 <section class="page-head">
   <h1>疑难条文注解</h1>
-  <p class="muted">人工撰写的注解共 ${db.curatedAnnotations.length} 条：说明疑难所在、给出适用要点与易错点，并逐条附上作为依据的司法解释原文（引文与库中条文逐一比对）。另有 ${db.derivedAnnotations.length} 条由条文引用自动派生的“适用规则摘要”，见各条文页。</p>
+  <p class="muted">人工撰写的注解共 ${db.curatedAnnotations.length} 条：说明疑难所在、给出适用要点与易错点，并逐条附上作为依据的司法解释原文（引文与库中条文逐一比对）。</p>
   <div class="domain-nav">
     <a class="chip${division === 'all' ? ' is-active' : ''}" href="/notes">全部 <em>${db.curatedAnnotations.length}</em></a>
     ${byDivision.map(({ d, n }) => `<a class="chip${division === d.id ? ' is-active' : ''}" href="/notes?division=${d.id}">${esc(d.name)} <em>${n}</em></a>`).join('')}
@@ -1193,11 +1136,8 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
   </ul>
   <p>带“之”的条号（如“第十七条之一”）、款/项（“第二款”“第（二）项”）都会被保留为附加信息；条文内部“本法”“本解释”指示的自引用单独标记，不计入“被司法解释引用”。</p>
 
-  <h2>4. 疑难注解的两类来源</h2>
-  <ul>
-    <li><strong>人工注解</strong>（<code>data/annotations/curated.mjs</code>）：说明疑难点、给出要点与易错点，并逐条附上依据的司法解释原文。构建时会校验引文是否为库中条文的原文子串，避免转述失真。</li>
-    <li><strong>自动派生摘要</strong>：由条文级关联图生成，汇总“哪些司法解释的哪些条文引用了本条”，附引用强度，仅供定位，不作为结论。</li>
-  </ul>
+  <h2>4. 疑难注解</h2>
+  <p>注解全部由人工撰写（<code>data/annotations/curated.mjs</code>）：说明疑难点、给出要点与易错点，并逐条附上依据的司法解释原文。构建时会校验引文是否为库中条文的原文子串，避免转述失真。</p>
 
   <h2>5. 检索</h2>
   <p>中文按二元组（bigram）切分、英文与数字按词元切分，配合覆盖率阈值、连续短语加权与字段权重（标题 &gt; 注解 &gt; 正文）排序；支持按分类、单部法律限定范围，支持相关度、颁布时间、法律位阶、注解优先等排序方式。不引入分词与检索引擎依赖，语料规模下线性扫描即可在毫秒级返回。</p>
@@ -1206,7 +1146,7 @@ ${crumbs([{ label: '首页', href: '/' }, { label: '关于数据' }])}
   <ul>
     <li>条文级关联由规则抽取，个别“同句推断”的关联可能张冠李戴，条文页已用标签区分，请以原文为准。</li>
     <li>仅收录公开文本，不含地方性法规、部门规章与本平台之外的司法文件（如《关于依法适用正当防卫制度的指导意见》）。</li>
-    <li>人工注解覆盖范围有限（当前 ${db.curatedAnnotations.length} 条），其余条文以自动派生摘要与原文为主。</li>
+    <li>人工注解覆盖范围有限（当前 ${db.curatedAnnotations.length} 条），其余条文以原文与关联的司法解释为主。</li>
     <li>本平台为学习工具，内容不构成法律意见，引用请以官方发布文本为准。</li>
   </ul>
 

@@ -35,7 +35,7 @@ law-study-platform/
 │   ├── regulations/          #   行政法规条文（32 部，一部一文件）
 │   ├── cases/guiding.json    #   指导性案例（278 件）+ manifest.json
 │   ├── cases/gazette.json    #   公报裁判文书（445 件，独立收录、不与条文关联）
-│   ├── annotations/          #   curated.json / derived.json / index.json
+│   ├── annotations/          #   curated.json / index.json
 │   ├── links.json            #   ★ 条文级关联表（2,717 条，合计 3,043 处提及）
 │   ├── rubrics.json          #   条文主旨（条旨，人工撰写的编辑层）
 │   ├── tags.json             #   关联法条索引（文书/案例 → 法名与条号标签）

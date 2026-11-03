@@ -496,10 +496,32 @@ test('检索命中指导性案例时，结果链接走 /case/:id（而不是 /d/
   assert.match(page.body, /class="result-case-title">/, '案例结果应显示案例标题');
 });
 
+test('条文页：司法解释平铺条号与强度，派生摘要和注解内嵌依据已下线', async () => {
+  const r = await html('/d/civil-procedure-law/111');
+  assert.equal(r.status, 200);
+  assert.ok(!r.body.includes('derived-annotation'), '不应再有派生摘要');
+  assert.ok(!r.body.includes('适用规则摘要'), '不应再有机器摘要标题');
+  const sec = r.body.match(/<section class="block interp-block" id="sec-interps">[\s\S]*?<\/section>/);
+  assert.ok(sec, '应有司法解释区');
+  assert.match(sec[0], /<h2>关联的司法解释（\d+ 件 \/ \d+ 处）<\/h2>/);
+  assert.ok(!sec[0].includes('<details'), '司法解释区不应折叠');
+  assert.ok(!sec[0].includes('interp-article-text'), '司法解释区不应铺条文原文');
+  assert.match(sec[0], /<ul class="legend">/, '强度说明并入该区');
+  assert.match(sec[0], /处提及/);
+
+  const annotated = await html('/d/civil-code/585');
+  assert.equal(annotated.status, 200);
+  assert.ok(!annotated.body.includes('basis-card'), '注解内不再列依据条文卡片');
+  assert.ok(!annotated.body.includes('本条注解的依据条文'));
+  const at = (id) => annotated.body.indexOf(`id="${id}"`);
+  assert.ok(at('sec-notes') > 0 && at('sec-interps') > at('sec-notes') && at('sec-cases') > at('sec-interps'), '顺序：疑难注解 → 司法解释 → 指导性案例');
+  assert.match(annotated.body, /<h2>关联的指导性案例（\d+ 件）<\/h2>/);
+});
+
 test('相关指导性案例列表不重复条号；案例页的关联法条用条文正式条号', async () => {
   const article = await html('/d/patent-law/11');
   assert.equal(article.status, 200);
-  const strip = article.body.match(/<h2>相关指导性案例<\/h2>[\s\S]*?<\/section>/);
+  const strip = article.body.match(/<h2>关联的指导性案例（\d+ 件）<\/h2>[\s\S]*?<\/section>/);
   assert.ok(strip, '条文页应有相关指导性案例区');
   assert.ok(strip[0].includes('指导案例 20 号'), '应列出相关指导性案例');
   assert.ok(

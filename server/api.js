@@ -76,8 +76,8 @@ export function handleApi(db, pathname, query) {
   if (m) {
     const article = db.articles.get(decodeURIComponent(m[1]));
     if (!article) return { status: 404, json: { ok: false, error: 'article not found' } };
-    const { curated, derived } = db.annotationsForArticle(article.id);
-    return { status: 200, json: { ok: true, article: stripArticle(article), curated, derived } };
+    const { curated } = db.annotationsForArticle(article.id);
+    return { status: 200, json: { ok: true, article: stripArticle(article), curated } };
   }
 
   if (p === '/gazettes') {
@@ -143,7 +143,7 @@ export function handleApi(db, pathname, query) {
   }
 
   if (p === '/annotations') {
-    let list = [...db.curatedAnnotations, ...db.derivedAnnotations];
+    let list = [...db.curatedAnnotations];
     if (query.source) list = list.filter((a) => a.source === query.source);
     if (query.lawId) list = list.filter((a) => a.lawId === query.lawId);
     if (query.division) list = list.filter((a) => a.division === query.division);

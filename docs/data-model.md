@@ -105,7 +105,7 @@
 ```json
 {
   "id": "ann-civil-code-0585",
-  "source": "curated",                 // curated 人工撰写 | derived 机器派生
+  "source": "curated",                 // 人工撰写；自动派生注解已下线
   "level": "key",                      // key | warning | standard | note
   "topic": "违约金过高/过低的司法调整",
   "question": "约定违约金过高于损失，法院如何调整？",
@@ -130,8 +130,7 @@
 ```
 
 - `curated.json`：**20 条人工注解**（覆盖刑法、民法、商法、民诉的重点难点条文），来自 `data/annotations/curated.mjs`。
-- `derived.json`：**998 条自动派生注解**，由 `links.json` 汇总生成（“本平台有 N 件司法解释、共 M 个条文引用了本条”），用于把关联结果直接呈现到条文页；文案明确标注“机器抽取结果，非人工意见”。
-- `index.json`：**1,018 条**轻量索引（不含正文），供列表页与检索使用。
+- `index.json`：**20 条**轻量索引（不含正文），供列表页与检索使用。
 
 ## `cases/gazette.json` — 《最高人民法院公报》裁判文书
 
