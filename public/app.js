@@ -29,6 +29,34 @@
     });
   })();
 
+  function animateCounts() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    document.querySelectorAll('.hero-stats .stat-value').forEach(function (el) {
+      if (el.dataset.counted) return;
+      var raw = el.textContent.trim();
+      if (!/^\d{1,7}$/.test(raw)) return;
+      var target = Number(raw);
+      if (!target) return;
+      el.dataset.counted = '1';
+      el.textContent = '0';
+      var start = 0;
+      var duration = Math.min(1400, 500 + raw.length * 120);
+      var step = function (now) {
+        if (!start) start = now;
+        var t = Math.min(1, (now - start) / duration);
+        var eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = String(Math.round(target * eased));
+        if (t < 1) requestAnimationFrame(step);
+        else el.textContent = raw;
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', animateCounts);
+  else animateCounts();
+  window.addEventListener('dsh:rendered', animateCounts);
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('.js-copy');
     if (!btn) return;

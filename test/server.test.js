@@ -429,6 +429,11 @@ test('每页右下角有“回到顶部”悬浮按钮（无 JS 时是普通的 
   assert.equal(js.status, 200);
   assert.match(js.body, /querySelector\('\.to-top'\)/, '脚本应接管按钮的显隐');
   assert.ok(!/form\.submit\(\)/.test(js.body), '检索条件改变不应自动提交：只有点“检索”按钮才跳转');
+  assert.match(js.body, /hero-stats \.stat-value/, '首页统计数字应有计数动画');
+  assert.match(js.body, /requestAnimationFrame\(step\)/, '计数动画应逐帧递增');
+  assert.match(js.body, /prefers-reduced-motion/, '计数动画应尊重减少动态偏好');
+  const homeStats = await html('/');
+  assert.equal((homeStats.body.match(/<div class="stat-value">\d+<\/div>/g) || []).length, 6, '首页应有六个统计数字');
 });
 
 test('移动端：窄屏折叠页头与目录树、案例页侧栏折成一列', async () => {

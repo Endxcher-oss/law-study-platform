@@ -52,6 +52,8 @@ test('单文件导出内联全部资源并带上可解压的数据', () => {
   assert.match(html, /class="portable-boot" role="status" aria-live="polite"/, '装载页应带品牌化的状态提示');
   assert.match(html, /正在准备离线站点/, '装载文案应说明正在准备离线站点');
   assert.match(html, /@media \(prefers-reduced-motion: reduce\)/, '装载动画应尊重减少动态偏好');
+  assert.match(html, /dsh:rendered/, '渲染完成后应通知前端挂接动画');
+  assert.match(html, /hero-stats \.stat-value/, '内联脚本应包含首页计数动画');
 
   const encoded = html.match(/id="db-data"[^>]*>([\s\S]*?)<\/script>/)[1].trim();
   const sources = JSON.parse(zlib.gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8'));
@@ -100,6 +102,7 @@ test('打包后的站点在 hash 改变时重新渲染', async () => {
     addEventListener(type, fn) {
       (winListeners[type] ||= []).push(fn);
     },
+    dispatchEvent() {},
   };
   class DOMParserFake {
     parseFromString(source) {

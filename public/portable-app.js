@@ -78,6 +78,7 @@ function draw(db, hash) {
   const body = parsed.body.innerHTML.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/\bhref="\/(?!\/)/g, 'href="#/');
   document.title = parsed.title;
   document.body.innerHTML = body;
+  window.dispatchEvent(new Event('dsh:rendered'));
   const { fragment } = parseHash(hash);
   if (fragment) {
     let target = null;
