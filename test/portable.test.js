@@ -56,6 +56,8 @@ test('单文件导出内联全部资源并带上可解压的数据', () => {
   assert.match(html, /class="boot-caret"/, '标题后应有闪烁光标');
   assert.match(html, /@media \(prefers-reduced-motion: reduce\)/, '装载动画应尊重减少动态偏好');
   assert.match(html, /dsh:rendered/, '渲染完成后应通知前端挂接动画');
+  assert.match(html, /animationName === 'boot-type'/, '打包逻辑应等待标题打字动画播完再替换页面');
+  assert.match(html, /prefers-reduced-motion: reduce/, '减少动态时不应强行等待');
   assert.match(html, /hero-stats \.stat-value/, '内联脚本应包含首页计数动画');
 
   const encoded = html.match(/id="db-data"[^>]*>([\s\S]*?)<\/script>/)[1].trim();

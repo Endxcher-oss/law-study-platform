@@ -63,6 +63,18 @@ export function renderPage(db, hash) {
   return typeof out === 'string' ? { html: out } : out;
 }
 
+function settleBootArt() {
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return Promise.resolve();
+  const title = document.querySelector('.boot-type');
+  if (!title || typeof title.getAnimations !== 'function') return Promise.resolve();
+  const typing = title.getAnimations().find((a) => a.animationName === 'boot-type');
+  if (!typing || typing.playState === 'finished') return Promise.resolve();
+  const finished = new Promise((resolve) => typing.addEventListener('finish', resolve, { once: true }));
+  const timeout = new Promise((resolve) => setTimeout(resolve, 2400));
+  return Promise.race([finished, timeout]).then(() => new Promise((resolve) => setTimeout(resolve, 160)));
+}
+
 async function decodeSources() {
   const script = document.getElementById('db-data');
   const binary = atob(script.textContent.trim());
@@ -106,6 +118,7 @@ export async function boot() {
     return;
   }
 
+  await settleBootArt();
   const routeHash = () => (document.location.hash.startsWith('#/') ? document.location.hash : '#/');
 
   window.addEventListener('hashchange', () => {
