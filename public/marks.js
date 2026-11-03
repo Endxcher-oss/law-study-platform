@@ -249,13 +249,32 @@
     Object.keys(store.marks).forEach(function (id) {
       var m = store.marks[id];
       var key = m.articleId || (m.docId + ':' + m.number);
-      if (!by[key]) {
-        by[key] = { articleId: key, docId: m.docId, law: m.law, number: m.number, slug: m.slug, category: m.category, count: 0, updatedAt: 0 };
+      var row = by[key];
+      if (!row) {
+        row = by[key] = { articleId: key, docId: m.docId, law: m.law, number: m.number, slug: m.slug, category: m.category, count: 0, updatedAt: 0 };
+      } else {
+        ['docId', 'law', 'number', 'slug', 'category'].forEach(function (field) {
+          if (!row[field] && m[field]) row[field] = m[field];
+        });
       }
-      by[key].count += 1;
-      by[key].updatedAt = Math.max(by[key].updatedAt, m.updatedAt || 0);
+      row.count += 1;
+      row.updatedAt = Math.max(row.updatedAt, m.updatedAt || 0);
     });
     return Object.keys(by).map(function (k) { return by[k]; });
+  }
+
+  // 删除拿不到条文链接的记录（早期版本或异常状态留下的空壳）。
+  function pruneMarks(store) {
+    var removed = 0;
+    Object.keys(store.marks).forEach(function (id) {
+      var m = store.marks[id];
+      if (!m || !m.docId || !m.slug) {
+        delete store.marks[id];
+        removed += 1;
+      }
+    });
+    if (removed) save(store);
+    return removed;
   }
 
   function sortMarks(rows, mode) {
@@ -574,6 +593,15 @@
 
   // ---------- 标注页 ----------
 
+  var CATEGORY_CLASS = {
+    '宪法': 'cat-constitution', '法律': 'cat-law', '行政法规': 'cat-regulation',
+    '司法解释': 'cat-interpretation', '指导性案例': 'cat-case', '裁判文书': 'cat-gazette',
+  };
+
+  function catBadge(category) {
+    return '<span class="badge ' + (CATEGORY_CLASS[category] || 'cat-other') + '">' + esc(category || '其他') + '</span>';
+  }
+
   function renderMarksPage() {
     var page = doc.querySelector('[data-marks-page]');
     if (!page) return;
@@ -598,8 +626,9 @@
     head.hidden = false;
     count.textContent = total + ' 处标注 · ' + rows.length + ' 条条文';
     list.innerHTML = sorted.map(function (r) {
-      return '<li class="tag-article"><span class="badge">' + esc(r.category || '条文') + '</span>' +
-        '<a class="tag-article-title" href="' + articleHref(r.docId, r.slug) + '">' + esc(r.law) + ' ' + esc(r.number) + '</a>' +
+      var title = r.law || r.number ? esc(r.law) + ' ' + esc(r.number) : esc(r.docId) + ' 第' + esc(r.slug) + '条';
+      return '<li class="tag-article">' + catBadge(r.category) +
+        '<a class="tag-article-title" href="' + articleHref(r.docId, r.slug) + '">' + title + '</a>' +
         '<span class="tag-article-date">' + r.count + ' 处标注</span></li>';
     }).join('');
   }
@@ -620,6 +649,7 @@
 
   function boot() {
     if (!doc) return;
+    pruneMarks(load());
     initArticle();
     initMarksPage();
     root.addEventListener('dsh:rendered', function () {
@@ -640,6 +670,7 @@
     put: put,
     remove: remove,
     groupMarks: groupMarks,
+    pruneMarks: pruneMarks,
     sortMarks: sortMarks,
     uid: uid,
   };

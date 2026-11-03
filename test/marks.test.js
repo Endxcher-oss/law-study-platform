@@ -80,3 +80,18 @@ test('标注存储：增删、按条文汇总、按标注数与最近修改排�
   assert.equal(api.remove(store, 'm1'), false);
   assert.equal(Object.keys(api.load().marks).length, 2);
 });
+
+test('标注汇总：残缺记录被清理，同一条文的标题从其他标注补齐', () => {
+  const { api, data } = makeApi();
+  const store = api.load();
+  api.put(store, mark(1, '甲', { law: '', number: '', category: '' }));
+  api.put(store, mark(1, '乙', { id: 'm1b' }));
+  api.put(store, { id: 'bad', docId: '', law: '', number: '', slug: '', quote: 'x', body: '' });
+  assert.equal(api.pruneMarks(api.load()), 1);
+  assert.equal(Object.keys(api.load().marks).length, 2);
+  assert.equal(data.has(api.KEY), true);
+  const rows = api.groupMarks(api.load());
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].law, '民法典');
+  assert.equal(rows[0].count, 2);
+});
