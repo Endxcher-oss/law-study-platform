@@ -52,7 +52,7 @@ test('单文件导出内联全部资源并带上可解压的数据', () => {
   assert.match(html, /class="portable-boot" role="status" aria-live="polite"/, '装载页应带品牌化的状态提示');
   assert.match(html, /正在准备离线站点/, '装载文案应说明正在准备离线站点');
   assert.match(html, /class="boot-type">法律学习平台</, '标题应逐字出现');
-  assert.match(html, /@keyframes boot-type \{ from \{ clip-path: inset\(0 100% 0 0\);/, '标题应做打字机式揭示');
+  assert.match(html, /@keyframes boot-type \{ from \{ width: 0; \} to \{ width: calc\(6em \+ 3px\); \} \}/, '标题应按字数逐步展开，光标随文字移动');
   assert.match(html, /class="boot-caret"/, '标题后应有闪烁光标');
   assert.match(html, /@media \(prefers-reduced-motion: reduce\)/, '装载动画应尊重减少动态偏好');
   assert.match(html, /dsh:rendered/, '渲染完成后应通知前端挂接动画');
