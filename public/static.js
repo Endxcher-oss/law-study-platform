@@ -9,7 +9,7 @@ import { rebaseHtml } from './static-url.js';
 
 const BASE = document.body.dataset.base || '';
 const PAGE_SIZE = 20;
-const SCOPES = ['q', 'page', 'scope', 'type', 'sort', 'doc', 'annotated', 'gazette'];
+const SCOPES = ['q', 'page', 'scope', 'sort', 'doc', 'annotated', 'gazette'];
 
 const metaEl = document.querySelector('.result-meta');
 const resultsEl = document.querySelector('.results');
@@ -27,9 +27,7 @@ function init() {
 function syncForm(p) {
   for (const box of document.querySelectorAll('input[name=q]')) box.value = p.q;
   const scopes = p.gazette ? [] : p.scope;
-  const types = p.gazette ? [] : p.type;
   for (const el of document.querySelectorAll('.search-form input[name=scope]')) el.checked = scopes.includes(el.value);
-  for (const el of document.querySelectorAll('.search-form input[name=type]')) el.checked = types.includes(el.value);
   const set = (name, value) => {
     const el = document.querySelector(`.search-form [name=${name}]`);
     if (el) el.value = value;
@@ -42,7 +40,7 @@ function syncForm(p) {
   check('annotated', p.annotated);
   check('gazette', p.gazette);
   if (p.gazette) {
-    for (const el of document.querySelectorAll('.search-form input[name=scope], .search-form input[name=type], .search-form input[name=annotated]')) el.disabled = true;
+    for (const el of document.querySelectorAll('.search-form input[name=scope], .search-form input[name=annotated]')) el.disabled = true;
   }
 }
 
@@ -56,7 +54,6 @@ function readParams() {
   return {
     q: sp.get('q') || '',
     scope: list('scope'),
-    type: list('type'),
     sort: sp.get('sort') || 'relevance',
     doc: sp.get('doc') || null,
     page: Math.max(1, Number(sp.get('page')) || 1),
@@ -147,11 +144,9 @@ async function run(p) {
     return;
   }
   const scopes = p.gazette ? [] : p.scope;
-  const types = p.gazette ? [] : p.type;
   const res = runSearch(db, {
     q: p.q,
     scope: scopes,
-    type: types,
     sort: p.sort,
     docId: p.doc,
     page: p.page,
@@ -176,7 +171,7 @@ async function run(p) {
       }</div>`
     : '';
 
-  const params = { q: p.q, scope: scopes, type: types, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
+  const params = { q: p.q, scope: scopes, sort: p.sort, doc: p.doc, annotated: p.annotated ? 1 : '', gazette: p.gazette ? 1 : '' };
   const url = (patch) => searchUrl({ ...params, page: 1, ...patch });
   const html = `
 ${direct}

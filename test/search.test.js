@@ -104,9 +104,17 @@ test('分页：不重不漏，越界返回空', () => {
 });
 
 test('无查询词时按排序浏览全库', () => {
-  const res = search(db, { q: '', sort: 'hierarchy', pageSize: 5 });
+  const res = search(db, { q: '', sort: 'hierarchy', pageSize: 30 });
   assert.ok(res.total > 1000, '空查询应能浏览整个语料');
-  assert.equal(res.items.length, 5);
+  assert.equal(res.items.length, 30);
+  const rank = { 宪法: 0, 法律: 1, 行政法规: 2, 司法解释: 3 };
+  const ranks = res.items.map((i) => rank[i.category] ?? 4);
+  for (let i = 1; i < ranks.length; i += 1) assert.ok(ranks[i] >= ranks[i - 1], '浏览模式也应按层级排序');
+
+  const desc = search(db, { q: '', sort: 'date_desc', pageSize: 20 });
+  const dates = desc.items.map((i) => i.promulgationDate || '').filter(Boolean);
+  assert.ok(dates.length > 1, '浏览模式应能按时间排序');
+  for (let i = 1; i < dates.length; i += 1) assert.ok(dates[i] <= dates[i - 1], '浏览模式的时间倒序应单调不增');
 });
 
 test('高亮把命中词包进 mark', () => {

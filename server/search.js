@@ -353,7 +353,7 @@ export function search(db, opts = {}) {
     annot: (a, b) => (b.rec.hasAnnotation ? 1 : 0) - (a.rec.hasAnnotation ? 1 : 0) || b.score - a.score,
   }[sort] || ((a, b) => b.score - a.score);
 
-  const sorted = hasQuery ? filtered.sort(cmp) : filtered;
+  const sorted = filtered.sort(cmp);
 
   const total = sorted.length;
   const start = (page - 1) * pageSize;
