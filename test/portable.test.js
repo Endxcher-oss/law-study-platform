@@ -49,6 +49,9 @@ test('单文件导出内联全部资源并带上可解压的数据', () => {
   assert.doesNotMatch(head, /<link[^>]+stylesheet/);
   assert.doesNotMatch(head, /<script src=/);
   assert.match(html, /__req\("public\/portable-app"\)\.boot\(\)/);
+  assert.match(html, /class="portable-boot" role="status" aria-live="polite"/, '装载页应带品牌化的状态提示');
+  assert.match(html, /正在准备离线站点/, '装载文案应说明正在准备离线站点');
+  assert.match(html, /@media \(prefers-reduced-motion: reduce\)/, '装载动画应尊重减少动态偏好');
 
   const encoded = html.match(/id="db-data"[^>]*>([\s\S]*?)<\/script>/)[1].trim();
   const sources = JSON.parse(zlib.gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8'));

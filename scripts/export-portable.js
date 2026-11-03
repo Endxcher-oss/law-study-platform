@@ -200,13 +200,27 @@ function main() {
 <title>法律学习平台</title>
 <style>
 ${css}
+.portable-boot { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+.portable-boot .brand-mark { width: 44px; height: 44px; font-size: 24px; border-radius: 10px; }
+.portable-boot-title { margin: 0; font-family: var(--serif); font-size: 20px; letter-spacing: .5px; }
+.portable-boot-note { margin: 0; color: var(--ink-muted); font-size: 14px; }
+.boot-dots { display: inline-flex; gap: 2px; margin-left: 2px; }
+.boot-dots i { font-style: normal; animation: boot-dot 1.2s ease-in-out infinite; }
+.boot-dots i:nth-child(2) { animation-delay: .15s; }
+.boot-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes boot-dot { 0%, 60%, 100% { opacity: .15; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .boot-dots i { animation: none; opacity: .6; } }
 </style>
 <script>
 ${app.replace(/<\/script/gi, '<\\/script')}
 </script>
 </head>
 <body>
-<p class="empty">正在装载数据……</p>
+<div class="portable-boot" role="status" aria-live="polite">
+  <span class="brand-mark" aria-hidden="true">法</span>
+  <p class="portable-boot-title">法律学习平台</p>
+  <p class="portable-boot-note">正在准备离线站点<span class="boot-dots" aria-hidden="true"><i>·</i><i>·</i><i>·</i></span></p>
+</div>
 <script id="db-data" type="application/gzip-base64">${data}</script>
 <script>
 ${bundle.replace(/<\/script/gi, '<\\/script')}
