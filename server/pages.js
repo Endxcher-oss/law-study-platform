@@ -1167,13 +1167,15 @@ npm test        # 运行检索与关联的单元测试</pre>
 
 export function tagsPage(db) {
   const meta = metaFromDb(db);
+  const categories = {};
+  for (const d of db.docs.values()) categories[d.id] = d.category;
   const body = `
 ${crumbs([{ href: '/', label: '首页' }, { href: '/tags', label: '标签' }])}
 <section class="page-head">
   <h1>标签</h1>
 </section>
 
-<section class="block tag-page" data-tags-page>
+<section class="block tag-page" data-tags-page data-categories="${esc(JSON.stringify(categories))}">
   <div class="tag-cloud" data-tag-cloud></div>
   <p class="empty" data-tag-empty hidden>还没有标签。在任一条文页右侧点“添加标签”即可创建。</p>
   <div class="tag-list-head">

@@ -293,6 +293,16 @@
     if (addBtn) addBtn.hidden = false;
   }
 
+  var pageCategories = null;
+  function categoryOf(e) {
+    if (e.category) return e.category;
+    if (!pageCategories) {
+      var page = document.querySelector('[data-tags-page]');
+      try { pageCategories = page && page.dataset.categories ? JSON.parse(page.dataset.categories) : {}; } catch (err) { pageCategories = {}; }
+    }
+    return pageCategories[e.docId] || '';
+  }
+
   function renderTagsPage() {
     var page = document.querySelector('[data-tags-page]');
     if (!page) return;
@@ -324,7 +334,7 @@
       list.innerHTML = shown
         .map(function (e) {
           return (
-            '<li class="tag-article">' + categoryBadge(e.category) +
+            '<li class="tag-article">' + categoryBadge(categoryOf(e)) +
             '<a class="tag-article-title" href="' + articleHref(e) + '">' + esc(e.law) + ' ' + esc(e.number) + '</a>' +
             '<span class="tag-article-date">' + esc(formatTime(e.updatedAt)) + '</span>' +
             '<span class="tag-chips">' + e.tags.map(function (t) { return '<span class="chip is-static">' + esc(t.name) + '</span>'; }).join('') + '</span></li>'
