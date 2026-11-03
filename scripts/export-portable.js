@@ -203,13 +203,17 @@ ${css}
 .portable-boot { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; background: var(--bg); color: var(--ink); font-family: var(--sans); }
 .portable-boot .brand-mark { width: 44px; height: 44px; font-size: 24px; border-radius: 10px; }
 .portable-boot-title { margin: 0; font-family: var(--serif); font-size: 20px; letter-spacing: .5px; }
+.boot-type { display: inline-block; overflow: hidden; vertical-align: bottom; white-space: nowrap; animation: boot-type 1.1s steps(6, end) .12s both; }
+.boot-caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 3px; vertical-align: bottom; background: var(--accent); animation: boot-caret .9s step-end infinite; }
+@keyframes boot-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes boot-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .portable-boot-note { margin: 0; color: var(--ink-muted); font-size: 14px; }
 .boot-dots { display: inline-flex; gap: 2px; margin-left: 2px; }
 .boot-dots i { font-style: normal; animation: boot-dot 1.2s ease-in-out infinite; }
 .boot-dots i:nth-child(2) { animation-delay: .15s; }
 .boot-dots i:nth-child(3) { animation-delay: .3s; }
 @keyframes boot-dot { 0%, 60%, 100% { opacity: .15; } 30% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .boot-dots i { animation: none; opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { .boot-dots i, .boot-caret { animation: none; opacity: .6; } .boot-type { animation: none; clip-path: none; } }
 </style>
 <script>
 ${app.replace(/<\/script/gi, '<\\/script')}
@@ -218,7 +222,7 @@ ${app.replace(/<\/script/gi, '<\\/script')}
 <body>
 <div class="portable-boot" role="status" aria-live="polite">
   <span class="brand-mark" aria-hidden="true">法</span>
-  <p class="portable-boot-title">法律学习平台</p>
+  <p class="portable-boot-title"><span class="boot-type">法律学习平台</span><span class="boot-caret" aria-hidden="true"></span></p>
   <p class="portable-boot-note">正在准备离线站点<span class="boot-dots" aria-hidden="true"><i>·</i><i>·</i><i>·</i></span></p>
 </div>
 <script id="db-data" type="application/gzip-base64">${data}</script>
