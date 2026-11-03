@@ -225,21 +225,19 @@
       var pt = p.textContent;
       var lineEnd = lineStart + pt.length;
       var local = merged.filter(function (s) { return s.end > lineStart && s.start < lineEnd; });
-      if (local.length) {
-        var out = '';
-        var pos = 0;
-        local.forEach(function (s) {
-          var a = Math.max(0, s.start - lineStart);
-          var b = Math.min(pt.length, s.end - lineStart);
-          if (b <= pos) return;
-          a = Math.max(a, pos);
-          out += esc(pt.slice(pos, a));
-          out += '<mark class="user-mark" data-mark-id="' + s.ids[0] + '" data-mark-ids="' + s.ids.join(',') + '">' + esc(pt.slice(a, b)) + '</mark>';
-          pos = b;
-        });
-        out += esc(pt.slice(pos));
-        p.innerHTML = out;
-      }
+      var out = '';
+      var pos = 0;
+      local.forEach(function (s) {
+        var a = Math.max(0, s.start - lineStart);
+        var b = Math.min(pt.length, s.end - lineStart);
+        if (b <= pos) return;
+        a = Math.max(a, pos);
+        out += esc(pt.slice(pos, a));
+        out += '<mark class="user-mark" data-mark-id="' + s.ids[0] + '" data-mark-ids="' + s.ids.join(',') + '">' + esc(pt.slice(a, b)) + '</mark>';
+        pos = b;
+      });
+      out += esc(pt.slice(pos));
+      p.innerHTML = out;
       lineStart = lineEnd;
     });
   }
@@ -427,15 +425,6 @@
     if (saveTimer) { root.clearTimeout(saveTimer); saveTimer = null; }
     var body = serialize(editor).trim();
     var store = load();
-    if (!body) {
-      if (current.mark.id) {
-        remove(store, current.mark.id);
-        current.mark = {};
-        setStatus('已删除空标注');
-        refreshPage();
-      }
-      return;
-    }
     var m = current.mark;
     if (!m.id) {
       m.id = uid();
@@ -445,16 +434,18 @@
     m.updatedAt = Date.now();
     put(store, m);
     current.mark = m;
-    setStatus('已自动保存');
+    setStatus(body ? '已自动保存' : '空标注，仍会高亮');
     refreshPage();
   }
 
   function deleteCurrent() {
-    if (!current || !current.mark.id) { closeEditor(); return; }
+    if (saveTimer) { root.clearTimeout(saveTimer); saveTimer = null; }
+    if (!current) { if (win) win.hidden = true; return; }
     var store = load();
-    remove(store, current.mark.id);
-    current.mark = {};
-    closeEditor();
+    if (current.mark.id) remove(store, current.mark.id);
+    current = null;
+    if (win) { win.hidden = true; win.classList.remove('is-focused'); }
+    refreshPage();
   }
 
   function closeEditor() {
@@ -556,12 +547,16 @@
       if (!selectionInfo(el)) return;
       var hit = selectionInfo(el);
       var ctx = articleContext(el);
-      openEditor({
+      var mark = {
+        id: uid(),
         articleId: ctx.articleId, docId: ctx.docId, law: ctx.law, number: ctx.number,
         slug: ctx.slug, date: ctx.date, category: ctx.category,
         quote: hit.quote, prefix: hit.prefix, suffix: hit.suffix, start: hit.start, end: hit.end,
-        body: '',
-      }, hit.rect);
+        body: '', createdAt: Date.now(), updatedAt: Date.now(),
+      };
+      put(load(), mark);
+      refreshArticle(el);
+      openEditor(mark, hit.rect);
     });
 
     el.addEventListener('click', function (e) {
@@ -577,7 +572,7 @@
     refreshArticle(el);
   }
 
-  // ---------- 标记页 ----------
+  // ---------- 标注页 ----------
 
   function renderMarksPage() {
     var page = doc.querySelector('[data-marks-page]');
