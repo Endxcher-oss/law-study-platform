@@ -52,7 +52,7 @@ const json = async (p) => {
 };
 
 test('首页与导航页可访问', async () => {
-  for (const p of ['/', '/classifications', '/cases', '/notes', '/tags', '/about']) {
+  for (const p of ['/', '/classifications', '/cases', '/notes', '/tags', '/marks', '/about']) {
     const r = await html(p);
     assert.equal(r.status, 200, `${p} 返回 ${r.status}`);
     assert.match(r.type, /text\/html/);
@@ -571,13 +571,13 @@ test('标签页：标签集合与排序控件就位，条文页右侧有标签�
   assert.ok(article.body.includes('data-tag-add'), '标签区块缺少添加按钮');
 });
 
-test('标记页：只列条文与标注处数，条文页给铅笔入口', async () => {
+test('标注页：只列条文与标注处数，条文页给铅笔入口', async () => {
   const page = await html('/marks');
   assert.equal(page.status, 200);
-  assert.ok(page.body.includes('data-marks-page'), '标记页缺少客户端挂载点');
+  assert.ok(page.body.includes('data-marks-page'), '标注页缺少客户端挂载点');
   assert.match(page.body, /<option value="count" selected>标注数<\/option>/, '默认按标注数排序');
-  assert.ok(page.body.includes('data-marks-list') && page.body.includes('data-marks-empty'), '标记页缺少列表或空状态');
-  assert.ok(page.body.includes('src="/assets/marks.js"'), '标记页应加载标注脚本');
+  assert.ok(page.body.includes('data-marks-list') && page.body.includes('data-marks-empty'), '标注页缺少列表或空状态');
+  assert.ok(page.body.includes('src="/assets/marks.js"'), '标注页应加载标注脚本');
 
   const article = await html('/d/civil-code/585');
   assert.equal(article.status, 200);
@@ -589,7 +589,7 @@ test('裁判文书：导航位于“指导性案例”与“关于数据”之�
   const home = await html('/');
   const nav = home.body.slice(home.body.indexOf('site-nav'), home.body.indexOf('</nav>'));
   const order = [...nav.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]);
-  assert.deepEqual(order, ['首页', '分类', '疑难注解', '指导性案例', '裁判文书', '标签', '标记', '关于数据'], '顶部导航顺序');
+  assert.deepEqual(order, ['首页', '分类', '疑难注解', '指导性案例', '裁判文书', '标签', '标注', '关于数据'], '顶部导航顺序');
 
   const list = await html('/gazettes');
   assert.equal(list.status, 200);

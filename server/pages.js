@@ -1116,9 +1116,9 @@ export function marksPage(db) {
   const categories = {};
   for (const d of db.docs.values()) categories[d.id] = d.category;
   const body = `
-${crumbs([{ href: '/', label: '首页' }, { href: '/marks', label: '标记' }])}
+${crumbs([{ href: '/', label: '首页' }, { href: '/marks', label: '标注' }])}
 <section class="page-head">
-  <h1>标记</h1>
+  <h1>标注</h1>
 </section>
 
 <section class="block mark-page" data-marks-page data-categories="${esc(JSON.stringify(categories))}">
@@ -1135,7 +1135,7 @@ ${crumbs([{ href: '/', label: '首页' }, { href: '/marks', label: '标记' }])}
   <ul class="tag-articles" data-marks-list></ul>
 </section>
 `;
-  return layout({ title: '标记', body, meta, activeNav: 'marks' });
+  return layout({ title: '标注', body, meta, activeNav: 'marks' });
 }
 
 export function aboutPage(db) {

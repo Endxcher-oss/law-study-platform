@@ -85,7 +85,7 @@ export function layout({ title, body, meta = {}, searchBar = null, breadcrumbs =
     { href: '/cases', label: '指导性案例', key: 'cases' },
     { href: '/gazettes', label: '裁判文书', key: 'gazettes' },
     { href: '/tags', label: '标签', key: 'tags' },
-    { href: '/marks', label: '标记', key: 'marks' },
+    { href: '/marks', label: '标注', key: 'marks' },
     { href: '/about', label: '关于数据', key: 'about' },
   ]
     .map((n) => `<a href="${n.href}" class="nav-link${activeNav === n.key ? ' is-active' : ''}">${n.label}</a>`)
